@@ -1,12 +1,5 @@
 # Build a smart Contrat
 
-| Status     | Draft      |
-| ---------- | ---------- |
-| Owner      | ‣          |
-| Versions   | 2022/09/27 |
-| Creation   |
-| Last check | Never      |
-
 # Commands
 
 To initialize a new Smart Contract project, you must execute the following command:
@@ -61,6 +54,17 @@ Therefore, if you need to interact with the Massa ledger or if you need one of t
 
 In complement with the massa-as-sdk you will need to incorporate @massalabs/as, this repo inlcudes the MassaLabs assemblyscript native implementations
 
+## Librairies
+
+To use librairies as massa-as-sdk and @massalabs/as you need to import the exporting file, for instance :
+
+```jsx
+import { generateEvent } from "@massalabs/massa-as-sdk/assembly/index";
+export function HelloWorld(): void {
+  generateEvent(`Hello World`);
+
+```
+
 # How to …
 
 ## test the procedure?
@@ -102,7 +106,7 @@ You can use this transformer by adding --transform massalabs/as/transformer/file
 For instance, to compile assembly/my_sc.ts with this transformer you will execute:
 
 ```jsx
-yarn asc --transform massalabs/as/transformer/file2base64.js assembly/my_sc.ts --target release --exportRuntime -o build/my_sc.wasm
+yarn asc --transform as/transformer/file2base64.js assembly/my_sc.ts --target release --exportRuntime -o build/my_sc.wasm
 ```
 
 If you want to export wat files in order to check what is inside your compiled contract you can add
@@ -112,7 +116,9 @@ If you want to export wat files in order to check what is inside your compiled c
 for instance for the same exemple
 
 ```jsx
-yarn asc --transform massalabs/as/transformer/file2base64.js assembly/my_sc.ts --target release --exportRuntime -o build/my_sc.wasm -t build/my_sc.wat
+yarn asc --transform as/transformer/file2base64.js assembly/my_sc.ts --target release --exportRuntime -o build/my_sc.wasm -t build/my_sc.wat
 ```
 
 will export .d.ts, .js, .wasm, .map.wasm, .wat
+
+###
