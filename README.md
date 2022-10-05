@@ -6,7 +6,7 @@ To initialize a new Smart Contract project, you must execute the following comma
 
 ```bash
 npm init
-npm install --save-dev assemblyscript @massalabs/massa-as-sdk @massalabs/as
+npm install --save-dev assemblyscript @massalabs/massa-as-sdk https://github.com/massalabs/as
 npx asinit .
 ```
 
