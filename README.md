@@ -1,4 +1,4 @@
-# Build a smart Contrat
+# Build a smart contract
 
 # Commands
 
@@ -6,7 +6,7 @@ To initialize a new Smart Contract project, you must execute the following comma
 
 ```bash
 npm init
-npm install --save-dev assemblyscript @massalabs/massa-as-sdk @massalabs/as https://gitpkg.now.sh/massalabs/as/transformer?591c682ad20b1e6ad82490d705397fe4163365e7
+npm install --save-dev assemblyscript @massalabs/massa-as-sdk @massalabs/as
 npx asinit .
 ```
 
@@ -54,7 +54,7 @@ Therefore, if you need to interact with the Massa ledger or if you need one of t
 
 In complement with the massa-as-sdk you will need to incorporate @massalabs/as, this repo inlcudes the MassaLabs assemblyscript native implementations
 
-## Librairies
+### Librairies
 
 To use librairies as massa-as-sdk and @massalabs/as you need to import the exporting file, for instance :
 
@@ -77,11 +77,17 @@ To test the procedure, you need to follow the next steps:
 4. Generate the Wasm file executing `npm run asbuild`
 5. Check that there is no error message and that the wasm files exist in the build directory.
 
-## Include another smart contract inside smart contract ?
+## Include another smart contract inside a smart contract ?
 
 If you want for instance to create a smart contract factory you will need to include another compiled smart contract in your smart contract.
 
-To do that you will need the file2base64.js file inside the dependency massalabs/as/transformer
+To do that you will need the file2base64.js file inside the dependency transfomer
+
+to install it :
+
+```jsx
+npm i --save-dev https://gitpkg.now.sh/massalabs/as/transformer?591c682ad20b1e6ad82490d705397fe4163365e7
+```
 
 ### Transformations
 
@@ -101,7 +107,7 @@ export function main(_args: string): i32 {
 
 **Usage**
 
-You can use this transformer by adding --transform massalabs/as/transformer/file2base64.js to your asc command.
+You can use this transformer by adding --transform transformer/file2base64.js to your asc command.
 
 For instance, to compile assembly/my_sc.ts with this transformer you will execute:
 
