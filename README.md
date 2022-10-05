@@ -62,7 +62,7 @@ To use librairies as massa-as-sdk and @massalabs/as you need to import the expor
 import { generateEvent } from "@massalabs/massa-as-sdk/assembly/index";
 export function HelloWorld(): void {
   generateEvent(`Hello World`);
-
+}
 ```
 
 # How to …
