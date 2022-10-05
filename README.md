@@ -113,12 +113,10 @@ If you want to export wat files in order to check what is inside your compiled c
 
 -t to specifies the WebAssembly text output file (.wat).
 
-for instance for the same exemple
+for instance for the same example
 
 ```jsx
 yarn asc --transform transformer/file2base64.js assembly/my_sc.ts --target release --exportRuntime -o build/my_sc.wasm -t build/my_sc.wat
 ```
-
-will export .d.ts, .js, .wasm, .map.wasm, .wat
 
 ###
