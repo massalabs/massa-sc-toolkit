@@ -6,7 +6,7 @@ To initialize a new Smart Contract project, you must execute the following comma
 
 ```bash
 npm init
-npm install --save-dev assemblyscript @massalabs/massa-as-sdk https://github.com/massalabs/as
+npm install --save-dev assemblyscript @massalabs/massa-as-sdk @massalabs/as https://gitpkg.now.sh/massalabs/as/transformer?591c682ad20b1e6ad82490d705397fe4163365e7
 npx asinit .
 ```
 
@@ -106,7 +106,7 @@ You can use this transformer by adding --transform massalabs/as/transformer/file
 For instance, to compile assembly/my_sc.ts with this transformer you will execute:
 
 ```jsx
-yarn asc --transform as/transformer/file2base64.js assembly/my_sc.ts --target release --exportRuntime -o build/my_sc.wasm
+yarn asc --transform transformer/file2base64.js assembly/my_sc.ts --target release --exportRuntime -o build/my_sc.wasm
 ```
 
 If you want to export wat files in order to check what is inside your compiled contract you can add
@@ -116,7 +116,7 @@ If you want to export wat files in order to check what is inside your compiled c
 for instance for the same exemple
 
 ```jsx
-yarn asc --transform as/transformer/file2base64.js assembly/my_sc.ts --target release --exportRuntime -o build/my_sc.wasm -t build/my_sc.wat
+yarn asc --transform transformer/file2base64.js assembly/my_sc.ts --target release --exportRuntime -o build/my_sc.wasm -t build/my_sc.wat
 ```
 
 will export .d.ts, .js, .wasm, .map.wasm, .wat
