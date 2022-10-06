@@ -18,6 +18,10 @@ yargs.scriptName("massa-sc-toolkit")
     }, function (argv) {
         initialize(argv.name)
     })
+    .demandCommand()
+    .recommendCommands()
+    .strict()
+    .showHelpOnFail(true)
     .help()
     .alias('h', 'help')
     .argv;
