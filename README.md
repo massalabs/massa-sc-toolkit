@@ -5,12 +5,15 @@ This toolkit is meant to facilitate smart contract development.
 PREREQUISITES :
 - Node.js installed on your computer
 - NPM installed on your computer
+- Install script of massa-sc-toolkit
 
 1. Repository Initialisation
 
-Type this command in an empty repository where you wish to develop your smart contracts :
+Download install.js script from our Github project's page and place it in an empty repository
 
-`npx -p assemblyscript -c "npm install --save-dev assemblyscript @massalabs/massa-as-sdk | asinit . && rm -r tests/ index.html"`
+Type this command :
+
+`node install.js`
 
 You now have your own AssemblyScript project setup, with Massa's sdk installed.
 
