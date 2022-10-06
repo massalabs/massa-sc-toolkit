@@ -37,7 +37,6 @@ The best maintained remains nowadays ESLint
     }
     ```
 
-    Keep in mind that a lot of false positives will remains undetected by ESLint such as :
-
-    -   Closures
-    -   Spreads
+Keep in mind that a lot of false positives will remains undetected by ESLint such as :
+-   Closures
+-   Spreads
