@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 "use strict";
 
-import { initialize } from './initialize';
+import { initialize } from './initialize.js';
 
 const yargs = require('yargs')
     .scriptName("massa-sc-toolkit")
