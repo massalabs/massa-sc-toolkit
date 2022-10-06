@@ -1,0 +1,101 @@
+[
+	{
+		"slot": {
+			"period": 0,
+			"thread": 0
+		},
+		"execution_steps": [
+			{
+				"name": "setup_initial_address",
+				"config": {
+					"type": "write_ledger_entry",
+					"address": "X6Jqk749Dk8=",
+					"balance": 789000
+				}
+			},
+			{
+				"name": "execute_main",
+				"config": {
+					"type": "execute_sc",
+					"path": "../massa-sc-examples/async-calls/build/main.wasm",
+					"function": "main",
+					"parameter": "",
+					"gas": 100000,
+					"call_stack": [
+						{
+							"address": "X6Jqk749Dk8=",
+							"coins": 100
+						}
+					]
+				}
+			},
+			{
+				"name": "call_function",
+				"config": {
+					"type": "call_sc",
+					"address": "yvgsOkbC54I=",
+					"function": "receive_and_send",
+					"parameter": "test",
+					"gas": 100000,
+					"call_stack": [
+						{
+							"address": "X6Jqk749Dk8=",
+							"coins": 100
+						}
+					]
+				}
+			},
+			{
+				"name": "read_events_after_execution",
+				"config": {
+					"type": "read_events",
+					"start": {
+						"period": 0,
+						"thread": 0
+					},
+					"end": {
+						"period": 4,
+						"thread": 16
+					}
+				}
+			},
+			{
+				"name": "read_main_address_ledger_entry",
+				"config": {
+					"type": "read_ledger_entry",
+					"address": "X6Jqk749Dk8="
+				}
+			},
+			{
+				"name": "write_new_random_async_message",
+				"config": {
+					"type": "write_async_message",
+					"sender_address": "X6Jqk749Dk8=",
+					"target_address": "yvgsOkbC54I=",
+					"target_handler": "receive_and_send",
+					"execution_slot": {
+						"period": 2,
+						"thread": 6
+					},
+					"gas": 100000,
+					"coins": 100,
+					"data": "hello from the otherside"
+				}
+			},
+			{
+				"name": "read_all_messages_after_steps",
+				"config": {
+					"type": "read_async_messages",
+					"start": {
+						"period": 0,
+						"thread": 0
+					},
+					"end": {
+						"period": 8,
+						"thread": 12
+					}
+				}
+			}
+		]
+	}
+]
