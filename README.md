@@ -67,7 +67,7 @@ You can use this transformer by adding --transform transformer/file2base64.js to
 For instance, to compile assembly/my_sc.ts with this transformer you will execute:
 
 ```jsx
-yarn asc --transform transformer/file2base64.js assembly/my_sc.ts --target release --exportRuntime -o build/my_sc.wasm
+npx asc --transform transformer/file2base64.js assembly/my_sc.ts --target release --exportRuntime -o build/my_sc.wasm
 ```
 
 If you want to export wat files in order to check what is inside your compiled contract you can add
@@ -77,7 +77,7 @@ If you want to export wat files in order to check what is inside your compiled c
 for instance for the same example
 
 ```jsx
-yarn asc --transform transformer/file2base64.js assembly/my_sc.ts --target release --exportRuntime -o build/my_sc.wasm -t build/my_sc.wat
+npx asc --transform transformer/file2base64.js assembly/my_sc.ts --target release --exportRuntime -o build/my_sc.wasm -t build/my_sc.wat
 ```
 
 ###
