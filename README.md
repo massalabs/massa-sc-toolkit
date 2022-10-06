@@ -20,10 +20,10 @@ You now have your own AssemblyScript project setup, with Massa's sdk installed.
 
 You can now run `npm run asbuild` to compile your AssemblyScript files.
 
-To use librairies as massa-as-sdk and @massalabs/as you need to import the exporting file, for instance :
+To use librairies as massa-as-sdk and @massalabs/as you need to import the required function, for instance :
 
 ```jsx
-import { generateEvent } from "@massalabs/massa-as-sdk/assembly/index";
+import { generateEvent } from "@massalabs/massa-as-sdk";
 export function HelloWorld(): void {
   generateEvent(`Hello World`);
 }
