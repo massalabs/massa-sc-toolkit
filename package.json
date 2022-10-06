@@ -14,10 +14,13 @@
   "author": "",
   "license": "ISC",
   "bin": {
-    "init": "./cli.js"
+    "toolkit": "./cli.js"
   },
   "bugs": {
     "url": "https://github.com/massalabs/massa-sc-toolkit/issues"
   },
-  "homepage": "https://github.com/massalabs/massa-sc-toolkit#readme"
+  "homepage": "https://github.com/massalabs/massa-sc-toolkit#readme",
+  "dependencies": {
+    "yargs": "^17.6.0"
+  }
 }

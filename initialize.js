@@ -1,7 +1,7 @@
 "use strict";
 
-const { execSync } = require('child_process');
-const fs = require('fs');
+import { execSync } from 'child_process';
+import * as fs from 'fs';
 
 const DEV_DEPENDENCIES = ["assemblyscript", "@massalabs/massa-as-sdk"];
 

@@ -3,10 +3,13 @@
 
 import { initialize } from './initialize.js';
 
-const yargs = require('yargs')
-    .scriptName("massa-sc-toolkit")
+import _yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
+const yargs = _yargs(hideBin(process.argv));
+
+yargs.scriptName("massa-sc-toolkit")
     .usage('$0 [args]')
-    .command('[name]', 'Intialize a new Massa Smart Contract project.', (yargs) => {
+    .command('init [name]', 'Intialize a new Massa Smart Contract project.', (yargs) => {
         yargs.positional('name', {
             type: 'string',
             default: 'test',
