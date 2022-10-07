@@ -19,7 +19,7 @@ It provides :
     -   List all steps to be executed by the simulator (full example at https://github.com/massalabs/massa-sc-tester/blob/main/execution_config.json to know all examples )
     -   Can read & execute `.wasm` smart contracts
 
--   A `trace.json` file overrided at each execution :
+-   A `trace.json` file overriden at each execution :
 
     -   Log smart contract events
     -   Log transaction information
