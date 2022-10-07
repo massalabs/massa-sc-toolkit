@@ -13,7 +13,7 @@ It provides :
     -   can be initialized by any mock
     -   will be modified after execution
 
--   An execution `.json` ("execution.config.json") :
+-   An execution `.json` ("execution.config.json") file :
 
     -   Consumed by the `massa-sc-tester.exe`
     -   List all steps to be executed by the simulator (full example at https://github.com/massalabs/massa-sc-tester/blob/main/execution_config.json to know all examples )
@@ -24,8 +24,8 @@ It provides :
     -   Log smart contract events
     -   Log transaction information
 
-    To run a simulation :
+    To run the steps detailed in the `execution_config.json` :
 
     ```
-    $ ./massa-sc-tester.exe execution_config.json
+    $ node simulate.js
     ```
