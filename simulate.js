@@ -7,7 +7,7 @@ switch (process.platform) {
 		cmd = 'massa-sc-tester.exe execution_config.json';
 		break;
 	case 'darwin':
-		cmd = 'massa-sc-tester execution_config.json';
+		cmd = 'chmod +x massa-sc-tester && ./massa-sc-tester execution_config.json';
 		break;
 	default:
 		console.error(`OS not supported`);
