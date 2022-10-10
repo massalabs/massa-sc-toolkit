@@ -13,3 +13,5 @@ switch (process.platform) {
 		console.error(`OS not supported`);
 }
 execSync(cmd);
+
+console.log('Simulation successfully executed');
