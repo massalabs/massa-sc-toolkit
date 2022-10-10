@@ -11,6 +11,8 @@ const DEV_DEPENDENCIES = [
     "@typescript-eslint/eslint-plugin@latest",
     "@typescript-eslint/parser@latest",
     "eslint@latest",
+    "@massalabs/as/assembly",
+    "https://gitpkg.now.sh/massalabs/as/transformer?main",
 ];
 
 export function initialize(directory) {
