@@ -14,7 +14,7 @@ const DEV_DEPENDENCIES = [
 	'https://github.com/massalabs/massa-sc-toolkit#2-testing-smart-contract-simulator',
 ];
 
-export async function initialize(directory) {
+export function initialize(directory) {
 	console.log('Installation begun...');
 
 	if (fs.existsSync(directory)) {
@@ -54,32 +54,27 @@ export async function initialize(directory) {
 
 	// Copy Simulator content from massa-sc-toolkit in node_modules
 	fs.mkdirSync(directory + '/simulator');
-
-	fs.writeFileSync(
-		path.join(process.cwd(), directory + '/simulator', 'execution_config.json'),
-		fs.readFileSync(
-			directory + '/node_modules/massa-sc-toolkit/simulator/execution_config.json'
-		)
-	);
-
-	fs.writeFileSync(
-		path.join(process.cwd(), directory + '/simulator', 'massa-sc-tester'),
-		fs.readFileSync(directory + '/node_modules/massa-sc-toolkit/simulator/massa-sc-tester')
-	);
-
-	fs.writeFileSync(
-		path.join(process.cwd(), directory + '/simulator', 'massa-sc-tester.exe'),
-		fs.readFileSync(directory + '/node_modules/massa-sc-toolkit/simulator/massa-sc-tester.exe')
-	);
-
-	fs.writeFileSync(
-		path.join(process.cwd(), directory + '/simulator', 'simulate.js'),
-		fs.readFileSync(directory + '/node_modules/massa-sc-toolkit/simulator/simulate.js')
-	);
-
+	duplicateSimulatorFiles();
 	console.log('Simulator installed');
 
 	execSync(`npm uninstall massa-sc-toolkit`);
 
 	console.log('Installation successfully completed');
+}
+
+// Duplicate each file from the node_modules package in the new repo
+function duplicateSimulatorFiles() {
+	const nodeModulesPath = '/node_modules/massa-sc-toolkit/simulator/';
+	const files = [
+		'execution_config.json',
+		'massa-sc-tester.exe',
+		'massa-sc-tester',
+		'simulate.js',
+	];
+	files.forEach((file) => {
+		fs.writeFileSync(
+			path.join(process.cwd(), directory + '/simulator', file),
+			fs.readFileSync(directory + nodeModulesPath + file)
+		);
+	});
 }
