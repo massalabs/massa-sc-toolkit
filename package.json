@@ -14,7 +14,7 @@
 	"author": "",
 	"license": "ISC",
 	"bin": {
-		"init": "./cli.js"
+		"toolkit": "./cli.js"
 	},
 	"bugs": {
 		"url": "https://github.com/massalabs/massa-sc-toolkit/issues"
