@@ -36,16 +36,15 @@ export function initialize(directory) {
         force: true,
     });
 
-    const prettier = fs.readFileSync(".prettierrc");
+    // Create ESLint & Prettier file
     fs.writeFileSync(
         path.join(process.cwd(), directory, ".prettierrc"),
-        prettier
+        fs.readFileSync(".prettierrc")
     );
 
-    const ESLint = fs.readFileSync(".eslintrc.json");
     fs.writeFileSync(
         path.join(process.cwd(), directory, ".eslintrc.json"),
-        ESLint
+        fs.readFileSync(".eslintrc.json")
     );
 
     console.log("Installation successfully completed");
