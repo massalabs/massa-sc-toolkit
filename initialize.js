@@ -28,12 +28,14 @@ export function initialize(directory) {
 	execSync('npm init -y', option);
 	execSync('npm install --save-dev ' + DEV_DEPENDENCIES.join(' '), option);
 	execSync('npx asinit . -y', option);
+
+	console.log('Packages installed');
+
 	fs.rmSync(path.join(process.cwd(), directory, 'assembly/index.ts'));
 	fs.rmSync(path.join(process.cwd(), directory, 'index.html'));
 	fs.rmSync(path.join(process.cwd(), directory, 'tests'), { recursive: true, force: true });
 
-	console.log('Installation successfully completed');
-
+	// Example saving
 	fs.writeFileSync(
 		path.join(process.cwd(), directory + '/assembly', 'index.ts'),
 		fs.readFileSync('./contracts/index.ts')
@@ -44,6 +46,7 @@ export function initialize(directory) {
 		fs.readFileSync('./contracts/main.ts')
 	);
 
+	// Script creation in packge.json
 	execSync(
 		`cd ${directory} && npx npm-add-script -k "build" -v "asc assembly/index.ts --target release --exportRuntime -o build/index.wasm && asc --transform transformer/file2base64.js assembly/main.ts --target release --exportRuntime -o build/main.wasm" `
 	);
@@ -76,4 +79,6 @@ export function initialize(directory) {
 	);
 
 	console.log('Simulator installed');
+
+	console.log('Installation successfully completed');
 }
