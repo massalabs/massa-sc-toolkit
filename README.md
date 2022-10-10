@@ -42,6 +42,13 @@ It provides :
 
     To run the steps detailed in the `execution_config.json` :
 
+The example already set up can be run with :
+
+-   Compiling the example smart contracts
     ```
-    $ node simulate.js
+    $ npm run build
+    ```
+-   Running the simulate script
+    ```
+    $ npm run simulate
     ```

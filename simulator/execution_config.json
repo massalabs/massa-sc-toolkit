@@ -17,7 +17,7 @@
 				"name": "execute_main",
 				"config": {
 					"type": "execute_sc",
-					"path": "main-website-deployer.wasm",
+					"path": "../build/main.wasm",
 					"function": "main",
 					"parameter": "",
 					"gas": 100000,
@@ -27,6 +27,20 @@
 							"coins": 100
 						}
 					]
+				}
+			},
+			{
+				"name": "read_events_after_execution",
+				"config": {
+					"type": "read_events",
+					"start": {
+						"period": 0,
+						"thread": 0
+					},
+					"end": {
+						"period": 4,
+						"thread": 16
+					}
 				}
 			}
 		]
