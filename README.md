@@ -1,5 +1,21 @@
 # massa-sc-toolkit
 
+This toolkit is meant to facilitate smart contract development.
+
+> **PREREQUISITES:** NPM installed on your computer
+
+## Repository Initialisation
+
+Simply run the following command:
+
+```shell
+npx github:massalabs/massa-sc-toolkit init <projectName>
+```
+
+You now have your own AssemblyScript project setup, with Massa's sdk installed.
+
+You can now run `npm run asbuild` to compile your AssemblyScript files.
+
 ## ... use the simulator
 
 **_The simulator_** (massa-sc-tester https://github.com/massalabs/massa-sc-tester) mimics the behavior at ledger level of the Massa Blockchain.
