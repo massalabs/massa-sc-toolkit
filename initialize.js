@@ -13,6 +13,10 @@ const DEV_DEPENDENCIES = [
     "eslint@latest",
     "@massalabs/as/assembly",
     "https://gitpkg.now.sh/massalabs/as/transformer?main",
+    "@massalabs/massa-web3",
+    "@types/node",
+    "dotenv",
+    "tslib"
 ];
 
 export function initialize(directory) {
@@ -47,6 +51,11 @@ export function initialize(directory) {
     fs.writeFileSync(
         path.join(process.cwd(), directory, ".eslintrc.json"),
         fs.readFileSync(".eslintrc.json")
+    );
+
+    fs.writeFileSync(
+        path.join(process.cwd(), directory, ".gitignore"),
+        fs.readFileSync(".gitignore")
     );
 
     console.log("Installation successfully completed");

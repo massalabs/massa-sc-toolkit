@@ -5,7 +5,8 @@
   "main": "cli.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "ts-node --esm deployer/deployment_script.ts"
   },
   "repository": {
     "type": "git",
