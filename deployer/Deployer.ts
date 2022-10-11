@@ -21,7 +21,7 @@ export class Deployer {
 	constructor() {
 		this.baseAccount = {
 			address: process.env.DEFAULT_WALLET_ADDRESS,
-			secretKey: process.env.DEFAULT_WALLET_SECRET_KEY,
+			secretKey: process.env.DEFAULT_WALLET_PRIVATE_KEY,
 			publicKey: process.env.DEFAULT_WALLET_PUBLIC_KEY,
 		} as IAccount;
 
@@ -47,24 +47,24 @@ export class Deployer {
 		this.contractAddress = process.env.DEFAULT_WALLET_ADDRESS;
 	}
 
-    /** compile smart contract from a physical assemblyscript file */
-    loadSmartContractFromWasmFile(wasmFilePath: string) {
-        if (!fs.existsSync(wasmFilePath)) {
-            throw new Error(`Wasm contract file ${wasmFilePath} does not exist`);
-        }
-        const wasmFilePathStr = wasmFilePath.toString();
-        const binaryArrayBuffer = fs.readFileSync(wasmFilePathStr, {});
-        const binaryFileContents = new Uint8Array(binaryArrayBuffer);
-        const base64 = Buffer.from(binaryFileContents).toString("base64");
-        return {
-            binary: binaryFileContents,
-            text: undefined,
-            base64
-        };
-    }
+	/** compile smart contract from a physical assemblyscript file */
+	loadSmartContractFromWasmFile(wasmFilePath: string) {
+		if (!fs.existsSync(wasmFilePath)) {
+			throw new Error(`Wasm contract file ${wasmFilePath} does not exist`);
+		}
+		const wasmFilePathStr = wasmFilePath.toString();
+		const binaryArrayBuffer = fs.readFileSync(wasmFilePathStr, {});
+		const binaryFileContents = new Uint8Array(binaryArrayBuffer);
+		const base64 = Buffer.from(binaryFileContents).toString("base64");
+		return {
+			binary: binaryFileContents,
+			text: undefined,
+			base64
+		};
+	}
 
-    async deployContract(scFilePath: string) {
-        // Load contract
+	async deployContract(scFilePath: string) {
+		// Load contract
 		const compiledContract = await this.loadSmartContractFromWasmFile(scFilePath);
 		// Deploy SC & retrieve operation ID
 		console.log("Deployment has begun...\n")
@@ -83,7 +83,7 @@ export class Deployer {
 		);
 
 		console.log("Deployment successfully ended\n")
-        console.log("Retrieving deployed contract address...\n")
+		console.log("Retrieving deployed contract address...\n")
 		// Wait the end of deployment
 		let a = false;
 
@@ -105,5 +105,5 @@ export class Deployer {
 		a = false;
 
 		console.log(`Contract address is : ${this.contractAddress}`);
-    }
+	}
 }

@@ -52,7 +52,7 @@ Keep in mind that many false positives will remain undetected by ESLint such as 
 Prerequisites :
 
 - You must add a .env file at the root of the repository with the following keys set to valid values :
-  - DEFAULT_WALLET_SECRET_KEY="wallet_secret_key"
+  - DEFAULT_WALLET_PRIVATE_KEY="wallet_private_key"
   - DEFAULT_WALLET_PUBLIC_KEY="wallet_public_key"
   - DEFAULT_WALLET_ADDRESS="wallet_address"
 

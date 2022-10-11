@@ -53,5 +53,10 @@ export function initialize(directory) {
         fs.readFileSync(".eslintrc.json")
     );
 
+    fs.writeFileSync(
+        path.join(process.cwd(), directory, ".gitignore"),
+        fs.readFileSync(".gitignore")
+    );
+
     console.log("Installation successfully completed");
 }
