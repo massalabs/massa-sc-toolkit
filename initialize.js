@@ -9,6 +9,10 @@ const DEV_DEPENDENCIES = [
   "@massalabs/massa-as-sdk",
   "@massalabs/as/assembly",
   "https://gitpkg.now.sh/massalabs/as/transformer?main",
+  "@massalabs/massa-web3",
+  "@types/node",
+  "dotenv",
+  "tslib"
 ];
 
 export function initialize(directory) {
