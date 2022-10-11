@@ -54,7 +54,7 @@ export function initialize(directory) {
 
 	// Copy Simulator content from massa-sc-toolkit in node_modules
 	fs.mkdirSync(directory + '/simulator');
-	duplicateSimulatorFiles();
+	duplicateSimulatorFiles(directory);
 	console.log('Simulator installed');
 
 	execSync(`npm uninstall massa-sc-toolkit`);
@@ -63,7 +63,7 @@ export function initialize(directory) {
 }
 
 // Duplicate each file from the node_modules package in the new repo
-function duplicateSimulatorFiles() {
+function duplicateSimulatorFiles(target) {
 	const nodeModulesPath = '/node_modules/massa-sc-toolkit/simulator/';
 	const files = [
 		'execution_config.json',
@@ -73,8 +73,8 @@ function duplicateSimulatorFiles() {
 	];
 	files.forEach((file) => {
 		fs.writeFileSync(
-			path.join(process.cwd(), directory + '/simulator', file),
-			fs.readFileSync(directory + nodeModulesPath + file)
+			path.join(process.cwd(), target + '/simulator', file),
+			fs.readFileSync(target + nodeModulesPath + file)
 		);
 	});
 }
