@@ -25,15 +25,13 @@ export function HelloWorld(): void {
 }
 ```
 
-# How to …
+## How to …
 
-## Include another smart contract inside a smart contract ?
+### Include another smart contract inside a smart contract ?
 
 You can follow the following documentation :
 
 https://github.com/massalabs/as/tree/main/transformer
-
-###
 
 ## ... use the simulator
 
@@ -71,3 +69,35 @@ The example already set up can be run with :
     ```
     $ npm run simulate
     ```
+### ... use a linter
+
+There is no specific, well-maintained Assemblyscript linter in the ecosystem.
+
+Since Assemblyscript is a subset of Typescript, the recommendation is to use a Typescript linter.
+
+The reference today remains ESLint, therefore the initialization script performs:
+- the installation of the dependencies necessary for its execution;
+- a minimalist configuration of ESlint and prettier (the one used by MassaLabs for its projects).
+
+Keep in mind that many false positives will remain undetected by ESLint such as :
+- Closures
+- Spreads
+
+### ... deploy a smart contract
+
+Prerequisites :
+
+- You must add a .env file at the root of the repository with the following keys set to valid values :
+  - DEFAULT_WALLET_PRIVATE_KEY="wallet_private_key"
+  - DEFAULT_WALLET_PUBLIC_KEY="wallet_public_key"
+  - DEFAULT_WALLET_ADDRESS="wallet_address"
+
+These keys will be the ones used by the deployer script to interact with the blockchain.
+
+Simply run the following command :
+
+```shell
+npm run deploy <path_to_compiled_smart_contract>
+```
+
+This command will deploy your smart contract on Massa's Innonet.

@@ -1,26 +1,28 @@
 {
-	"name": "massa-sc-toolkit",
-	"version": "0.0.1",
-	"description": "This toolkit is meant to facilitate smart contract development.",
-	"main": "cli.js",
-	"type": "module",
-	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/massalabs/massa-sc-toolkit.git"
-	},
-	"author": "",
-	"license": "ISC",
-	"bin": {
-		"toolkit": "./cli.js"
-	},
-	"bugs": {
-		"url": "https://github.com/massalabs/massa-sc-toolkit/issues"
-	},
-	"homepage": "https://github.com/massalabs/massa-sc-toolkit#readme",
-	"dependencies": {
-		"yargs": "^17.6.0"
-	}
+    "name": "massa-sc-toolkit",
+    "version": "0.0.1",
+    "description": "This toolkit is meant to facilitate smart contract development.",
+    "main": "cli.js",
+    "type": "module",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "deploy": "ts-node --esm deployer/deployment_script.ts"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/massalabs/massa-sc-toolkit.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bin": {
+        "toolkit": "./cli.js"
+    },
+    "bugs": {
+        "url": "https://github.com/massalabs/massa-sc-toolkit/issues"
+    },
+    "homepage": "https://github.com/massalabs/massa-sc-toolkit#readme",
+    "dependencies": {
+        "yargs": "^17.6.0",
+        "@massalabs/massa-web3": "^1.10.0"
+    }
 }
