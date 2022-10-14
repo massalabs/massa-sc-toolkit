@@ -13,10 +13,11 @@ const DEV_DEPENDENCIES = [
     "eslint@latest",
     "@massalabs/as/assembly",
     "https://gitpkg.now.sh/massalabs/as/transformer?main",
+    "https://gitpkg.now.sh/massalabs/as/tester?main",
     "@massalabs/massa-web3",
     "@types/node",
     "dotenv",
-    "tslib"
+    "tslib",
 ];
 
 export function initialize(directory) {
@@ -56,6 +57,28 @@ export function initialize(directory) {
     fs.writeFileSync(
         path.join(process.cwd(), directory, ".gitignore"),
         fs.readFileSync(".gitignore")
+    );
+
+    write;
+
+    fs.writeFileSync(
+        path.join(process.cwd(), directory, ".gitignore"),
+        fs.readFileSync(".gitignore")
+    );
+
+    fs.mkdirSync(process.cwd(), directory, "/assembly/__test__/");
+    fs.writeFileSync(
+        path.join(process.cwd(), directory, "/assembly/__test__/tester.d.ts"),
+        "/// <reference types='tester/assembly/global' />"
+    );
+
+    fs.writeFileSync(
+        path.join(
+            process.cwd(),
+            directory,
+            "/assembly/__test__/example.spec.ts"
+        ),
+        fs.readFileSync("example.spec.ts")
     );
 
     console.log("Installation successfully completed");
