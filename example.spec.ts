@@ -1,22 +1,30 @@
-import { add } from "../index";
+import { getOf } from "@massalabs/massa-as-sdk/assembly/std/storage";
+import { event, setStorage } from "../example";
+import { Address } from "@massalabs/massa-as-sdk";
 
-describe("imports", () => {
-    test("check add function", () => {
-        const got = add(3, 3);
-        const want = 6;
+describe("A group of test", () => {
+    test("A test throwing an error", () => {
+        event();
+        const got = 42;
+        const want = 41;
         if (got != want) {
-            error(
-                "add() = " +
-                    got.toString() +
-                    ", " +
-                    want.toString() +
-                    " was expected."
-            );
+            error(got.toString() + ", " + want.toString() + " was expected.");
             return;
         }
     });
 });
 
-describe("imports", () => {
-    assert(add(2, 2) == 4, "add failed");
+describe("An other group of test", () => {
+    test("Testing the Storage", () => {
+        setStorage();
+        assert(
+            getOf(
+                new Address(
+                    "A12E6N5BFAdC2wyiBV6VJjqkWhpz1kLVp2XpbRdSnL1mKjCWT6oR"
+                ),
+                "test"
+            ) == "value",
+            "Test failed"
+        );
+    });
 });

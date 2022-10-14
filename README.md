@@ -79,11 +79,5 @@ Run the following commands :
 -   To run test from all spec.ts files in your assembly folder
 
 ```shell
-npx astester
-```
-
--   To run test on specified path
-
-```shell
-npx astester ./assembly/__test__/example.spec.ts
+npm run test
 ```
