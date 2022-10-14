@@ -11,7 +11,7 @@ const DEV_DEPENDENCIES = [
     "@typescript-eslint/eslint-plugin@latest",
     "@typescript-eslint/parser@latest",
     "eslint@latest",
-    "@massalabs/as",
+    "@massalabs/as/assembly",
     "https://gitpkg.now.sh/massalabs/as/transformer?main",
     "https://gitpkg.now.sh/massalabs/as/tester?main",
     "@massalabs/massa-web3",
