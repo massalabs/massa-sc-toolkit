@@ -43,27 +43,6 @@ export function initialize(directory) {
         force: true,
     });
 
-    // Create ESLint & Prettier file
-    fs.writeFileSync(
-        path.join(process.cwd(), directory, ".prettierrc"),
-        fs.readFileSync(".prettierrc")
-    );
-
-    fs.writeFileSync(
-        path.join(process.cwd(), directory, ".eslintrc.json"),
-        fs.readFileSync(".eslintrc.json")
-    );
-
-    fs.writeFileSync(
-        path.join(process.cwd(), directory, ".gitignore"),
-        fs.readFileSync(".gitignore")
-    );
-
-    fs.writeFileSync(
-        path.join(process.cwd(), directory, ".gitignore"),
-        fs.readFileSync(".gitignore")
-    );
-
     fs.mkdirSync(process.cwd(), directory, "/assembly/__test__/");
 
     fs.writeFileSync(
@@ -93,6 +72,27 @@ export function initialize(directory) {
 
         fs.writeFileSync("package.json", JSON.stringify(json));
     });
+
+    // Create ESLint & Prettier file
+    fs.writeFileSync(
+        path.join(process.cwd(), directory, ".prettierrc"),
+        fs.readFileSync(".prettierrc")
+    );
+
+    fs.writeFileSync(
+        path.join(process.cwd(), directory, ".eslintrc.json"),
+        fs.readFileSync(".eslintrc.json")
+    );
+
+    fs.writeFileSync(
+        path.join(process.cwd(), directory, ".gitignore"),
+        fs.readFileSync(".gitignore")
+    );
+
+    fs.writeFileSync(
+        path.join(process.cwd(), directory, ".gitignore"),
+        fs.readFileSync(".gitignore")
+    );
 
     console.log("Installation successfully completed");
 }
