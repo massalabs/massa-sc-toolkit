@@ -44,11 +44,10 @@ export function initialize(directory) {
     });
 
     // Create ESLint & Prettier file
+
     fs.writeFile(
         path.join(process.cwd(), directory, ".prettierrc"),
-        fs.readFile(".prettierrc", (err) => {
-            if (err) throw err;
-        }),
+        fs.readFileSync(".prettierrc", "utf8"),
         (err) => {
             if (err) throw err;
         }
@@ -56,9 +55,7 @@ export function initialize(directory) {
 
     fs.writeFile(
         path.join(process.cwd(), directory, ".eslintrc.json"),
-        fs.readFile(".eslintrc.json", (err) => {
-            if (err) throw err;
-        }),
+        fs.readFileSync(".eslintrc.json", "utf8"),
         (err) => {
             if (err) throw err;
         }
@@ -66,9 +63,7 @@ export function initialize(directory) {
 
     fs.writeFile(
         path.join(process.cwd(), directory, ".gitignore"),
-        fs.readFile(".gitignore", (err) => {
-            if (err) throw err;
-        }),
+        fs.readFileSync(".gitignore", "utf8"),
         (err) => {
             if (err) throw err;
         }
@@ -76,9 +71,7 @@ export function initialize(directory) {
 
     fs.writeFile(
         path.join(process.cwd(), directory, ".gitignore"),
-        fs.readFile(".gitignore", (err) => {
-            if (err) throw err;
-        }),
+        fs.readFileSync(".gitignore", "utf8"),
         (err) => {
             if (err) throw err;
         }
@@ -98,9 +91,7 @@ export function initialize(directory) {
 
     fs.writeFile(
         path.join(process.cwd(), directory, "/assembly/example.ts"),
-        fs.readFile("example.ts", (err) => {
-            if (err) throw err;
-        }),
+        fs.readFileSync("example.ts", "utf8"),
         (err) => {
             if (err) throw err;
         }
@@ -112,15 +103,13 @@ export function initialize(directory) {
             directory,
             "/assembly/__test__/example.spec.ts"
         ),
-        fs.readFile("example.spec.ts", (err) => {
-            if (err) throw err;
-        }),
+        fs.readFileSync("example.spec.ts", "utf8"),
         (err) => {
             if (err) throw err;
         }
     );
 
-    fs.readFile(
+    fs.readFileSync(
         path.join(process.cwd(), directory, "package.json"),
         function (err, data) {
             var json = JSON.parse(data);
@@ -134,7 +123,8 @@ export function initialize(directory) {
                     if (err) throw err;
                 }
             );
-        }
+        },
+        "utf8"
     );
 
     console.log("Installation successfully completed");
