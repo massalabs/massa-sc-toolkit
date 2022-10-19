@@ -102,5 +102,3 @@ export function initialize(directory) {
 
     console.log("Installation successfully completed");
 }
-
-initialize("hello");
