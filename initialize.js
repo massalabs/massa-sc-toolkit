@@ -3,6 +3,11 @@
 import { execSync } from "child_process";
 import * as fs from "fs";
 import * as path from "path";
+import { exampleContract } from "./examples/exampleContract.js";
+import { exampleTest } from "./examples/exampleTest.js";
+import { gitignore } from "./utils/gitignore.js";
+import { prettier } from "./utils/prettier.js";
+import { eslint } from "./utils/eslint.js";
 
 const DEV_DEPENDENCIES = [
     "assemblyscript",
@@ -45,60 +50,42 @@ export function initialize(directory) {
 
     // Create ESLint & Prettier file
 
-    fs.writeFile(
+    fs.writeFileSync(
         path.join(process.cwd(), directory, ".prettierrc"),
-        fs.readFileSync(process.cwd() + "/.prettierrc", "utf8"),
-        (err) => {
-            if (err) throw err;
-        }
+        prettier
     );
 
-    fs.writeFile(
+    fs.writeFileSync(
         path.join(process.cwd(), directory, ".eslintrc.json"),
-        fs.readFileSync(process.cwd() + "/.eslintrc.json", "utf8"),
-        (err) => {
-            if (err) throw err;
-        }
+        eslint
     );
 
-    fs.writeFile(
+    fs.writeFileSync(
         path.join(process.cwd(), directory, ".gitignore"),
-        fs.readFileSync(process.cwd() + "/.gitignore", "utf8"),
-        (err) => {
-            if (err) throw err;
-        }
+        gitignore
     );
 
     fs.mkdir(process.cwd() + "/" + directory + "/assembly/__test__", (err) => {
         if (err) throw err;
     });
 
-    fs.writeFile(
+    fs.writeFileSync(
         path.join(process.cwd(), directory, "/assembly/__test__/tester.d.ts"),
-        "/// <reference types='tester/assembly/global' />",
-        (err) => {
-            if (err) throw err;
-        }
+        "/// <reference types='tester/assembly/global' />"
     );
 
-    fs.writeFile(
+    fs.writeFileSync(
         path.join(process.cwd(), directory, "/assembly/example.ts"),
-        fs.readFileSync("example.ts", "utf8"),
-        (err) => {
-            if (err) throw err;
-        }
+        exampleContract
     );
 
-    fs.writeFile(
+    fs.writeFileSync(
         path.join(
             process.cwd(),
             directory,
             "/assembly/__test__/example.spec.ts"
         ),
-        fs.readFileSync("example.spec.ts", "utf8"),
-        (err) => {
-            if (err) throw err;
-        }
+        exampleTest
     );
 
     fs.readFileSync(
