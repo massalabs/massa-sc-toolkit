@@ -46,7 +46,9 @@ export function initialize(directory) {
     // Create ESLint & Prettier file
     fs.writeFile(
         path.join(process.cwd(), directory, ".prettierrc"),
-        fs.readFileSync(".prettierrc"),
+        fs.readFile(".prettierrc", (err) => {
+            if (err) throw err;
+        }),
         (err) => {
             if (err) throw err;
         }
@@ -54,7 +56,9 @@ export function initialize(directory) {
 
     fs.writeFile(
         path.join(process.cwd(), directory, ".eslintrc.json"),
-        fs.readFileSync(".eslintrc.json"),
+        fs.readFile(".eslintrc.json", (err) => {
+            if (err) throw err;
+        }),
         (err) => {
             if (err) throw err;
         }
@@ -62,7 +66,9 @@ export function initialize(directory) {
 
     fs.writeFile(
         path.join(process.cwd(), directory, ".gitignore"),
-        fs.readFileSync(".gitignore"),
+        fs.readFile(".gitignore", (err) => {
+            if (err) throw err;
+        }),
         (err) => {
             if (err) throw err;
         }
@@ -70,7 +76,9 @@ export function initialize(directory) {
 
     fs.writeFile(
         path.join(process.cwd(), directory, ".gitignore"),
-        fs.readFileSync(".gitignore"),
+        fs.readFile(".gitignore", (err) => {
+            if (err) throw err;
+        }),
         (err) => {
             if (err) throw err;
         }
@@ -90,7 +98,9 @@ export function initialize(directory) {
 
     fs.writeFile(
         path.join(process.cwd(), directory, "/assembly/example.ts"),
-        fs.readFileSync("example.ts"),
+        fs.readFile("example.ts", (err) => {
+            if (err) throw err;
+        }),
         (err) => {
             if (err) throw err;
         }
@@ -102,7 +112,9 @@ export function initialize(directory) {
             directory,
             "/assembly/__test__/example.spec.ts"
         ),
-        fs.readFileSync("example.spec.ts"),
+        fs.readFile("example.spec.ts", (err) => {
+            if (err) throw err;
+        }),
         (err) => {
             if (err) throw err;
         }
@@ -127,5 +139,3 @@ export function initialize(directory) {
 
     console.log("Installation successfully completed");
 }
-
-initialize("hello");
