@@ -65,9 +65,7 @@ export function initialize(directory) {
         gitignore
     );
 
-    fs.mkdir(process.cwd() + "/" + directory + "/assembly/__test__", (err) => {
-        if (err) throw err;
-    });
+    fs.mkdirSync(process.cwd() + "/" + directory + "/assembly/__test__");
 
     fs.writeFileSync(
         path.join(process.cwd(), directory, "/assembly/__test__/tester.d.ts"),
@@ -88,22 +86,16 @@ export function initialize(directory) {
         exampleTest
     );
 
-    fs.readFileSync(
-        path.join(process.cwd(), directory, "package.json"),
-        function (err, data) {
-            var json = JSON.parse(data);
-            json.scripts.test =
-                "npx astester --imports node_modules/massalabs/massa-as-sdk/astester.imports.js";
-
-            fs.writeFile(
-                path.join(process.cwd(), directory, "package.json"),
-                JSON.stringify(json),
-                (err) => {
-                    if (err) throw err;
-                }
-            );
-        },
+    const data = fs.readFileSync(
+        (process.cwd(), directory, "package.json"),
         "utf8"
+    );
+    let json = JSON.parse(data);
+    json.scripts.test =
+        "npx astester --imports node_modules/massalabs/massa-as-sdk/astester.imports.js";
+    fs.writeFileSync(
+        path.join(process.cwd(), directory, "package.json"),
+        JSON.stringify(json)
     );
 
     console.log("Installation successfully completed");
