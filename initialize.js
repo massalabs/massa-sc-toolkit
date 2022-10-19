@@ -47,7 +47,7 @@ export function initialize(directory) {
 
     fs.writeFile(
         path.join(process.cwd(), directory, ".prettierrc"),
-        fs.readFileSync(".prettierrc", "utf8"),
+        fs.readFileSync(process.cwd() + "/.prettierrc", "utf8"),
         (err) => {
             if (err) throw err;
         }
@@ -55,7 +55,7 @@ export function initialize(directory) {
 
     fs.writeFile(
         path.join(process.cwd(), directory, ".eslintrc.json"),
-        fs.readFileSync(".eslintrc.json", "utf8"),
+        fs.readFileSync(process.cwd() + "/.eslintrc.json", "utf8"),
         (err) => {
             if (err) throw err;
         }
@@ -63,15 +63,7 @@ export function initialize(directory) {
 
     fs.writeFile(
         path.join(process.cwd(), directory, ".gitignore"),
-        fs.readFileSync(".gitignore", "utf8"),
-        (err) => {
-            if (err) throw err;
-        }
-    );
-
-    fs.writeFile(
-        path.join(process.cwd(), directory, ".gitignore"),
-        fs.readFileSync(".gitignore", "utf8"),
+        fs.readFileSync(process.cwd() + "/.gitignore", "utf8"),
         (err) => {
             if (err) throw err;
         }
@@ -129,3 +121,5 @@ export function initialize(directory) {
 
     console.log("Installation successfully completed");
 }
+
+initialize("hello");
