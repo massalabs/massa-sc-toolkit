@@ -44,61 +44,88 @@ export function initialize(directory) {
     });
 
     // Create ESLint & Prettier file
-    fs.writeFileSync(
+    fs.writeFile(
         path.join(process.cwd(), directory, ".prettierrc"),
-        fs.readFileSync(".prettierrc")
+        fs.readFileSync(".prettierrc"),
+        (err) => {
+            if (err) throw err;
+        }
     );
 
-    fs.writeFileSync(
+    fs.writeFile(
         path.join(process.cwd(), directory, ".eslintrc.json"),
-        fs.readFileSync(".eslintrc.json")
+        fs.readFileSync(".eslintrc.json"),
+        (err) => {
+            if (err) throw err;
+        }
     );
 
-    fs.writeFileSync(
+    fs.writeFile(
         path.join(process.cwd(), directory, ".gitignore"),
-        fs.readFileSync(".gitignore")
+        fs.readFileSync(".gitignore"),
+        (err) => {
+            if (err) throw err;
+        }
     );
 
-    fs.writeFileSync(
+    fs.writeFile(
         path.join(process.cwd(), directory, ".gitignore"),
-        fs.readFileSync(".gitignore")
+        fs.readFileSync(".gitignore"),
+        (err) => {
+            if (err) throw err;
+        }
     );
 
-    fs.mkdirSync(process.cwd(), directory, "/assembly/__test__");
+    fs.mkdir(process.cwd() + "/" + directory + "/assembly/__test__", (err) => {
+        if (err) throw err;
+    });
 
-    fs.writeFileSync(
+    fs.writeFile(
         path.join(process.cwd(), directory, "/assembly/__test__/tester.d.ts"),
-        "/// <reference types='tester/assembly/global' />"
+        "/// <reference types='tester/assembly/global' />",
+        (err) => {
+            if (err) throw err;
+        }
     );
 
-    fs.writeFileSync(
+    fs.writeFile(
         path.join(process.cwd(), directory, "/assembly/example.ts"),
-        fs.readFileSync("example.ts")
+        fs.readFileSync("example.ts"),
+        (err) => {
+            if (err) throw err;
+        }
     );
 
-    fs.writeFileSync(
+    fs.writeFile(
         path.join(
             process.cwd(),
             directory,
             "/assembly/__test__/example.spec.ts"
         ),
-        fs.readFileSync("example.spec.ts")
+        fs.readFileSync("example.spec.ts"),
+        (err) => {
+            if (err) throw err;
+        }
     );
 
-    fs.readFileSync(
+    fs.readFile(
         path.join(process.cwd(), directory, "package.json"),
         function (err, data) {
             var json = JSON.parse(data);
             json.scripts.test =
                 "npx astester --imports node_modules/massalabs/massa-as-sdk/astester.imports.js";
-            console.log(json.scripts.test);
 
-            fs.writeFileSync(
+            fs.writeFile(
                 path.join(process.cwd(), directory, "package.json"),
-                JSON.stringify(json)
+                JSON.stringify(json),
+                (err) => {
+                    if (err) throw err;
+                }
             );
         }
     );
 
     console.log("Installation successfully completed");
 }
+
+initialize("hello");
