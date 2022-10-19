@@ -86,16 +86,8 @@ export function initialize(directory) {
         exampleTest
     );
 
-    const data = fs.readFileSync(
-        (process.cwd(), directory, "package.json"),
-        "utf8"
-    );
-    let json = JSON.parse(data);
-    json.scripts.test =
-        "npx astester --imports node_modules/massalabs/massa-as-sdk/astester.imports.js";
-    fs.writeFileSync(
-        path.join(process.cwd(), directory, "package.json"),
-        JSON.stringify(json)
+    execSync(
+        `cd ${directory} && npx npm-add-script -k "test" -v "npx astester --imports node_modules/massalabs/massa-as-sdk/astester.imports.js" `
     );
 
     console.log("Installation successfully completed");
