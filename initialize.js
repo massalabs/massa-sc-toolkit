@@ -140,5 +140,3 @@ function duplicateSimulatorFiles(target) {
         );
     });
 }
-
-initialize("hello");
