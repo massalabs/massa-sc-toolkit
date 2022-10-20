@@ -19,9 +19,9 @@ You can now run `npm run asbuild` to compile your AssemblyScript files.
 To use librairies as massa-as-sdk and @massalabs/as you need to import the required function, for instance :
 
 ```jsx
-import { generateEvent } from '@massalabs/massa-as-sdk';
+import { generateEvent } from "@massalabs/massa-as-sdk";
 export function HelloWorld(): void {
-	generateEvent(`Hello World`);
+    generateEvent(`Hello World`);
 }
 ```
 
@@ -69,6 +69,7 @@ The example already set up can be run with :
     ```
     $ npm run simulate
     ```
+
 ### ... use a linter
 
 There is no specific, well-maintained Assemblyscript linter in the ecosystem.
@@ -104,7 +105,7 @@ npm run deploy <path_to_compiled_smart_contract>
 
 This command will deploy your smart contract on Massa's Innonet.
 
-### ... Realize unit tests
+### ... Run unit tests
 
 Check examples in `./assembly/__test__/example.spec.ts`
 

@@ -8,8 +8,8 @@ import { exampleTest } from "./examples/exampleTest.js";
 import { gitignore } from "./utils/gitignore.js";
 import { prettier } from "./utils/prettier.js";
 import { eslint } from "./utils/eslint.js";
-import { indexFile } from "./contracts/index.js";
-import { mainFile } from "./contracts/main.js";
+import { indexFile } from "./examples/index.js";
+import { mainFile } from "./examples/main.js";
 
 const DEV_DEPENDENCIES = [
     "assemblyscript",
@@ -90,7 +90,7 @@ export function initialize(directory) {
     );
 
     fs.writeFileSync(
-        path.join(process.cwd(), directory, "/assembly/example.ts"),
+        path.join(process.cwd(), directory, "/assembly/sum.ts"),
         exampleContract
     );
 
@@ -140,3 +140,5 @@ function duplicateSimulatorFiles(target) {
         );
     });
 }
+
+initialize("hello");

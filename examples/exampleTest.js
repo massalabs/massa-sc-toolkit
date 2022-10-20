@@ -1,5 +1,5 @@
 export const exampleTest = `import { getOf } from "@massalabs/massa-as-sdk/assembly/std/storage";
-import { event, setStorage } from "../example";
+import { event, setStorage } from "../sum";
 import { Address } from "@massalabs/massa-as-sdk";
 
 describe("A group of test", () => {
