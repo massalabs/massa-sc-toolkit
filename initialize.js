@@ -1,6 +1,6 @@
 "use strict";
 
-import { execSync, exec } from "child_process";
+import { execSync } from "child_process";
 import * as fs from "fs";
 import * as path from "path";
 import { exampleContract } from "./examples/exampleContract.js";
@@ -73,8 +73,8 @@ export function initialize(directory) {
         prettier
     );
     fs.writeFileSync(
-        path.join(process.cwd(), directory + "/assembly", "main.ts"),
-        mainFile
+        path.join(process.cwd(), directory + ".eslintrc.json"),
+        eslint
     );
 
     fs.writeFileSync(
