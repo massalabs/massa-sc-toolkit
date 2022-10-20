@@ -1,6 +1,6 @@
 "use strict";
 
-import { execSync } from "child_process";
+import { execSync, exec } from "child_process";
 import * as fs from "fs";
 import * as path from "path";
 import { exampleContract } from "./examples/exampleContract.js";
@@ -86,8 +86,8 @@ export function initialize(directory) {
         exampleTest
     );
 
-    execSync(
-        `cd ${directory} && npx npm-add-script -k "test" -v "npx astester --imports node_modules/massalabs/massa-as-sdk/astester.imports.js" `
+    exec(
+        `cd ${directory} && npx npm-add-script -f -k "test" -v "npx astester --imports node_modules/massalabs/massa-as-sdk/astester.imports.js" `
     );
 
     console.log("Installation successfully completed");
