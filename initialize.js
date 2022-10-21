@@ -111,7 +111,7 @@ export function initialize(directory) {
         `cd ${directory} && npx npm-add-script -k "simulate" -v "node ./simulator/simulate.js" `
     );
     execSync(
-        `cd ${directory} && npx npm-add-script -f -k "test" -v "npx astester --imports node_modules/massalabs/massa-as-sdk/astester.imports.js" `
+        `cd ${directory} && npx npm-add-script -f -k "test" -v "npx astester --imports node_modules/@massalabs/massa-as-sdk/astester.imports.js" `
     );
 
     // Copy Simulator content from massa-sc-toolkit in node_modules
