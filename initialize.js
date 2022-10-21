@@ -3,22 +3,31 @@
 import { execSync } from "child_process";
 import * as fs from "fs";
 import * as path from "path";
-import { indexFile } from "./contracts/index.js";
-import { mainFile } from "./contracts/main.js";
+import { exampleContract } from "./examples/exampleContract.js";
+import { exampleTest } from "./examples/exampleTest.js";
+import { gitignore } from "./utils/gitignore.js";
+import { prettier } from "./utils/prettier.js";
+import { eslint } from "./utils/eslint.js";
+import { indexFile } from "./examples/index.js";
+import { mainFile } from "./examples/main.js";
 
 const DEV_DEPENDENCIES = [
     "assemblyscript",
-    "@massalabs/massa-as-sdk",
+    "https://github.com/massalabs/massa-as-sdk",
     "@massalabs/as",
     "https://gitpkg.now.sh/massalabs/as/transformer?main",
     "https://github.com/massalabs/massa-sc-toolkit#2-testing-smart-contract-simulator",
     "@typescript-eslint/eslint-plugin@latest",
     "@typescript-eslint/parser@latest",
     "eslint@latest",
+    "@massalabs/as",
+    "https://gitpkg.now.sh/massalabs/as/transformer?main",
+    "https://gitpkg.now.sh/massalabs/as/tester?main",
     "@massalabs/massa-web3",
     "@types/node",
     "dotenv",
     "tslib",
+    ,
 ];
 
 export function initialize(directory) {
@@ -49,6 +58,7 @@ export function initialize(directory) {
     });
 
     // Copy example contract
+
     fs.writeFileSync(
         path.join(process.cwd(), directory + "/assembly", "index.ts"),
         indexFile
@@ -58,12 +68,50 @@ export function initialize(directory) {
         mainFile
     );
 
+    fs.writeFileSync(
+        path.join(process.cwd(), directory, ".prettierrc"),
+        prettier
+    );
+    fs.writeFileSync(
+        path.join(process.cwd(), directory + ".eslintrc.json"),
+        eslint
+    );
+
+    fs.writeFileSync(
+        path.join(process.cwd(), directory, ".gitignore"),
+        gitignore
+    );
+
+    fs.mkdirSync(process.cwd() + "/" + directory + "/assembly/__test__");
+
+    fs.writeFileSync(
+        path.join(process.cwd(), directory, "/assembly/__test__/tester.d.ts"),
+        "/// <reference types='tester/assembly/global' />"
+    );
+
+    fs.writeFileSync(
+        path.join(process.cwd(), directory, "/assembly/sum.ts"),
+        exampleContract
+    );
+
+    fs.writeFileSync(
+        path.join(
+            process.cwd(),
+            directory,
+            "/assembly/__test__/example.spec.ts"
+        ),
+        exampleTest
+    );
+
     // Script creation in packge.json
     execSync(
         `cd ${directory} && npx npm-add-script -k "build" -v "asc assembly/index.ts --target release --exportRuntime -o build/index.wasm && asc --transform transformer/file2base64.js assembly/main.ts --target release --exportRuntime -o build/main.wasm" `
     );
     execSync(
         `cd ${directory} && npx npm-add-script -k "simulate" -v "node ./simulator/simulate.js" `
+    );
+    execSync(
+        `cd ${directory} && npx npm-add-script -f -k "test" -v "npx astester --imports node_modules/@massalabs/massa-as-sdk/astester.imports.js" `
     );
 
     // Copy Simulator content from massa-sc-toolkit in node_modules
