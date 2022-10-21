@@ -1,4 +1,4 @@
-export const eslint = `{
+{
     "env": {
         "browser": true,
         "es2022": true
@@ -17,4 +17,4 @@ export const eslint = `{
         "semi": ["error", "always"],
         "@typescript-eslint/no-unnecessary-type-assertion": "off"
     }
-}`;
+}

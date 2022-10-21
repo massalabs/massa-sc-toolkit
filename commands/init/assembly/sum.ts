@@ -1,4 +1,4 @@
-export const exampleContract = `import { Address, generateEvent } from "@massalabs/massa-as-sdk";
+import { Address, generateEvent } from "@massalabs/massa-as-sdk";
 
 import { setOf } from "@massalabs/massa-as-sdk/assembly/std/storage";
 
@@ -17,4 +17,3 @@ export function setStorage(): void {
 export function event(): void {
     generateEvent("I'm an event ");
 }
-`;

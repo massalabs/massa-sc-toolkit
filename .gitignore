@@ -1,5 +1,4 @@
-ledger.json
-trace.json
 node_modules
-node_modules
-.env
+target/node_modules
+target/build
+target/package-lock.json

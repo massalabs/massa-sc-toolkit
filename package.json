@@ -5,8 +5,7 @@
     "main": "cli.js",
     "type": "module",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "deploy": "ts-node --esm deployer/deployment_script.ts"
+        "test": "echo \"Error: no test specified\" && exit 1"
     },
     "repository": {
         "type": "git",
@@ -22,7 +21,8 @@
     },
     "homepage": "https://github.com/massalabs/massa-sc-toolkit#readme",
     "dependencies": {
-        "yargs": "^17.6.0",
-        "@massalabs/massa-web3": "^1.10.0"
+        "@massalabs/massa-web3": "^1.10.0",
+        "fs-extra": "^10.1.0",
+        "yargs": "^17.6.0"
     }
 }
