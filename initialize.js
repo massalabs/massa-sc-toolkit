@@ -13,7 +13,7 @@ import { mainFile } from "./examples/main.js";
 
 const DEV_DEPENDENCIES = [
     "assemblyscript",
-    "@massalabs/massa-as-sdk",
+    "https://github.com/massalabs/massa-as-sdk",
     "@massalabs/as",
     "https://gitpkg.now.sh/massalabs/as/transformer?main",
     "https://github.com/massalabs/massa-sc-toolkit#2-testing-smart-contract-simulator",
