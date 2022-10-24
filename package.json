@@ -1,5 +1,5 @@
 {
-    "name": "massa-sc-toolkit",
+    "name": "@massalabs/sc-toolkit",
     "version": "0.0.1",
     "description": "This toolkit is meant to facilitate smart contract development.",
     "main": "cli.js",
