@@ -1,0 +1,25 @@
+name: massa sc ci tests
+on: [push]
+jobs:
+    toolkit-tests:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: "16"
+                  cache: 'npm'
+
+            - name: install
+              run: npm install
+
+            - name: run toolkit init
+              run: node cli.js init testDir
+
+            - name: run target tests
+              run: |
+                cd testDir
+                npm install
+                npm run build
+                npm run test

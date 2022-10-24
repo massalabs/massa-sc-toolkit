@@ -1,4 +1,4 @@
-export const exampleTest = `import { getOf } from "@massalabs/massa-as-sdk/assembly/std/storage";
+import { getOf } from "@massalabs/massa-as-sdk/assembly/std/storage";
 import { event, setStorage } from "../sum";
 import { Address } from "@massalabs/massa-as-sdk";
 
@@ -28,4 +28,3 @@ describe("An other group of test", () => {
         );
     });
 });
-`;
