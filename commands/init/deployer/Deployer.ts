@@ -1,7 +1,6 @@
 import 'dotenv/config';
 import {
 	Client,
-	EOperationStatus,
 	IAccount,
 	IClientConfig,
 	IProvider,
@@ -27,11 +26,11 @@ export class Deployer {
 
 		this.providers = [
 			{
-				url: 'https://inno.massa.net/test13',
+				url: 'https://inno.massa.net/test15',
 				type: ProviderType.PUBLIC,
 			} as IProvider,
 			{
-				url: process.env.JSON_RPC_URL + ':33034',
+				url: process.env.JSON_RPC_URL + ':33038',
 				type: ProviderType.PRIVATE,
 			} as IProvider,
 		];
@@ -47,7 +46,7 @@ export class Deployer {
 		this.contractAddress = process.env.DEFAULT_WALLET_ADDRESS;
 	}
 
-	/** compile smart contract from a physical assemblyscript file */
+	/** Load and encode smart contract from a physical assemblyscript file */
 	loadSmartContractFromWasmFile(wasmFilePath: string) {
 		if (!fs.existsSync(wasmFilePath)) {
 			throw new Error(`Wasm contract file ${wasmFilePath} does not exist`);
@@ -68,6 +67,8 @@ export class Deployer {
 		const compiledContract = await this.loadSmartContractFromWasmFile(scFilePath);
 		// Deploy SC & retrieve operation ID
 		console.log("Deployment has begun...\n")
+		var datastore = new Map<Uint8Array, Uint8Array>()
+		datastore = datastore.set(new Uint8Array(Buffer.from("key")), new Uint8Array(Buffer.from("value")));
 
 		const operationIdDeployDns = await this.web3Client.smartContracts().deploySmartContract(
 			{
@@ -78,6 +79,7 @@ export class Deployer {
 				contractDataBase64: compiledContract.base64,
 				contractDataBinary: compiledContract.binary,
 				contractDataText: compiledContract.text,
+				datastore: datastore
 			},
 			this.baseAccount
 		);
