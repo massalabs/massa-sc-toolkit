@@ -21,7 +21,6 @@
     },
     "homepage": "https://github.com/massalabs/massa-sc-toolkit#readme",
     "dependencies": {
-        "@massalabs/massa-web3": "^1.10.0",
         "fs-extra": "^10.1.0",
         "yargs": "^17.6.0"
     }
