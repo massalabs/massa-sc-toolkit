@@ -2,7 +2,9 @@
 
 This toolkit is meant to facilitate smart contract development.
 
-> **PREREQUISITES:** NPM installed on your computer
+> **PREREQUISITES:**
+ - NPM installed on your computer
+ - powershell (For Windows users only).
 
 ## Repository Initialisation
 
