@@ -64,10 +64,10 @@ export class Deployer {
 
 	async deployContract(scFilePath: string) {
 		// Load contract
-		const compiledContract = await this.loadSmartContractFromWasmFile(scFilePath);
+		const compiledContract = this.loadSmartContractFromWasmFile(scFilePath);
 		// Deploy SC & retrieve operation ID
 		console.log("Deployment has begun...\n")
-		var datastore = new Map<Uint8Array, Uint8Array>()
+		let datastore = new Map<Uint8Array, Uint8Array>()
 		datastore = datastore.set(new Uint8Array(Buffer.from("key")), new Uint8Array(Buffer.from("value")));
 
 		const operationIdDeployDns = await this.web3Client.smartContracts().deploySmartContract(
@@ -84,12 +84,12 @@ export class Deployer {
 			this.baseAccount
 		);
 
-		console.log("Deployment successfully ended\n")
+		console.log(`Deployment successfully ended with operation id ${operationIdDeployDns[0]}\n`)
 		console.log("Retrieving deployed contract address...\n")
 		// Wait the end of deployment
-		let a = false;
+		let found = false;
 
-		while (!a) {
+		while (!found) {
 			const event = await this.web3Client.smartContracts().getFilteredScOutputEvents({
 				emitter_address: null,
 				start: null,
@@ -99,13 +99,12 @@ export class Deployer {
 				is_final: null
 			});
 			if (event[0]) {
-				a = true;
-				this.contractAddress = event[0].data.split(':')[1];
+				found = true;
+				console.log("First event is:");
+				console.log(event[0].data);
+			} else {
+				await delay(5000);
 			}
-			await delay(5000);
 		}
-		a = false;
-
-		console.log(`Contract address is : ${this.contractAddress}`);
 	}
 }
