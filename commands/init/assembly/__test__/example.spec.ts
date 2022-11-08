@@ -7,20 +7,24 @@ describe("A group of test", () => {
         event();
         const got = 42;
         const want = 41;
-        expect(got).toBe(want);
+        if (got != want) {
+            error(got.toString() + ", " + want.toString() + " was expected.");
+            return;
+        }
     });
 });
 
 describe("An other group of test", () => {
     test("Testing the Storage", () => {
         setStorage();
-        expect(
+        assert(
             getOf(
                 new Address(
                     "A12E6N5BFAdC2wyiBV6VJjqkWhpz1kLVp2XpbRdSnL1mKjCWT6oR"
                 ),
                 "test"
-            ))
-        .toBe("value");
+            ) == "value",
+            "Test failed"
+        );
     });
 });
