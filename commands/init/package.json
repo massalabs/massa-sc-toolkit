@@ -9,7 +9,6 @@
         "asbuild:debug": "asc assembly/index.ts --target debug",
         "asbuild:release": "asc assembly/index.ts --target release",
         "asbuild": "npm run asbuild:debug && npm run asbuild:release",
-        "start": "npx serve .",
         "build": "asc assembly/index.ts --target release --exportRuntime -o build/index.wasm && asc --transform @massalabs/as-transformer/file2base64.js assembly/main.ts --target release --exportRuntime -o build/main.wasm",
         "simulate": "node ./simulator/simulate.js",
         "deploy": "ts-node --esm deployer/deployment_script.ts",
