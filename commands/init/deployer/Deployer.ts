@@ -26,11 +26,11 @@ export class Deployer {
 
 		this.providers = [
 			{
-				url: 'https://inno.massa.net/test15',
+				url: process.env.JSON_RPC_URL_PUBLIC,
 				type: ProviderType.PUBLIC,
 			} as IProvider,
 			{
-				url: process.env.JSON_RPC_URL + ':33038',
+				url: process.env.JSON_RPC_URL_PRIVATE,
 				type: ProviderType.PRIVATE,
 			} as IProvider,
 		];
@@ -85,7 +85,7 @@ export class Deployer {
 		);
 
 		console.log(`Deployment successfully ended with operation id ${operationIdDeployDns[0]}\n`)
-		console.log("Retrieving deployed contract address...\n")
+		console.log("Retrieving first event...\n")
 		// Wait the end of deployment
 		let found = false;
 
@@ -100,7 +100,6 @@ export class Deployer {
 			});
 			if (event[0]) {
 				found = true;
-				console.log("First event is:");
 				console.log(event[0].data);
 			} else {
 				await delay(5000);
