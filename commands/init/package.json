@@ -15,7 +15,7 @@
         "deploy": "ts-node --esm deployer/deployment_script.ts",
         "lint": "eslint --resolve-plugins-relative-to \"./assembly/**/*.{ts,json}\" --fix",
         "prettier": "as-prettier \"./*.{ts,js,json,md}\" \"./{src,__tests}/**/*.{ts,js,json,md}\" --write",
-        "format": "npm run lint && npm run prettier"
+        "fmt": "npm run lint && npm run prettier"
     },
     "keywords": [],
     "author": "",
