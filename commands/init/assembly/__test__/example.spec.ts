@@ -1,5 +1,5 @@
 import { getOf } from "@massalabs/massa-as-sdk/assembly/std/storage";
-import { event, setStorage } from "../sum";
+import { event, setStorage } from "../index";
 import { Address } from "@massalabs/massa-as-sdk";
 
 describe("A group of test", () => {
