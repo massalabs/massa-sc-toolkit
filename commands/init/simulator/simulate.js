@@ -32,7 +32,7 @@ if (process.argv[2] && process.argv[2] === "--install") {
     if (process.platform === "win32") {
         cmd = `curl ${url} -Lo ${fileName} && tar -xzf ${fileName} -C ./simulator --strip-components=1 && del ${fileName}`;
     } else {
-        cmd = `wget -qO- ${url} | tar xz -C ./simulator --strip-components 1`;
+        cmd = `curl ${url} -sL | tar xz -C ./simulator --strip-components 1`;
     }
 
     execSync(cmd);
@@ -40,6 +40,7 @@ if (process.argv[2] && process.argv[2] === "--install") {
     exit(0);
 }
 
+let cmd;
 switch (process.platform) {
     case "win32":
         cmd = "cd simulator && massa-sc-tester.exe execution_config.json";
