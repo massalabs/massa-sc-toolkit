@@ -2,7 +2,9 @@
 
 You now have your own AssemblyScript project setup, with Massa's sdk installed.
 
-You can now run `npm run asbuild` to compile your AssemblyScript files.
+You can now run `npm run build` to compile your AssemblyScript files.
+
+By default it will build `assembly/index.ts`.
 
 To use librairies as massa-as-sdk and @massalabs/as you need to import the required function, for instance :
 
@@ -79,19 +81,28 @@ Keep in mind that many false positives will remain undetected by ESLint such as 
 Prerequisites :
 
 -   You must add a .env file at the root of the repository with the following keys set to valid values :
-    -   DEFAULT_WALLET_PRIVATE_KEY="wallet_private_key"
-    -   DEFAULT_WALLET_PUBLIC_KEY="wallet_public_key"
-    -   DEFAULT_WALLET_ADDRESS="wallet_address"
+    -   WALLET_PRIVATE_KEY="wallet_private_key"
+    -   JSON_RPC_URL_PUBLIC=https://test.massa.net/api/v2:33035
+    -   JSON_RPC_URL_PRIVATE=https://test.massa.net/api/v2:33035
 
 These keys will be the ones used by the deployer script to interact with the blockchain.
 
-Simply run the following command :
+The following command will build the deployer using your compiled contract:
 
 ```shell
-npm run deploy <path_to_compiled_smart_contract>
+npm run build:deployer <path_to_compiled_smart_contract>
 ```
+This command produce `build/deployer.wasm`. If <path_to_compiled_smart_contract> is not set, build/index.wasm is taken by default.
 
-This command will deploy your smart contract on Massa's Innonet.
+
+Then deploy your contract with:
+```shell
+npm run deploy <path_to_compiled_deployer>
+```
+If <path_to_compiled_deployer> is not set, `build/deployer.wasm` is taken by default.
+
+This command will deploy your smart contract on Massa's network corresponding to the RPC provided.
+
 
 ### ... Run unit tests
 

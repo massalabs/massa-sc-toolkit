@@ -17,7 +17,7 @@
 				"name": "execute_main",
 				"config": {
 					"type": "execute_sc",
-					"path": "../build/main.wasm",
+					"path": "../build/deployer.wasm",
 					"function": "main",
 					"parameter": "",
 					"gas": 100000,
