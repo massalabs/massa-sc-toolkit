@@ -3,7 +3,7 @@ import { exit } from "process";
 
 const TESTER_RELEASE_URL =
     "https://github.com/massalabs/massa-sc-tester/releases/download";
-const VERSION = "v0.3.1";
+const VERSION = "v0.3.2";
 let cmd;
 
 if (process.argv[2] && process.argv[2] === "--install") {
@@ -27,7 +27,7 @@ if (process.argv[2] && process.argv[2] === "--install") {
 
     let cmd;
     if (process.platform === "win32") {
-        cmd = `powershell -Command "Invoke-WebRequest -Uri ${url} -OutFile ${fileName}"| Expand-Archive -Path ${fileName} -DestinationPath ./simulator`;
+        cmd = `curl ${url} -Lo ${fileName} && tar -xzf ${fileName} -C ./simulator --strip-components=1 && del ${fileName}`;
     } else {
         cmd = `wget -qO- ${url} | tar xz -C ./simulator --strip-components 1`;
     }
