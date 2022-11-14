@@ -4,19 +4,22 @@ import { exit } from "process";
 const TESTER_RELEASE_URL =
     "https://github.com/massalabs/massa-sc-tester/releases/download";
 const VERSION = "v0.3.2";
-let cmd;
 
 if (process.argv[2] && process.argv[2] === "--install") {
-    let fileName;
+    let fileName = "release_";
     switch (process.platform) {
         case "win32":
-            fileName = "release_windows.zip";
+            fileName += "windows.zip";
             break;
         case "darwin":
-            fileName = "release_macos.tar.gz";
+            if(process.arch === "amd64") {
+                fileName += "macos-amd64.tar.gz";
+            } else {
+                fileName += "macos-arm64.tar.gz";
+            }
             break;
         case "linux":
-            fileName = "release_linux.tar.gz";
+            fileName += "linux.tar.gz";
             break;
         default:
             console.error(`OS not supported`);
