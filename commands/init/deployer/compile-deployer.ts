@@ -32,7 +32,7 @@ const buildDeployer = async (scFilePath: string) => {
 
 let contractWasm = process.argv[2];
 if (!contractWasm) {
-    contractWasm = "build/index.wasm";
+    contractWasm = "build/main.wasm";
 }
 
 checkWasmFile(contractWasm);

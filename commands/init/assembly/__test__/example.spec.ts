@@ -1,4 +1,4 @@
-import { event, setStorage } from "../index";
+import { event, setStorage } from "../main";
 import { Address, Storage } from "@massalabs/massa-as-sdk";
 
 describe("A group of test", () => {

@@ -4,7 +4,7 @@ You now have your own AssemblyScript project setup, with Massa's sdk installed.
 
 You can now run `npm run build` to compile your AssemblyScript files.
 
-By default it will build `assembly/index.ts`.
+By default it will build `assembly/main.ts`.
 
 To use librairies as massa-as-sdk and @massalabs/as you need to import the required function, for instance :
 
@@ -87,21 +87,18 @@ Prerequisites :
 
 These keys will be the ones used by the deployer script to interact with the blockchain.
 
-The following command will build the deployer using your compiled contract:
+The following command will build your contract and create the deployer associated:
+It assumes your contract entrypoint is `assembly/main.ts`
 
 ```shell
-npm run build:deployer <path_to_compiled_smart_contract>
+npm run build
 ```
-This command produce `build/deployer.wasm`. If <path_to_compiled_smart_contract> is not set, build/index.wasm is taken by default.
-
 
 Then deploy your contract with:
 ```shell
-npm run deploy <path_to_compiled_deployer>
+npm run deploy
 ```
-If <path_to_compiled_deployer> is not set, `build/deployer.wasm` is taken by default.
-
-This command will deploy your smart contract on Massa's network corresponding to the RPC provided.
+This command will deploy your smart contract on Massa's network corresponding to the given node.
 
 
 ### ... Run unit tests

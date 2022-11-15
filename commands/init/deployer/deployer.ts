@@ -18,7 +18,7 @@ export class Deployer {
 
     async init() {
         if (!process.env.WALLET_PRIVATE_KEY) {
-            throw new Error(`WALLET_PRIVATE_KEY is not set`);
+            throw new Error(`WALLET_PRIVATE_KEY is not set. Did you create environment file ".env" ?`);
         }
 
         this.deployerAccount = await WalletClient.getAccountFromSecretKey(
@@ -91,7 +91,7 @@ export class Deployer {
 
         if (event[0]) {
             // This prints the deployed SC address
-            console.log(event[0].data);
+            console.log(`Deployment success with event: ${event[0].data}`);
         } else {
             console.log("Deployment success. No events has been generated");
         }
@@ -100,13 +100,15 @@ export class Deployer {
 
 const isWasmFile = (contractWasm: string) => {
     if (contractWasm.substring(contractWasm.length - 5) !== ".wasm") {
-        throw new Error(`\"${contractWasm}\" is not a .wasm file.`);
+        throw new Error(`\"${contractWasm}\" is not a .wasm file`);
     }
 };
 
 const fileExists = (contractWasm: string) => {
     if (!fs.existsSync(contractWasm)) {
-        throw new Error(`Wasm contract file "${contractWasm}" does not exist`);
+        throw new Error(
+            `Wasm contract file "${contractWasm}" does not exist. Did you forget to compile ${contractWasm}.ts ?`
+        );
     }
 };
 
