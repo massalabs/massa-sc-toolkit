@@ -1,6 +1,5 @@
-import { getOf } from "@massalabs/massa-as-sdk/assembly/std/storage";
-import { event, setStorage } from "../index";
-import { Address } from "@massalabs/massa-as-sdk";
+import { event, setStorage } from "../main";
+import { Address, Storage } from "@massalabs/massa-as-sdk";
 
 describe("A group of test", () => {
     test("A test throwing an error", () => {
@@ -18,7 +17,7 @@ describe("An other group of test", () => {
     test("Testing the Storage", () => {
         setStorage();
         assert(
-            getOf(
+            Storage.getOf(
                 new Address(
                     "A12E6N5BFAdC2wyiBV6VJjqkWhpz1kLVp2XpbRdSnL1mKjCWT6oR"
                 ),

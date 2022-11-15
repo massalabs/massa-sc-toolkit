@@ -1,9 +1,15 @@
 
-import { createSC, generateEvent, fileToBase64 } from '@massalabs/massa-as-sdk';
+// The entry file of your WebAssembly module.
+import { Address, Storage, generateEvent } from '@massalabs/massa-as-sdk';
 
-export function main(_args: string): i32 {
-	const bytes = fileToBase64('./build/index.wasm');
-	const websiteDeployer = createSC(bytes);
-	generateEvent(`Contract deploy at: ${websiteDeployer._value}`);
-	return 0;
+const testAddress = new Address(
+	"A12E6N5BFAdC2wyiBV6VJjqkWhpz1kLVp2XpbRdSnL1mKjCWT6oR"
+);
+
+export function setStorage(): void {
+	Storage.setOf(testAddress, "test", "value");
+}
+
+export function event(): void {
+	generateEvent("I'm an event ");
 }
