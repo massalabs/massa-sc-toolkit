@@ -2,9 +2,9 @@ import fs from "fs";
 import asc from "assemblyscript/dist/asc";
 import { checkWasmFile } from "./deployer";
 
-const injectSC = (b64wasm: string): string => {
+const injectSC = (scFilePath: string): string => {
     const deployer = fs.readFileSync("./deployer/deployer.as.ts", "utf-8");
-    return deployer.replace("##My_contract##", b64wasm);
+    return deployer.replace("##Wasm_file_path##", scFilePath);
 };
 
 const compileDeployer = async (deployer: string) => {
@@ -22,10 +22,8 @@ const compileDeployer = async (deployer: string) => {
 };
 
 const buildDeployer = async (scFilePath: string) => {
-    // Convert SC to base 64
-    const b64wasm = fs.readFileSync(scFilePath, "base64");
     // Inject SC in deployer contract
-    const deployerStr = injectSC(b64wasm);
+    const deployerStr = injectSC(scFilePath);
     // Build deployer contract
     await compileDeployer(deployerStr);
 };

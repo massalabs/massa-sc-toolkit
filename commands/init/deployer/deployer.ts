@@ -107,7 +107,7 @@ const isWasmFile = (contractWasm: string) => {
 const fileExists = (contractWasm: string) => {
     if (!fs.existsSync(contractWasm)) {
         throw new Error(
-            `Wasm contract file "${contractWasm}" does not exist. Did you forget to compile ${contractWasm}.ts ?`
+            `Wasm contract file "${contractWasm}" does not exist. Did you forget to compile ?`
         );
     }
 };
