@@ -17,5 +17,5 @@ npm version --no-git-tag-version $VERSION
 echo publishing @massalabs/massa-sc-toolkit@$VERSION
 npm publish --access public --tag latest
 git commit -a -m "Bump version for release $TAG"
-git push
+git push origin HEAD:main
 
