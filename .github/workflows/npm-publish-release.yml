@@ -21,4 +21,3 @@ jobs:
       - run: ./scripts/publish-release.sh ${{ github.ref_name }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
-          GITHUB_TOKEN: ${{ github.token }}
