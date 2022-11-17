@@ -29,5 +29,8 @@
     },
     "devDependencies": {
         "@massalabs/massa-as-sdk": "^1.1.1-dev"
+    },
+    "publishConfig": {
+        "access": "public"
     }
 }

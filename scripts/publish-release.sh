@@ -15,4 +15,4 @@ set-git-ssh
 
 npm version --no-git-tag-version $VERSION
 echo publishing @massalabs/massa-sc-toolkit@$VERSION
-npm publish --access public --tag latest
+npm publish --tag latest
