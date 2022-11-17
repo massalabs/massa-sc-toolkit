@@ -15,7 +15,7 @@ jobs:
                   cache: 'npm'
 
             - name: install
-              run: npm install
+              run: npm ci
 
             - name: run toolkit init
               run: node cli.js init testDir
