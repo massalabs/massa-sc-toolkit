@@ -13,6 +13,5 @@ echo "VERSION" $VERSION
 source ./scripts/enable-git-ssh.sh
 set-git-ssh
 
-npm version --no-git-tag-version $VERSION
 echo publishing @massalabs/massa-sc-toolkit@$VERSION
 npm publish --tag latest
