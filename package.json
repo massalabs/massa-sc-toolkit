@@ -27,9 +27,6 @@
         "fs-extra": "^10.1.0",
         "yargs": "^17.6.0"
     },
-    "devDependencies": {
-        "@massalabs/massa-as-sdk": "^1.1.1-dev"
-    },
     "publishConfig": {
         "access": "public"
     }
