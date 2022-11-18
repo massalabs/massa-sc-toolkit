@@ -13,7 +13,7 @@
         "simulate": "npm run build:deployer && node ./simulator/simulate.js",
         "deploy": "ts-node deployer/deploy-contract.ts",
         "lint": "eslint --resolve-plugins-relative-to \"./assembly/**/*.{ts,json}\" --fix",
-        "prettier": "as-prettier \"./*.{ts,js,json,md}\" \"./{src,__tests}/**/*.{ts,js,json,md}\" --write",
+        "prettier": "as-prettier assembly --write",
         "fmt": "npm run lint && npm run prettier"
     },
     "keywords": [],
