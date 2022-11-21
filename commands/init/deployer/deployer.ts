@@ -54,7 +54,6 @@ export class Deployer {
             .smartContracts()
             .deploySmartContract(
                 {
-                    coins: 0,
                     fee: 0,
                     gasPrice: 0,
                     maxGas: 1_000_000_000,
