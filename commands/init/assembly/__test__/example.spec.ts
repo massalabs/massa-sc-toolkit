@@ -17,13 +17,8 @@ describe("An other group of test", () => {
     test("Testing the Storage", () => {
         setStorage();
         assert(
-            Storage.getOf(
-                new Address(
-                    "A12E6N5BFAdC2wyiBV6VJjqkWhpz1kLVp2XpbRdSnL1mKjCWT6oR"
-                ),
-                "test"
-            ) == "value",
-            "Test failed"
+            Storage.getOf(new Address("A12E6N5BFAdC2wyiBV6VJjqkWhpz1kLVp2XpbRdSnL1mKjCWT6oR"), "test") == "value",
+            "Test failed",
         );
     });
 });

@@ -18,11 +18,11 @@ export class Deployer {
 
     async init() {
         if (!process.env.WALLET_PRIVATE_KEY) {
-            throw new Error(`WALLET_PRIVATE_KEY is not set. Did you create environment file ".env" ?`);
+            throw new Error("WALLET_PRIVATE_KEY is not set. Did you create environment file \".env\" ?");
         }
 
         this.deployerAccount = await WalletClient.getAccountFromSecretKey(
-            process.env.WALLET_PRIVATE_KEY!
+            process.env.WALLET_PRIVATE_KEY
         );
 
         const publicRpc = process.env.JSON_RPC_URL_PUBLIC || DEFAULT_PUBLIC_RPC;
@@ -100,7 +100,7 @@ export class Deployer {
 
 const isWasmFile = (contractWasm: string) => {
     if (contractWasm.substring(contractWasm.length - 5) !== ".wasm") {
-        throw new Error(`\"${contractWasm}\" is not a .wasm file`);
+        throw new Error(`${contractWasm} is not a .wasm file`);
     }
 };
 
