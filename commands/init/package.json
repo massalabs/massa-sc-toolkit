@@ -21,7 +21,7 @@
     "license": "ISC",
     "devDependencies": {
         "@massalabs/as": "^1.0.2",
-        "@massalabs/as-tester": "^0.0.2-dev",
+        "@massalabs/as-tester": "^0.0.3-dev.20221118120016",
         "@massalabs/as-transformer": "^0.0.2-dev",
         "@massalabs/massa-as-sdk": "^1.1.1-dev",
         "@massalabs/massa-web3": "^1.10.0",

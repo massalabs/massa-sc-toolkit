@@ -1,20 +1,22 @@
 import { event, setStorage } from "../main";
 import { Address, Storage } from "@massalabs/massa-as-sdk";
 
-describe("A group of test", () => {
-    test("A test throwing an error", () => {
+describe("A group of test", (): i32 => {
+    test("A test throwing an error", (): i32 => {
         event();
         const got = 42;
         const want = 41;
         if (got != want) {
             error(got.toString() + ", " + want.toString() + " was expected.");
-            return;
+            return TestResult.Failure;
         }
+        return TestResult.Success;
     });
+    return TestResult.Success;
 });
 
-describe("An other group of test", () => {
-    test("Testing the Storage", () => {
+describe("An other group of test", (): i32 => {
+    test("Testing the Storage", (): i32 => {
         setStorage();
         assert(
             Storage.getOf(
@@ -25,5 +27,7 @@ describe("An other group of test", () => {
             ) == "value",
             "Test failed"
         );
+        return TestResult.Success;
     });
+    return TestResult.Success;
 });
