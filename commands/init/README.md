@@ -19,13 +19,11 @@ export function HelloWorld(): void {
 
 ### Include another smart contract inside a smart contract ?
 
-You can follow the following documentation :
+You can include a smart contact inside of another smart contract following the [AS Transformer documentation](https://github.com/massalabs/as/tree/main/transformer).
 
-<https://github.com/massalabs/as/tree/main/transformer>
+### ... use the simulator
 
-## ... use the simulator
-
-**_The simulator_** (massa-sc-tester <https://github.com/massalabs/massa-sc-tester>) mimics the behavior at ledger level of the Massa Blockchain.
+**_The simulator_** ([massa-sc-tester](https://github.com/massalabs/massa-sc-tester)) mimics the behavior at ledger level of the Massa Blockchain.
 It can also handle smart contracts deployment & smart contract calls. It means that all storage & coin balances modification are taken into account
 .
 It provides :
@@ -53,11 +51,15 @@ The example already set up can be run with :
 
 - Compiling the example smart contracts
 
+```bash
     npm run build
+```
 
 - Running the simulate script
 
+```bash
     npm run simulate
+```
 
 ### ... use a linter
 
