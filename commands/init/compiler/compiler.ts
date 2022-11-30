@@ -12,7 +12,7 @@ export async function compileAS() {
         const filesFiltered = files.filter((file) => file.includes(".ts"));
 
         const filesOrdered = orderForCompilation(filesFiltered);
-        console.log(`${filesOrdered} files to compile`);
+        console.log(`${filesOrdered.length} files to compile`);
 
         const command = prepareCommand(filesOrdered);
 
