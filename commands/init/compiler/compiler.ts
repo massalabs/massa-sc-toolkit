@@ -4,7 +4,7 @@ import { readdir, readFileSync } from "fs";
 const dirToCompile = "assembly/contracts";
 
 export async function compileAS() {
-    readdir(dirToCompile, function (err: NodeJS.ErrnoException | null, files: string[]) {
+    readDir(dirToCompile, function (err: NodeJS.ErrnoException | null, files: string[]) {
         if (err) {
             return console.log("Unable to scan directory: " + err);
         }
