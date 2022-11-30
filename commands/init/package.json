@@ -9,6 +9,7 @@
         "build:deployer": "ts-node deployer/compile-deployer.ts",
         "build:smart-contract": "asc",
         "build": "npm run build:smart-contract && npm run build:deployer",
+        "simulate": "npm run build:deployer && node ./simulator/simulate.js",
         "deploy": "ts-node deployer/deploy-contract.ts",
         "lint": "eslint --resolve-plugins-relative-to . \"./**/*.{ts,json}\" \"./*.{ts,json}\" --fix",
         "prettier": "as-prettier assembly --write",
