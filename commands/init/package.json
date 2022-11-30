@@ -4,13 +4,11 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "postinstall": "node ./simulator/simulate.js --install",
         "test": "npx astester --imports node_modules/@massalabs/massa-as-sdk/astester.imports.js ./assembly/**/*.spec.ts",
         "build:debug": "asc --target debug",
         "build:deployer": "ts-node deployer/compile-deployer.ts",
         "build:smart-contract": "asc",
         "build": "npm run build:smart-contract && npm run build:deployer",
-        "simulate": "npm run build:deployer && node ./simulator/simulate.js",
         "deploy": "ts-node deployer/deploy-contract.ts",
         "lint": "eslint --resolve-plugins-relative-to . \"./**/*.{ts,json}\" \"./*.{ts,json}\" --fix",
         "prettier": "as-prettier assembly --write",
