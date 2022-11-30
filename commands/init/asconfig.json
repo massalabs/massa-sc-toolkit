@@ -1,13 +1,13 @@
 {
-    "entries": ["assembly/impl.ts"],
+    "entries": ["assembly/main.ts"],
     "targets": {
         "debug": {
-            "outFile": "build/impl.wasm",
+            "outFile": "build/main.wasm",
             "sourceMap": true,
             "debug": true
         },
         "release": {
-            "outFile": "build/impl.wasm",
+            "outFile": "build/main.wasm",
             "sourceMap": true,
             "optimizeLevel": 3,
             "shrinkLevel": 0,
