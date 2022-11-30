@@ -25,11 +25,9 @@ export async function compileAS() {
                 console.log(stderr);
                 return;
             }
-            console.log(`stdout: ${stdout}`);
+            console.log("Compilation succeeds");
             return;
         });
-
-        console.log("Compilation succeeds");
     });
 }
 
@@ -55,7 +53,6 @@ function prepareCommand(filesOrdered: string[]) {
         const contractName = file.substring(0, file.length - 3);
         command += `npx asc ${dirToCompile}/${contractName}.ts --target release -o build/${contractName}.wasm && `;
     });
-    console.log(command.substring(0, command.length - 4));
     return command.substring(0, command.length - 4);
 }
 
