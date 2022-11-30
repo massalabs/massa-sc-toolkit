@@ -7,7 +7,7 @@ const keyTest = toBytes("test");
 const valueTest = toBytes("value");
 
 export function setStorage(_args: StaticArray<u8>): StaticArray<u8> {
-    Storage.setOf(testAddress.toByteString(), keyTest, valueTest);
+    Storage.setOf(testAddress, keyTest, valueTest);
     return valueTest;
 }
 
