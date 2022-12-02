@@ -24,7 +24,7 @@
         "@massalabs/as-transformer": "^0.1.1-dev",
         "@massalabs/massa-as-sdk": "^1.2.1-dev",
         "@massalabs/massa-web3": "^1.11.0",
-        "@types/node": "^18.11.3",
+        "@types/node": "^18.11.10",
         "@typescript-eslint/eslint-plugin": "^5.40.1",
         "@typescript-eslint/parser": "^5.40.1",
         "assemblyscript": "^0.21.7",

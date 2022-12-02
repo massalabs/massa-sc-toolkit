@@ -1,6 +1,6 @@
 import { exec } from "child_process";
 import { readdir, readFileSync } from "fs";
-
+import { join } from "path";
 const dirToCompile = "assembly/contracts";
 
 export async function compileAS() {
@@ -16,7 +16,7 @@ export async function compileAS() {
 
         const command = prepareCommand(filesOrdered);
 
-        exec(command, (error, stdout, stderr) => {
+        exec(command, (error, _, stderr) => {
             if (error) {
                 console.log(error);
                 return;
@@ -33,27 +33,15 @@ export async function compileAS() {
 
 // Order files retrieved in the /contracts folder
 function orderForCompilation(files: string[]) {
-    const deployers: string[] = [];
-    const fileOrdered: string[] = [];
-    files.forEach(async (contract) => {
-        const contractASContent = readFileSync(`${dirToCompile}/${contract}`, "utf-8");
-        contractASContent.includes("fileToBase64(") ? deployers.push(contract) : fileOrdered.push(contract);
+    return files.sort(contract => {
+        return readFileSync(join(dirToCompile, contract), "utf-8").includes("fileToBase64(") ? 1 : -1
     });
-
-    deployers.forEach((deployer) => {
-        fileOrdered.push(deployer);
-    });
-
-    return fileOrdered;
 }
 
-function prepareCommand(filesOrdered: string[]) {
-    let command = "";
-    filesOrdered.forEach((file) => {
-        const contractName = file.substring(0, file.length - 3);
-        command += `npx asc ${dirToCompile}/${contractName}.ts --target release -o build/${contractName}.wasm && `;
-    });
-    return command.substring(0, command.length - 4);
+function prepareCommand(filesOrdered: string[]): string {
+    return filesOrdered
+        .map((file) => `npx asc ${join(dirToCompile, file)} -o build/${file.replace(".ts", ".wasm")}`)
+        .join(" && ");
 }
 
 await compileAS();
