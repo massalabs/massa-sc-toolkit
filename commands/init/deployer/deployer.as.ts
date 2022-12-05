@@ -1,6 +1,6 @@
 import { generateEvent, createSC, fileToByteArray } from "@massalabs/massa-as-sdk";
 
-export function main(_args: string): i32 {
+export function main(_args: StaticArray<u8>): StaticArray<u8> {
     const bytes: StaticArray<u8> = fileToByteArray("##Wasm_file_path##");
     const contractAddr = createSC(bytes);
 
@@ -12,5 +12,5 @@ export function main(_args: string): i32 {
     }
     generateEvent(`${msg} ${contractAddr.toByteString()}`);
 
-    return 0;
+    return [];
 }

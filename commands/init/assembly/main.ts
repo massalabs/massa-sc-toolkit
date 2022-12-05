@@ -1,10 +1,10 @@
 // The entry file of your WebAssembly module.
-import { Address, Storage, generateEvent, toBytes } from "@massalabs/massa-as-sdk";
+import { Address, Storage, generateEvent, Args } from "@massalabs/massa-as-sdk";
 
 const testAddress = new Address("A12E6N5BFAdC2wyiBV6VJjqkWhpz1kLVp2XpbRdSnL1mKjCWT6oR");
 
-const keyTest = toBytes("test");
-const valueTest = toBytes("value");
+const keyTest = (new Args()).add("test").serialize();
+const valueTest = (new Args()).add("value").serialize();
 
 export function setStorage(_args: StaticArray<u8>): StaticArray<u8> {
     Storage.setOf(testAddress, keyTest, valueTest);
@@ -13,5 +13,5 @@ export function setStorage(_args: StaticArray<u8>): StaticArray<u8> {
 
 export function event(_: StaticArray<u8>): StaticArray<u8> {
     generateEvent("I'm an event ");
-    return toBytes("1");
+    return [];
 }
