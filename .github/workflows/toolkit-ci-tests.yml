@@ -12,7 +12,7 @@ jobs:
             - uses: actions/setup-node@v3
               with:
                   node-version: "16"
-                  cache: 'npm'
+                  cache: "npm"
 
             - name: install
               run: npm ci
@@ -22,7 +22,6 @@ jobs:
 
             - name: run target tests
               run: |
-                cd testDir
-                npm run build
-                npm run test
-                npm run simulate
+                  cd testDir
+                  npm run build
+                  npm run test
