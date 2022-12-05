@@ -34,7 +34,7 @@ export async function compileAS() {
 // Order files retrieved in the /contracts folder
 function orderForCompilation(files: string[]) {
     return files.sort(contract => {
-        return readFileSync(join(dirToCompile, contract), "utf-8").includes("fileToBase64(") ? 1 : -1
+        return readFileSync(join(dirToCompile, contract), "utf-8").includes("fileToBase64(") ? 1 : -1;
     });
 }
 
