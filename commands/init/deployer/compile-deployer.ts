@@ -28,11 +28,16 @@ const buildDeployer = async (scFilePath: string) => {
     await compileDeployer(deployerStr);
 };
 
-let contractWasm = process.argv[2];
-if (!contractWasm) {
-    contractWasm = "build/main.wasm";
-}
-
-checkWasmFile(contractWasm);
-console.log(`Compile deployer for smartcontract: ${contractWasm}\n`);
-await buildDeployer(contractWasm);
+(async () => {
+    let contractWasm = process.argv[2];
+    if (!contractWasm) {
+        contractWasm = "build/main.wasm";
+    }
+    try {
+        checkWasmFile(contractWasm);
+        console.log(`Compile deployer for smart contract: ${contractWasm}\n`);
+        await buildDeployer(contractWasm);
+    } catch (ex) {
+        console.error(`Error compiling contract wasm file: ${contractWasm}. Error = ${(ex as Error).message}`);
+    }
+})();
