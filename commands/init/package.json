@@ -5,7 +5,6 @@
     "main": "index.js",
     "scripts": {
         "test": "npx astester --imports node_modules/@massalabs/massa-as-sdk/astester.imports.js ./assembly/**/*.spec.ts",
-        "build:debug": "asc --target debug",
         "build:deployer": "ts-node deployer/compile-deployer.ts",
         "build:smart-contract": "ts-node compiler/compiler.ts",
         "build": "npm run build:smart-contract && npm run build:deployer",

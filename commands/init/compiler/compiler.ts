@@ -1,47 +1,42 @@
-import { exec } from "child_process";
 import { readdir, readFileSync } from "fs";
 import { join } from "path";
+import asc from "assemblyscript/dist/asc";
+
 const dirToCompile = "assembly/contracts";
 
 export async function compileAS() {
-    readdir(dirToCompile, function (err: NodeJS.ErrnoException | null, files: string[]) {
+    readdir(dirToCompile, async function (err: NodeJS.ErrnoException | null, files: string[]) {
         if (err) {
             return console.log("Unable to read directory: " + err);
         }
 
-        const filesFiltered = files.filter((file) => file.includes(".ts"));
+        // keep only files ending with `.ts`
+        files = files.filter((file) => file.endsWith(".ts"));
 
-        const filesOrdered = orderForCompilation(filesFiltered);
-        console.log(`${filesOrdered.length} files to compile`);
+        // sort the file: compile deployer contract after
+        files.sort((contract) => {
+            return readFileSync(join(dirToCompile, contract), "utf-8").includes("fileToByteArray(") ? 1 : -1;
+        });
 
-        const command = prepareCommand(filesOrdered);
+        console.log(`${files.length} files to compile`);
 
-        exec(command, (error, _, stderr) => {
+        files.forEach(async (contract) => {
+            console.log(contract);
+            const { error, stdout, stderr } = await asc.main([
+                "-o",
+                join("build", contract.replace(".ts", ".wasm")),
+                "-t",
+                join("build", contract.replace(".ts", ".wat")),
+                join(dirToCompile, contract),
+            ]);
             if (error) {
-                console.log(error);
-                return;
+                console.log("Compilation failed: " + error.message);
+                console.log(stderr.toString());
+            } else {
+                console.log(stdout.toString());
             }
-            if (stderr) {
-                console.log(stderr);
-                return;
-            }
-            console.log("Compilation succeeds");
-            return;
         });
     });
-}
-
-// Order files retrieved in the /contracts folder
-function orderForCompilation(files: string[]) {
-    return files.sort(contract => {
-        return readFileSync(join(dirToCompile, contract), "utf-8").includes("fileToBase64(") ? 1 : -1;
-    });
-}
-
-function prepareCommand(filesOrdered: string[]): string {
-    return filesOrdered
-        .map((file) => `npx asc ${join(dirToCompile, file)} -o build/${file.replace(".ts", ".wasm")}`)
-        .join(" && ");
 }
 
 await compileAS();
