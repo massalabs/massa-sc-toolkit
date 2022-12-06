@@ -6,7 +6,7 @@ const dirToCompile = "assembly/contracts";
 export async function compileAS() {
     readdir(dirToCompile, function (err: NodeJS.ErrnoException | null, files: string[]) {
         if (err) {
-            return console.log("Unable to scan directory: " + err);
+            return console.log("Unable to read directory: " + err);
         }
 
         const filesFiltered = files.filter((file) => file.includes(".ts"));
