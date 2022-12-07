@@ -1,4 +1,4 @@
-import { event, setStorage } from "../main";
+import { event, setStorage } from "../contracts/main";
 import { Address, Storage, toBytes } from "@massalabs/massa-as-sdk";
 
 describe("A group of test", (): i32 => {
