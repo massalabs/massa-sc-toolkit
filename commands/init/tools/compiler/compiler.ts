@@ -1,13 +1,11 @@
 import asc from 'assemblyscript/dist/asc';
 
 export async function compile(argv: string[], options: object = {}) {
-    console.log('#############COMPILE');
     const { error, stdout, stderr } = await asc.main(argv, options);
     if (error) {
-        console.log('@@@@@@@@@@@@@@@@Compilation failed: ' + error.message);
+        console.log('Compilation failed: ' + error.message);
         console.log(stderr.toString());
     } else {
         console.log(stdout.toString());
     }
-    console.log('#############END COMPILE');
 }
