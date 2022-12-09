@@ -4,9 +4,6 @@ import { Address, Storage, toBytes } from '@massalabs/massa-as-sdk';
 describe('A group of test', () => {
   test('A test throwing an error', () => {
     event(new StaticArray<u8>(0));
-    const got = 42;
-    const want = 41;
-    expect(got).toBe(want);
   });
 });
 

@@ -4,7 +4,7 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "test": "asp",
+        "test": "asp --summary",
         "build:deployer": "ts-node tools/compiler/compile-deployer.ts",
         "build:smart-contract": "ts-node tools/compiler/compile-all.ts",
         "build": "npm run build:smart-contract && npm run build:deployer",
