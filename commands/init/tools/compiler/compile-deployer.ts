@@ -1,15 +1,16 @@
+
 import fs from "fs";
-import asc from "assemblyscript/dist/asc";
-import { checkWasmFile } from "./deployer";
+import { checkWasmFile } from "../utils";
+import { compile } from "./compiler";
 
 const injectSC = (scFilePath: string): string => {
-    const deployer = fs.readFileSync("./deployer/deployer.as.ts", "utf-8");
+    const deployer = fs.readFileSync("./tools/assembly/deployer.ts", "utf-8");
     return deployer.replace("##Wasm_file_path##", scFilePath);
 };
 
 const compileDeployer = async (deployer: string) => {
-    await asc.main(["-o", "build/deployer.wasm", "deployer.ts"], {
-        readFile: (name, _) => {
+    await compile(["-o", "./build/deployer.wasm", "-t", "./build/deployer.wat", "deployer.ts"], {
+        readFile: (name: string) => {
             if (name === "deployer.ts") {
                 return deployer;
             }

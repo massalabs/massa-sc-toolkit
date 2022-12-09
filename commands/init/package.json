@@ -5,11 +5,10 @@
     "main": "index.js",
     "scripts": {
         "test": "npx astester --imports node_modules/@massalabs/massa-as-sdk/astester.imports.js ./assembly/**/*.spec.ts",
-        "build:deployer": "ts-node deployer/compile-deployer.ts",
-        "build:smart-contract": "ts-node compiler/compiler.ts",
+        "build:deployer": "ts-node tools/compiler/compile-deployer.ts",
+        "build:smart-contract": "ts-node tools/compiler/compile-all.ts",
         "build": "npm run build:smart-contract && npm run build:deployer",
-        "simulate": "npm run build:deployer && node ./simulator/simulate.js",
-        "deploy": "ts-node deployer/deploy-contract.ts",
+        "deploy": "ts-node tools/deployer/deploy-contract.ts",
         "lint": "eslint --resolve-plugins-relative-to . \"./**/*.{ts,json}\" \"./*.{ts,json}\" --fix",
         "prettier": "as-prettier assembly --write",
         "fmt": "npm run lint && npm run prettier"
