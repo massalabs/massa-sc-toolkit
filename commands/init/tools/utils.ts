@@ -1,7 +1,7 @@
-import fs from "fs";
+import fs from 'fs';
 
 const isWasmFile = (contractWasm: string) => {
-	if (contractWasm.substring(contractWasm.length - 5) !== ".wasm") {
+	if (contractWasm.substring(contractWasm.length - 5) !== '.wasm') {
 			throw new Error(`${contractWasm} is not a .wasm file`);
 	}
 };

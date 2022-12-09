@@ -1,9 +1,9 @@
-import "dotenv/config";
-import { Client, EOperationStatus, IAccount, IClientConfig, ProviderType, WalletClient } from "@massalabs/massa-web3";
-import fs from "fs";
+import 'dotenv/config';
+import { Client, EOperationStatus, IAccount, IClientConfig, ProviderType, WalletClient } from '@massalabs/massa-web3';
+import fs from 'fs';
 
-const DEFAULT_PUBLIC_RPC = "https://test.massa.net/api/v2:33035";
-const DEFAULT_PRIVATE_RPC = "https://test.massa.net/api/v2:33034";
+const DEFAULT_PUBLIC_RPC = 'https://test.massa.net/api/v2:33035';
+const DEFAULT_PRIVATE_RPC = 'https://test.massa.net/api/v2:33034';
 
 export class Deployer {
     deployerAccount = {} as IAccount;
@@ -11,7 +11,7 @@ export class Deployer {
 
     async init() {
         if (!process.env.WALLET_PRIVATE_KEY) {
-            throw new Error("WALLET_PRIVATE_KEY is not set. Did you create environment file \".env\" ?");
+            throw new Error('WALLET_PRIVATE_KEY is not set. Did you create environment file ".env" ?');
         }
 
         this.deployerAccount = await WalletClient.getAccountFromSecretKey(process.env.WALLET_PRIVATE_KEY);
@@ -40,7 +40,7 @@ export class Deployer {
     async deployContract(contractWasm: string) {
         const binaryArrayBuffer: Buffer = fs.readFileSync(contractWasm, {});
         const binaryFileContents = new Uint8Array(binaryArrayBuffer);
-        const base64: string = Buffer.from(binaryFileContents).toString("base64");
+        const base64: string = Buffer.from(binaryFileContents).toString('base64');
         // Deploy SC & retrieve operation ID
         const operationId = await this.web3Client.smartContracts().deploySmartContract(
             {
@@ -52,7 +52,7 @@ export class Deployer {
         );
 
         console.log(`Operation submitted successfully to the network. Operation id: ${operationId[0]}\n`);
-        console.log("Waiting for the state of operation to be Final... this may take few seconds\n");
+        console.log('Waiting for the state of operation to be Final... this may take few seconds\n');
 
         // Wait the end of deployment
         await this.web3Client.smartContracts().awaitRequiredOperationStatus(operationId[0], EOperationStatus.FINAL);
@@ -70,7 +70,7 @@ export class Deployer {
             // This prints the deployed SC address
             console.log(`Deployment success with event: ${event[0].data}`);
         } else {
-            console.log("Deployment success. No events has been generated");
+            console.log('Deployment success. No events has been generated');
         }
     }
 }
