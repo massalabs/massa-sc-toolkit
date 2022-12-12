@@ -6,7 +6,7 @@ You can now run `npm run build` to compile your AssemblyScript files.
 
 By default it will build `assembly/main.ts`.
 
-To use librairies as massa-as-sdk and @massalabs/as you need to import the required function, for instance :
+To use libraries as massa-as-sdk and @massalabs/as you need to import the required function, for instance :
 
 ```jsx
 import { generateEvent } from "@massalabs/massa-as-sdk";
@@ -20,6 +20,12 @@ export function HelloWorld(): void {
 ### Include another smart contract inside a smart contract ?
 
 You can include a smart contact inside of another smart contract following the [AS Transformer documentation](https://github.com/massalabs/as/tree/main/transformer).
+
+### ... Add code to be executed at deployment
+
+The code in the `assembly/init.ts` is appended to the smart contract that deploy the smart-contract. It is executed at the end of the deployment. If you want to initialize some variables in the smart contract, you can use this function to call the deployed SC.
+The parameter of the `init` function is the address of the deployed smart contract.
+If you don't want to have code at deployment you can remove the `init.ts` file. It will economize some gas.
 
 ### ... use the simulator
 

@@ -13,7 +13,7 @@ const injectInit = (deployer: string): string => {
         const init = fs.readFileSync("./assembly/init.ts", "utf-8");
         return deployer.replace("//##init_function##", init).replace("//##init_call##", "init(contractAddr);");
     } else {
-        return deployer.replace("//##init##", "").replace("//##init_call##", "");
+        return deployer.replace("//##init_function##", "").replace("//##init_call##", "");
     }
 };
 

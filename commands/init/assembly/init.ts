@@ -4,6 +4,5 @@ import { generateEvent, Address } from "@massalabs/massa-as-sdk";
 // If you don't want to have code at deployment delete this file (it will cost you less gas)
 // `_sc_address` is the address of the contract you deployed
 export function init(_sc_address: Address): StaticArray<u8> {
-    generateEvent("Init called");
     return [];
 }
