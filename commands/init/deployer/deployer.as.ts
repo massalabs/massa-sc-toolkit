@@ -12,5 +12,8 @@ export function main(_args: StaticArray<u8>): StaticArray<u8> {
     }
     generateEvent(`${msg} ${contractAddr.toByteString()}`);
 
+    //##init_call##
     return [];
 }
+
+//##init_function##

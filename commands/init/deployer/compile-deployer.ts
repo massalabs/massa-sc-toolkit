@@ -7,6 +7,16 @@ const injectSC = (scFilePath: string): string => {
     return deployer.replace("##Wasm_file_path##", scFilePath);
 };
 
+const injectInit = (deployer: string): string => {
+    const initFile = "./assembly/init.ts";
+    if (fs.existsSync(initFile)) {
+        const init = fs.readFileSync("./assembly/init.ts", "utf-8");
+        return deployer.replace("//##init_function##", init).replace("//##init_call##", "init(contractAddr);");
+    } else {
+        return deployer.replace("//##init##", "").replace("//##init_call##", "");
+    }
+};
+
 const compileDeployer = async (deployer: string) => {
     await asc.main(["-o", "build/deployer.wasm", "deployer.ts"], {
         readFile: (name, _) => {
@@ -24,14 +34,16 @@ const compileDeployer = async (deployer: string) => {
 const buildDeployer = async (scFilePath: string) => {
     // Inject SC in deployer contract
     const deployerStr = injectSC(scFilePath);
+    // Inject init function in deployer contract
+    const deployerStrInitialized = injectInit(deployerStr);
     // Build deployer contract
-    await compileDeployer(deployerStr);
+    await compileDeployer(deployerStrInitialized);
 };
 
 (async () => {
     let contractWasm = process.argv[2];
     if (!contractWasm) {
-        contractWasm = "build/main.wasm";
+        contractWasm = "build/default.wasm";
     }
     try {
         checkWasmFile(contractWasm);
