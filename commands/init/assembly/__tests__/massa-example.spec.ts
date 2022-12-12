@@ -58,7 +58,12 @@ describe('An other group of test', () => {
 
   test('Testing the Storage set', () => {
     setStorage([]);
-    expect(Storage.hasOf(new Address('A12E6N5BFAdC2wyiBV6VJjqkWhpz1kLVp2XpbRdSnL1mKjCWT6oR'),toBytes('test'))).toBe(true);
+    expect(
+      Storage.hasOf(
+        new Address('A12E6N5BFAdC2wyiBV6VJjqkWhpz1kLVp2XpbRdSnL1mKjCWT6oR'),
+        toBytes('test'),
+      ),
+    ).toBe(true);
   });
 
   test('Testing event', () => {
