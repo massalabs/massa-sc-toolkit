@@ -13,7 +13,7 @@ import {
   Args,
 } from '@massalabs/massa-as-sdk';
 
-describe('An other group of test', () => {
+describe('Testing the Storage and CallStack', () => {
   test('Testing the callstack', () => {
     const callStack = Context.addressStack();
     expect(callStack[0].toByteString()).toBe(
@@ -53,7 +53,7 @@ describe('An other group of test', () => {
 
   test('Testing the Storage set', () => {
     setStorage([]);
-    expect(Storage.has(toBytes('test'))).toBe(true);
+    expect(Storage.has(toBytes('test'))).toBeTruthy()
   });
 
   test('Testing the Storage set', () => {
@@ -63,7 +63,7 @@ describe('An other group of test', () => {
         new Address('A12E6N5BFAdC2wyiBV6VJjqkWhpz1kLVp2XpbRdSnL1mKjCWT6oR'),
         toBytes('test'),
       ),
-    ).toBe(true);
+    ).toBeTruthy()
   });
 
   test('Testing event', () => {
