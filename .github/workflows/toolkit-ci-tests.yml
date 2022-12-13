@@ -24,4 +24,5 @@ jobs:
               run: |
                   cd testDir
                   npm run build
-                  [[ ! $(npm run test | grep "❌ Fail") ]]
+                  npm run test
+                  npm run fmt
