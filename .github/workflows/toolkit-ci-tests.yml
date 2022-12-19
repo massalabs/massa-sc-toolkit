@@ -25,3 +25,4 @@ jobs:
                   cd testDir
                   npm run build
                   npm run test
+                  npm run fmt

@@ -1,9 +1,10 @@
-import { Deployer, checkWasmFile } from "./deployer";
+import { checkWasmFile } from '../utils';
+import { Deployer } from './deployer';
 
 (async () => {
     let wasmFile = process.argv[2];
     if (!wasmFile) {
-        wasmFile = "build/deployer.wasm";
+        wasmFile = './build/deployer.wasm';
     }
     try {
         checkWasmFile(wasmFile);
