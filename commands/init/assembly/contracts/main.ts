@@ -6,6 +6,14 @@ const testAddress = new Address("A12E6N5BFAdC2wyiBV6VJjqkWhpz1kLVp2XpbRdSnL1mKjC
 const keyTest = new Args().add("test").serialize();
 const valueTest = new Args().add("value").serialize();
 
+// This function is called when the contract is deployed.
+export function constructor(args: StaticArray<u8>): StaticArray<u8> {
+    let args_deserialized = new Args();
+    let name = args_deserialized.nextString();
+    generateEvent(`Constructor called with name ${name}`);
+    return [];
+}
+
 export function setStorage(_args: StaticArray<u8>): StaticArray<u8> {
     Storage.setOf(testAddress, keyTest, valueTest);
     return valueTest;

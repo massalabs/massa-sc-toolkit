@@ -1,0 +1,24 @@
+{
+  "name": "sc-deployer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "ts-node compiler/compiler.ts",
+    "deploy": "ts-node deploy.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@massalabs/as": "1.1.1-dev.20221219101722",
+    "@massalabs/massa-web3": "^1.11.0",
+    "@types/node": "^18.11.10",
+    "assemblyscript": "^0.21.7",
+    "ts-node": "^10.9.1",
+    "tslib": "^2.4.0",
+    "typescript": "^4.8.4",
+    "@massalabs/massa-as-sdk": "^1.2.1-dev.20221219160927"
+  },
+  "type": "module"
+}
