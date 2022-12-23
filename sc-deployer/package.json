@@ -11,7 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "@massalabs/as": "1.1.1-dev.20221219101722",
-    "@massalabs/massa-web3": "file:../../massa-web3",
+    "@massalabs/massa-web3": "git://github.com/massalabs/massa-web3",
     "@types/node": "^18.11.10",
     "assemblyscript": "^0.21.7",
     "ts-node": "^10.9.1",
