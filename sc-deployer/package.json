@@ -16,7 +16,7 @@
     "@massalabs/massa-web3": "^1.12.0",
     "@massalabs/massa-as-sdk": "^1.2.1-dev",
     "@types/node": "^18.11.10",
-    "assemblyscript": "^0.21.7",
+    "assemblyscript": "^0.25.1",
     "ts-node": "^10.9.1",
     "tslib": "^2.4.0",
     "typescript": "^4.8.4"
