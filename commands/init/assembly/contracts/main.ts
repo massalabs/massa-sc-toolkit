@@ -1,9 +1,14 @@
 // The entry file of your WebAssembly module.
-import { generateEvent, toBytes } from '@massalabs/massa-as-sdk';
+import { callerHasWriteAccess, generateEvent, toBytes } from '@massalabs/massa-as-sdk';
 import {Args} from '@massalabs/as-types'
 
 // This function is called when the contract is deployed.
 export function constructor(args: StaticArray<u8>): StaticArray<u8> {
+  // This line is important. It ensure that this function can't be called in the future.
+  // If you remove this check someone could call your constructor function and reset your SC.
+  if (!callerHasWriteAccess) {
+    return [];
+  }
   const args_deserialized = new Args(args);
   const name = args_deserialized.nextString().unwrap();
   generateEvent(`Constructor called with name ${name}`);

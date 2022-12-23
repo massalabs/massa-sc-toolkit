@@ -59,6 +59,8 @@ npm run deploy
 
 This command will deploy your smart contract on Massa's network corresponding to the given node.
 
+When you deploy a contract the function `constructor` is called. If you want ot deploy more contracts or pass parameter to the constructor function you have to modify `deploy.ts`. Even if you want the default behavior it's cool to take a look at it.
+
 ### ... Run unit tests
 
 Check examples in `./assembly/__test__/massa-example.spec.ts`

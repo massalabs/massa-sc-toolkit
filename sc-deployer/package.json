@@ -2,9 +2,11 @@
   "name": "@massalabs/massa-sc-deployer",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "test": "ts-node tests/index.ts",
+    "build-package": "rm -rf dist/* && tsc -d -p ./tsconfig.json && cp deployer.wasm dist/",
     "build": "ts-node compiler/compiler.ts && cp build/deployer.wasm dist/deployer.wasm && cp build/test.wasm tests/test.wasm"
   },
   "author": "",
@@ -21,6 +23,6 @@
   },
   "type": "module",
   "files": [
-    "dist/index.ts"
+    "dist"
   ]
 }
