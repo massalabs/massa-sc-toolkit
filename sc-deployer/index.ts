@@ -1,4 +1,4 @@
-import { Args, Client, ClientFactory, DefaultProviderUrls, IAccount, WalletClient, IContractData } from "@massalabs/massa-web3";
+import { Args, Client, ClientFactory, ProviderType, IAccount, WalletClient, IContractData, IProvider } from "@massalabs/massa-web3";
 import { readFileSync } from "fs";
 import path from "path";
 import { fileURLToPath } from 'url';
@@ -13,9 +13,14 @@ const __filename = fileURLToPath(import.meta.url);
 
 const __dirname = path.dirname(__filename);
 
-async function deploySC(account: IAccount, contracts: ISCData[], fee: number, maxGas: number) {
-    const client: Client = await ClientFactory.createDefaultClient(
-        DefaultProviderUrls.LOCALNET, // Change to testnet
+async function deploySC(publicApi: string, account: IAccount, contracts: ISCData[], fee: number, maxGas: number) {
+    const client: Client = await ClientFactory.createCustomClient(
+        [
+            {url: publicApi, type: ProviderType.PUBLIC} as IProvider, 
+            // This IP is false but we don't need private for this script so we don't want to ask one to the user 
+            // but massa-web3 requires one
+            {url: publicApi, type: ProviderType.PRIVATE} as IProvider
+        ],
         true,
         account
     );
