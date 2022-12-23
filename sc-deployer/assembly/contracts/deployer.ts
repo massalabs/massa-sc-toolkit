@@ -1,4 +1,5 @@
-import { generateEvent, createSC, getOpKeys, getOpData, call, Args, functionExists, hasOpKey } from "@massalabs/massa-as-sdk";
+import { generateEvent, createSC, getOpKeys, getOpData, call, functionExists, hasOpKey } from "@massalabs/massa-as-sdk";
+import { Args } from '@massalabs/as-types'
 
 export function main(_args: StaticArray<u8>): StaticArray<u8> {
     const keys = getOpKeys();
@@ -8,7 +9,7 @@ export function main(_args: StaticArray<u8>): StaticArray<u8> {
         return [];
     }
     let nb_sc_ser = getOpData(master_key);
-    let nb_sc = new Args(nb_sc_ser).nextU64();
+    let nb_sc = new Args(nb_sc_ser).nextU64().unwrap();
     for (let i: u64 = 0; i < nb_sc; i++) {
         let key_base = new Args().add(i + 1);
         let key = key_base.serialize();
@@ -32,7 +33,7 @@ export function main(_args: StaticArray<u8>): StaticArray<u8> {
             }
             let coins: u64;
             if (hasOpKey(key_coins)) {
-                coins = new Args(getOpData(key_coins)).nextU64();
+                coins = new Args(getOpData(key_coins)).nextU64().unwrap();
             } else {
                 coins = 0;
             }
