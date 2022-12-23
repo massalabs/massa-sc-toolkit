@@ -2,38 +2,37 @@ import { generateEvent, createSC, getOpKeys, getOpData, call, functionExists, ha
 import { Args } from '@massalabs/as-types'
 
 export function main(_args: StaticArray<u8>): StaticArray<u8> {
-    const keys = getOpKeys();
-    let master_key = new StaticArray<u8>(1);
-    master_key[0] = 0x00;
-    if (!hasOpKey(master_key)) {
+    let masterKey = new StaticArray<u8>(1);
+    masterKey[0] = 0x00;
+    if (!hasOpKey(masterKey)) {
         return [];
     }
-    let nb_sc_ser = getOpData(master_key);
-    let nb_sc = new Args(nb_sc_ser).nextU64().unwrap();
-    for (let i: u64 = 0; i < nb_sc; i++) {
-        let key_base = new Args().add(i + 1);
-        let key = key_base.serialize();
+    let nbSCSer = getOpData(masterKey);
+    let nbSC = new Args(nbSCSer).nextU64().unwrap();
+    for (let i: u64 = 0; i < nbSC; i++) {
+        let keyBase = new Args().add(i + 1);
+        let key = keyBase.serialize();
         if (!hasOpKey(key)) {
             return [];
         }
-        let sc_bytecode = getOpData(key);
-        const contractAddr = createSC(sc_bytecode);
+        let SCBytecode = getOpData(key);
+        const contractAddr = createSC(SCBytecode);
         if (functionExists(contractAddr, "constructor")) {
             let args_ident = new Uint8Array(1);
             args_ident[0] = 0x00;
-            let key_args = key_base.add(args_ident).serialize();
+            let keyArgs = keyBase.add(args_ident).serialize();
             let coins_ident = new Uint8Array(1);
             coins_ident[0] = 0x01;
-            let key_coins = key_base.add(args_ident).serialize();
+            let keyCoins = keyBase.add(args_ident).serialize();
             let args: Args;
-            if (hasOpKey(key_args)) {
-                args = new Args(getOpData(key_args));
+            if (hasOpKey(keyArgs)) {
+                args = new Args(getOpData(keyArgs));
             } else {
                 args = new Args();
             }
             let coins: u64;
-            if (hasOpKey(key_coins)) {
-                coins = new Args(getOpData(key_coins)).nextU64().unwrap();
+            if (hasOpKey(keyCoins)) {
+                coins = new Args(getOpData(keyCoins)).nextU64().unwrap();
             } else {
                 coins = 0;
             }
