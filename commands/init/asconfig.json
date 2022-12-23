@@ -16,7 +16,6 @@
     },
     "options": {
         "exportRuntime": true,
-        "bindings": "esm",
-        "transform": ["@massalabs/as-transformer"]
+        "bindings": "esm"
     }
 }

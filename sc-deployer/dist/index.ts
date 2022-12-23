@@ -1,4 +1,4 @@
-import { Args, Client, ClientFactory, DefaultProviderUrls, IAccount, ICallData, IContractData } from "@massalabs/massa-web3";
+import { Args, Client, ClientFactory, DefaultProviderUrls, IAccount, WalletClient, IContractData } from "@massalabs/massa-web3";
 import { readFileSync } from "fs";
 import path from "path";
 import { fileURLToPath } from 'url';
@@ -43,4 +43,4 @@ async function deploySC(account: IAccount, contracts: ISCData[], fee: number, ma
     console.log(`Your contracts has been deployed in operation: ${op_ids[0]}`);
 }
 
-export { Args, IAccount, deploySC }
+export { Args, IAccount, WalletClient, deploySC }

@@ -5,9 +5,8 @@
     "main": "index.js",
     "scripts": {
         "test": "asp --summary",
-        "build:smart-contract": "ts-node tools/compiler/compile-all.ts",
-        "build": "npm run build:smart-contract",
-        "deploy": "ts-node tools/deployer/deploy-contract.ts",
+        "build": "ts-node tools/compiler/compile-all.ts",
+        "deploy": "npm run build && ts-node deploy.ts",
         "lint": "eslint --resolve-plugins-relative-to . \"./**/*.{ts,json}\" \"./*.{ts,json}\" --fix",
         "prettier": "as-prettier assembly --write",
         "fmt": "npm run lint && npm run prettier"
