@@ -9,8 +9,8 @@ export function constructor(args: StaticArray<u8>): StaticArray<u8> {
   if (!callerHasWriteAccess) {
     return [];
   }
-  const args_deserialized = new Args(args);
-  const name = args_deserialized.nextString().unwrap();
+  const argsDeser = new Args(args);
+  const name = argsDeser.nextString().unwrap();
   generateEvent(`Constructor called with name ${name}`);
   return [];
 }
