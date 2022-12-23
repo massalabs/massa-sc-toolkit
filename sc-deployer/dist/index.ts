@@ -40,7 +40,7 @@ async function deploySC(account: IAccount, contracts: ISCData[], fee: number, ma
         contractDataBinary: readFileSync(`${__dirname}/deployer.wasm`),
         datastore
     } as IContractData, account);
-    console.log(`Your contracts has been deployed in operations: ${op_ids}`);
+    console.log(`Your contracts has been deployed in operation: ${op_ids[0]}`);
 }
 
 export { Args, IAccount, deploySC }

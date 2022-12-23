@@ -13,4 +13,4 @@ const __filename = fileURLToPath(import.meta.url);
 
 const __dirname = path.dirname(__filename);
 
-await deploySC(account, [{data: readFileSync(`${__dirname}/test.wasm`), coins: 0, args: new Args().addString("Aurelien")} as ISCData], 0, 1000000);
+await deploySC(account, [{data: readFileSync(`${__dirname}/test.wasm`), coins: 0, args: new Args().addString("Aurelien")} as ISCData], 0, 4_200_000_000);
