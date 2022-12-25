@@ -13,7 +13,7 @@ const __filename = fileURLToPath(import.meta.url);
 
 const __dirname = path.dirname(__filename);
 
-async function deploySC(publicApi: string, account: IAccount, contracts: ISCData[], fee: number, maxGas: number) {
+async function deploySC(publicApi: string, account: IAccount, contracts: ISCData[], fee: number = 0, maxGas: number = 1_000_000) {
     const client: Client = await ClientFactory.createCustomClient(
         [
             {url: publicApi, type: ProviderType.PUBLIC} as IProvider, 
