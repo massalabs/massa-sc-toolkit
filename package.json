@@ -1,14 +1,12 @@
 {
-    "name": "@massalabs/sc-toolkit",
+    "name": "massa-workspaces-for-toolkit",
     "version": "0.0.4",
     "description": "This toolkit is meant to facilitate smart contract development.",
-    "main": "cli.js",
     "type": "module",
     "scripts": {
         "build": "npm run build --ws --if-present",
         "fmt:check": "npm run fmt:check --ws --if-present",
-        "fmt": "npm run fmt --ws --if-present",
-        "test:ci": "npm run test:ci --ws --if-present"
+        "fmt": "npm run fmt --ws --if-present"
     },
     "repository": {
         "type": "git",
@@ -16,17 +14,10 @@
     },
     "author": "",
     "license": "ISC",
-    "bin": {
-        "toolkit": "cli.js"
-    },
     "bugs": {
         "url": "https://github.com/massalabs/massa-sc-toolkit/issues"
     },
     "homepage": "https://github.com/massalabs/massa-sc-toolkit#readme",
-    "dependencies": {
-        "fs-extra": "^10.1.0",
-        "yargs": "^17.6.0"
-    },
     "prettier": "@massalabs/prettier-config-as",
     "workspaces": [
         "packages/*"

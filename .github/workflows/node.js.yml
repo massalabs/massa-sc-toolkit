@@ -30,7 +30,6 @@ jobs:
         npm run build --workspace=packages/sc-compiler && npm ci # build and install sc-compiler
         npm run build # build all packages
         npm run fmt:check
-        npm run test:ci
 
   toolkit-tests:
     runs-on: ubuntu-latest
@@ -46,7 +45,7 @@ jobs:
             npm ci
             npm run build --workspace=packages/sc-compiler && npm ci # build and install sc-compiler
         - name: run toolkit init
-          run: node cli.js init testDir
+          run: npx toolkit init testDir
         - name: run target tests
           run: |
               cd testDir
