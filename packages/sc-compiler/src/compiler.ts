@@ -1,6 +1,7 @@
+#!/usr/bin/env node
 import { readdir, readFileSync } from 'fs';
 import { join } from 'path';
-import asc from 'assemblyscript/dist/asc';
+import asc from 'assemblyscript/dist/asc.js';
 
 async function compile(argv: string[], options: object = {}) {
   const { error, stdout, stderr } = await asc.main(argv, options);

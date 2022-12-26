@@ -17,13 +17,14 @@
     "author": "",
     "license": "ISC",
     "bin": {
-        "toolkit": "./cli.js"
+        "toolkit": "cli.js"
     },
     "bugs": {
         "url": "https://github.com/massalabs/massa-sc-toolkit/issues"
     },
     "homepage": "https://github.com/massalabs/massa-sc-toolkit#readme",
     "dependencies": {
+        "assemblyscript": "^0.25.2",
         "fs-extra": "^10.1.0",
         "yargs": "^17.6.0"
     },
@@ -34,6 +35,7 @@
     "devDependencies": {
         "@massalabs/prettier-config-as": "^0.0.2",
         "prettier": "^2.8.1",
+        "rimraf": "^3.0.2",
         "ts-node": "^10.9.1"
     }
 }
