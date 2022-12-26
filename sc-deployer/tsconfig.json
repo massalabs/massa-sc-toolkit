@@ -10,7 +10,7 @@
         "outDir": "dist",
         "types": ["node"]
     },
-    "include": ["./index.ts"],
+    "include": ["src/**/*.ts"],
     "exclude": ["node_modules"],
     "experimentalDecorators": true,
     "ts-node": {

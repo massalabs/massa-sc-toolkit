@@ -1,12 +1,17 @@
 import { Args, Client, ClientFactory, ProviderType, IAccount, WalletClient, IContractData, IProvider, EOperationStatus } from "@massalabs/massa-web3";
 import { readFileSync } from "fs";
 import path from "path";
+import { fileURLToPath } from 'url';
 
 export interface ISCData {
     data: Uint8Array,
     args?: Args,
     coins: number,
 }
+
+const __filename = fileURLToPath(import.meta.url);
+
+const __dirname = path.dirname(__filename);
 
 async function deploySC(publicApi: string, account: IAccount, contracts: ISCData[], fee: number = 0, maxGas: number = 1_000_000, wait: boolean = false) {
     const client: Client = await ClientFactory.createCustomClient(
@@ -53,7 +58,7 @@ async function deploySC(publicApi: string, account: IAccount, contracts: ISCData
         fee: fee,
         maxGas: maxGas,
         coins: contracts.reduce((acc, contract) => acc + contract.coins, 0),
-        contractDataBinary: readFileSync(path.join('build', '/deployer.wasm')),
+        contractDataBinary: readFileSync(path.join(__dirname, '..', 'build', '/deployer.wasm')),
         datastore
     } as IContractData, account);
     console.log(`Your contracts has been deployed in operation: ${opIds[0]}`);

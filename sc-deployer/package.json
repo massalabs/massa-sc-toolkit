@@ -5,9 +5,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "ts-node tests/index.ts",
     "prebuild": "rimraf dist",
-    "build": "ts-node compiler/compiler.ts && tsc -d"
+    "build": "ts-node src/compiler/compiler.ts && tsc -d"
   },
   "author": "",
   "license": "ISC",
