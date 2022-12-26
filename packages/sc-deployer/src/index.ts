@@ -104,11 +104,13 @@ async function deploySC(
     } as IContractData,
     account,
   );
-  console.log(`Your contracts has been deployed in operation: ${opIds[0]}`);
+  console.log(`Operation submitted with id: ${opIds[0]}`);
 
   if (!wait) {
     return;
   }
+
+  console.log('Waiting for events...');
 
   // Wait the end of deployment
   await client
@@ -124,9 +126,12 @@ async function deploySC(
     is_final: null,
   });
 
-  if (event[0]) {
+  if (event.length) {
     // This prints the deployed SC address
-    console.log(`Deployment success with event: ${event[0].data}`);
+    console.log('Deployment success with events: ');
+    event.forEach((e) => {
+      console.log(e.data);
+    });
   } else {
     console.log('Deployment success. No events has been generated');
   }
