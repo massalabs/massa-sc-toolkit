@@ -1,15 +1,17 @@
 name: Release workflow
 
 on:
-  push:
-    tags:
-      - v*
+  release:
+    types: [ created ]
 
 jobs:
-  test:
+  toolkit-ci-tests:
     uses: ./.github/workflows/toolkit-ci-tests.yml
 
-  publish-npm-release:
+  test:
+    uses: ./.github/workflows/node.js.yml
+
+  publish-npm:
     needs: test
     runs-on: ubuntu-latest
     steps:
@@ -18,6 +20,10 @@ jobs:
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
-      - run: ./scripts/publish-release.sh ${{ github.ref_name }}
+      - name: publish
+        run: |
+          npm ci
+          npm run build
+          npm publish --ws --access public
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
+          NODE_AUTH_TOKEN: ${{secrets.npm_token}}

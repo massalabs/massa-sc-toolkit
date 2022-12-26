@@ -5,10 +5,9 @@
     "main": "cli.js",
     "type": "module",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "release:patch": "npm version patch -m 'Release version %s'",
-        "release:minor": "npm version minor -m 'Release version %s'",
-        "release:major": "npm version major -m 'Release version %s'"
+        "build": "npm run build --ws --if-present",
+        "fmt:check": "npm run fmt:check --ws --if-present",
+        "test:ci": "npm run test:ci --ws --if-present"
     },
     "repository": {
         "type": "git",

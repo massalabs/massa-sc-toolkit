@@ -5,8 +5,11 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
+  toolkit-ci-tests:
     uses: ./.github/workflows/toolkit-ci-tests.yml
+
+  test:
+    uses: ./.github/workflows/node.js.yml
 
   publish-npm-dev:
     needs: test
@@ -17,6 +20,11 @@ jobs:
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
-      - run: ./scripts/publish-dev.sh
+      - name: publish
+        run: |
+         npm pkg delete scripts.prepare
+         npm ci
+         npm run build
+         ./scripts/publish-dev.sh
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
