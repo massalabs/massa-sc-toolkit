@@ -1,7 +1,6 @@
-import { Args, Client, ClientFactory, ProviderType, IAccount, WalletClient, IContractData, IProvider } from "@massalabs/massa-web3";
+import { Args, Client, ClientFactory, ProviderType, IAccount, WalletClient, IContractData, IProvider, EOperationStatus } from "@massalabs/massa-web3";
 import { readFileSync } from "fs";
 import path from "path";
-import { fileURLToPath } from 'url';
 
 export interface ISCData {
     data: Uint8Array,
@@ -26,7 +25,7 @@ async function deploySC(publicApi: string, account: IAccount, contracts: ISCData
     );
 
     let datastore = new Map<Uint8Array, Uint8Array>();
-    // The SCs informations are stored in operation datastore with the following structure.
+    // The SCs information are stored in operation datastore with the following structure.
     //
     // key [0] : Contains the numbers of SC to deploy
     //
@@ -58,7 +57,7 @@ async function deploySC(publicApi: string, account: IAccount, contracts: ISCData
         fee: fee,
         maxGas: maxGas,
         coins: contracts.reduce((acc, contract) => acc + contract.coins, 0),
-        contractDataBinary: readFileSync(`${__dirname}/deployer.wasm`),
+        contractDataBinary: readFileSync(path.join('build', '/deployer.wasm')),
         datastore
     } as IContractData, account);
     console.log(`Your contracts has been deployed in operation: ${op_ids[0]}`);
