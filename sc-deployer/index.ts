@@ -8,11 +8,7 @@ export interface ISCData {
     coins: number,
 }
 
-const __filename = fileURLToPath(import.meta.url);
-
-const __dirname = path.dirname(__filename);
-
-async function deploySC(publicApi: string, account: IAccount, contracts: ISCData[], fee: number = 0, maxGas: number = 1_000_000) {
+async function deploySC(publicApi: string, account: IAccount, contracts: ISCData[], fee: number = 0, maxGas: number = 1_000_000, wait: boolean = false) {
     const client: Client = await ClientFactory.createCustomClient(
         [
             {url: publicApi, type: ProviderType.PUBLIC} as IProvider, 
@@ -53,14 +49,37 @@ async function deploySC(publicApi: string, account: IAccount, contracts: ISCData
         }
     });
 
-    let op_ids = await client.smartContracts().deploySmartContract({
+    const opIds = await client.smartContracts().deploySmartContract({
         fee: fee,
         maxGas: maxGas,
         coins: contracts.reduce((acc, contract) => acc + contract.coins, 0),
         contractDataBinary: readFileSync(path.join('build', '/deployer.wasm')),
         datastore
     } as IContractData, account);
-    console.log(`Your contracts has been deployed in operation: ${op_ids[0]}`);
+    console.log(`Your contracts has been deployed in operation: ${opIds[0]}`);
+
+    if (!wait) {
+        return
+    }
+
+    // Wait the end of deployment
+    await client.smartContracts().awaitRequiredOperationStatus(opIds[0], EOperationStatus.FINAL);
+
+    const event = await client.smartContracts().getFilteredScOutputEvents({
+        emitter_address: null,
+        start: null,
+        end: null,
+        original_caller_address: null,
+        original_operation_id: opIds[0],
+        is_final: null,
+    });
+
+    if (event[0]) {
+        // This prints the deployed SC address
+        console.log(`Deployment success with event: ${event[0].data}`);
+    } else {
+        console.log('Deployment success. No events has been generated');
+    }
 }
 
 export { Args, IAccount, WalletClient, deploySC }
