@@ -1,0 +1,23 @@
+{
+  "name": "@massalabs/massa-sc-compiler",
+  "version": "0.0.1",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "prebuild": "rimraf dist",
+    "build": "tsc -d",
+    "prettier": "prettier '**/src/**/*.ts' --check && as-prettier --check assembly",
+    "prettier:fix": "prettier '**/src/**/*.ts' --write && as-prettier --write assembly",
+    "lint": "",
+    "lint:fix": "",
+    "fmt": "npm run prettier:fix && npm run lint:fix",
+    "fmt:check": "npm run prettier && npm run lint"
+  },
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "files": [
+    "dist"
+  ]
+}

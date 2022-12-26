@@ -1,6 +1,16 @@
 import { readdir, readFileSync } from 'fs';
 import { join } from 'path';
-import { compile } from './compiler';
+import asc from 'assemblyscript/dist/asc';
+
+async function compile(argv: string[], options: object = {}) {
+    const { error, stdout, stderr } = await asc.main(argv, options);
+    if (error) {
+        console.log('Compilation failed: ' + error.message);
+        console.log(stderr.toString());
+    } else {
+        console.log(stdout.toString());
+    }
+}
 
 const dirToCompile = './assembly/contracts';
 
