@@ -7,6 +7,7 @@
     "scripts": {
         "build": "npm run build --ws --if-present",
         "fmt:check": "npm run fmt:check --ws --if-present",
+        "fmt": "npm run fmt --ws --if-present",
         "test:ci": "npm run test:ci --ws --if-present"
     },
     "repository": {
@@ -26,7 +27,13 @@
         "fs-extra": "^10.1.0",
         "yargs": "^17.6.0"
     },
-    "publishConfig": {
-        "access": "public"
+    "prettier": "@massalabs/prettier-config-as",
+    "workspaces": [
+        "packages/*"
+    ],
+    "devDependencies": {
+        "@massalabs/prettier-config-as": "^0.0.2",
+        "prettier": "^2.8.1",
+        "ts-node": "^10.9.1"
     }
 }

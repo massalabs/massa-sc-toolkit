@@ -20,7 +20,7 @@
         "@massalabs/as-transformer": "^0.1.1-dev",
         "@massalabs/as-types": "^1.1.1-dev",
         "@massalabs/massa-as-sdk": "^1.2.1-dev",
-        "@massalabs/massa-sc-deployer": "file:../../sc-deployer",
+        "@massalabs/massa-sc-deployer": "file:../../packages/sc-deployer",
         "@massalabs/massa-web3": "^1.11.0",
         "@massalabs/prettier-config-as": "^0.0.2",
         "@types/node": "^18.11.10",
