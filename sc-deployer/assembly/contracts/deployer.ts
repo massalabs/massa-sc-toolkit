@@ -18,12 +18,12 @@ export function main(_args: StaticArray<u8>): StaticArray<u8> {
         let SCBytecode = getOpData(key);
         const contractAddr = createSC(SCBytecode);
         if (functionExists(contractAddr, "constructor")) {
-            let args_ident = new Uint8Array(1);
-            args_ident[0] = 0x00;
-            let keyArgs = keyBase.add(args_ident).serialize();
-            let coins_ident = new Uint8Array(1);
-            coins_ident[0] = 0x01;
-            let keyCoins = keyBase.add(args_ident).serialize();
+            let argsIdent = new Uint8Array(1);
+            argsIdent[0] = 0x00;
+            let keyArgs = keyBase.add(argsIdent).serialize();
+            let coinsIdent = new Uint8Array(1);
+            coinsIdent[0] = 0x01;
+            let keyCoins = keyBase.add(coinsIdent).serialize();
             let args: Args;
             if (hasOpKey(keyArgs)) {
                 args = new Args(getOpData(keyArgs));
