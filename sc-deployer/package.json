@@ -6,7 +6,13 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "ts-node src/compiler/compiler.ts && tsc -d"
+    "build": "ts-node src/compiler/compiler.ts && tsc -d",
+    "prettier": "prettier '**/src/**/*.ts' --check && as-prettier --check assembly",
+    "prettier:fix": "prettier '**/src/**/*.ts' --write && as-prettier --write assembly",
+    "lint": "",
+    "lint:fix": "",
+    "fmt": "npm run prettier:fix && npm run lint:fix",
+    "fmt:check": "npm run prettier && npm run lint"
   },
   "author": "",
   "license": "ISC",
