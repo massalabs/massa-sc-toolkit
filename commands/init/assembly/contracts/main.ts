@@ -1,6 +1,10 @@
 // The entry file of your WebAssembly module.
-import { callerHasWriteAccess, generateEvent, toBytes } from '@massalabs/massa-as-sdk';
-import {Args} from '@massalabs/as-types'
+import {
+  callerHasWriteAccess,
+  generateEvent,
+  toBytes,
+} from '@massalabs/massa-as-sdk';
+import { Args } from '@massalabs/as-types';
 
 // This function is called when the contract is deployed.
 export function constructor(args: StaticArray<u8>): StaticArray<u8> {

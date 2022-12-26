@@ -1,4 +1,4 @@
-import * as dotenv from 'dotenv'
+import * as dotenv from 'dotenv';
 import { readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
