@@ -19,9 +19,9 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - name: publish
         run: |
-         npm pkg delete scripts.prepare
          npm ci
-         npm run build
+         npm run build --workspace=packages/sc-compiler && npm ci # build and install sc-compiler
+         npm run build # build all packages
          ./scripts/publish-dev.sh
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}

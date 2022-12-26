@@ -24,7 +24,6 @@
     },
     "homepage": "https://github.com/massalabs/massa-sc-toolkit#readme",
     "dependencies": {
-        "assemblyscript": "^0.25.2",
         "fs-extra": "^10.1.0",
         "yargs": "^17.6.0"
     },
