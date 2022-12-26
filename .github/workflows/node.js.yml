@@ -41,7 +41,9 @@ jobs:
               node-version: "16"
               cache: "npm"
         - name: install
-          run: npm ci
+          run: |
+            npm ci
+            npm run build || npm ci || npm run build # try to make it work
         - name: run toolkit init
           run: node cli.js init testDir
         - name: run target tests
