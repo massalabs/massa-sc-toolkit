@@ -5,9 +5,6 @@ on:
     types: [ created ]
 
 jobs:
-  toolkit-ci-tests:
-    uses: ./.github/workflows/toolkit-ci-tests.yml
-
   test:
     uses: ./.github/workflows/node.js.yml
 

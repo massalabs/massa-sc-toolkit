@@ -27,6 +27,26 @@ jobs:
     - name: run test
       run: |
         npm ci
-        npm run build
+        npm run build || npm ci || npm run build # try to make it work
         npm run fmt:check
         npm run test:ci
+
+  toolkit-tests:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+        - uses: actions/checkout@v3
+        - uses: actions/setup-node@v3
+          with:
+              node-version: "16"
+              cache: "npm"
+        - name: install
+          run: npm ci
+        - name: run toolkit init
+          run: node cli.js init testDir
+        - name: run target tests
+          run: |
+              cd testDir
+              npm run build
+              npm run test
+              npm run fmt
