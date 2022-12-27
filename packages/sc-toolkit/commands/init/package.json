@@ -6,9 +6,9 @@
     "scripts": {
         "test": "asp --summary",
         "build": "compile",
-        "deploy": "npm run build && ts-node deploy.ts",
+        "deploy": "npm run build && ts-node src/deploy.ts",
         "lint": "eslint --resolve-plugins-relative-to . \"./**/*.{ts,json}\" \"./*.{ts,json}\" --fix",
-        "prettier": "as-prettier assembly --write",
+        "prettier": "prettier '**/src/**/*.ts' --write && as-prettier --write assembly",
         "fmt": "npm run lint && npm run prettier"
     },
     "keywords": [],
@@ -31,6 +31,7 @@
         "dotenv": "^16.0.3",
         "eslint": "^8.27.0",
         "eslint-plugin-json": "^3.1.0",
+        "prettier": "^2.8.1",
         "ts-node": "^10.9.1",
         "tslib": "^2.4.0",
         "typescript": "^4.8.4"
