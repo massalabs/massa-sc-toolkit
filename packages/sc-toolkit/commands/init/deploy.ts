@@ -2,7 +2,8 @@ import * as dotenv from 'dotenv';
 import { readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { Args, deploySC, WalletClient, ISCData } from '@massalabs/massa-sc-deployer';
+import { deploySC, WalletClient, ISCData } from '@massalabs/massa-sc-deployer';
+import { Args } from '@massalabs/massa-web3';
 
 dotenv.config();
 

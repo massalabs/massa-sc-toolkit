@@ -137,4 +137,4 @@ async function deploySC(
   }
 }
 
-export { Args, IAccount, WalletClient, deploySC };
+export { IAccount, WalletClient, deploySC };

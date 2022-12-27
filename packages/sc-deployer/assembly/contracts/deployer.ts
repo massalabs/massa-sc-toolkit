@@ -1,7 +1,6 @@
 import {
   generateEvent,
   createSC,
-  getOpKeys,
   getOpData,
   call,
   functionExists,
