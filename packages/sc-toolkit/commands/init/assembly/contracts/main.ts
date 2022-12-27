@@ -10,7 +10,7 @@ import { Args } from '@massalabs/as-types';
 export function constructor(args: StaticArray<u8>): StaticArray<u8> {
   // This line is important. It ensure that this function can't be called in the future.
   // If you remove this check someone could call your constructor function and reset your SC.
-  if (!callerHasWriteAccess) {
+  if (!callerHasWriteAccess()) {
     return [];
   }
   const argsDeser = new Args(args);
