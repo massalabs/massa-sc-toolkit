@@ -14,7 +14,7 @@ export function initialize(directory) {
 
   if (fs.existsSync(directory)) {
     console.error(
-      `Project directory ${directory} already exist. Please chose another project name.`,
+      `The project directory ${directory} already exists. Please choose another project name.`,
     );
     return;
   }
