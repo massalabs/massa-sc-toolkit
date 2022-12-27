@@ -1,6 +1,2 @@
 commands/init/build
-commands/init/simulator/massa-sc-tester
-commands/init/simulator/massa-sc-tester.exe
-commands/init/simulator/ledger.json
-commands/init/simulator/trace.json
 commands/init/.env
