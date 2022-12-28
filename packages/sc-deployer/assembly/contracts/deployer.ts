@@ -8,6 +8,14 @@ import {
 } from '@massalabs/massa-as-sdk';
 import { Args } from '@massalabs/as-types';
 
+/**
+ * This function deploy and call the constructor function of the deployer smart contract.
+ *
+ * The data structure of the operation datastore must be like describe in
+ * packages/sc-deployer/src/index.ts
+ *
+ * @param _args - not used
+ */
 export function main(_args: StaticArray<u8>): StaticArray<u8> {
   let masterKey = new StaticArray<u8>(1);
   masterKey[0] = 0x00;
