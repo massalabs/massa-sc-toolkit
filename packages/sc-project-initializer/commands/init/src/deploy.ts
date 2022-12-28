@@ -31,4 +31,5 @@ await deploySC(
   ],
   0,
   4_200_000_000,
+  true
 );

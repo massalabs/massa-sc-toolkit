@@ -1,5 +1,5 @@
 {
-  "name": "@massalabs/sc-toolkit",
+  "name": "@massalabs/sc-project-initializer",
   "version": "0.1.0",
   "description": "",
   "main": "src/cli.js",
