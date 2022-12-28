@@ -1,14 +1,14 @@
-name: Npm nightly publish
+name: Release workflow
 
 on:
-  push:
-    branches: [ main ]
+  release:
+    types: [ created ]
 
 jobs:
   test:
     uses: ./.github/workflows/node.js.yml
 
-  publish-npm-dev:
+  publish-npm:
     needs: test
     runs-on: ubuntu-latest
     steps:
@@ -19,9 +19,9 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - name: publish
         run: |
-         npm ci
-         npm run build --workspace=packages/sc-compiler && npm ci # build and install sc-compiler
-         npm run build # build all packages
-         ./scripts/publish-dev.sh
+          npm ci
+          npm run build --workspace=packages/sc-compiler && npm ci # build and install sc-compiler
+          npm run build # build all packages
+          npm publish --ws --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}

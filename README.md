@@ -1,16 +1,31 @@
-# massa-sc-toolkit
+# Massa smart-contract toolkit
 
-This toolkit is meant to facilitate smart contract development.
+This repository is a monorepo for smart-contract development in AssemblyScript for Massa blockchain.
 
-> **PREREQUISITES:**
-> - NPM installed on your computer
+## Build
 
-## Repository Initialisation
+```bash
+# Install npm dependencies and packages (massa-sc-toolkit)
+npm run install
 
-Simply run the following command:
+# Build massa-sc-compiler
+npm run build --workspace=packages/sc-compiler 
 
-```shell
-npx github:massalabs/massa-sc-toolkit init <projectName>
+# This will install built massa-sc-compiler binary
+npm install
+
+# Build other packages
+npm run build
 ```
 
-Toolkit documentation is available [here](commands/init/README.md)
+## Test
+
+```bash
+npm run test
+```
+
+## Code linting and formatting
+
+```bash
+npm run fmt
+```

@@ -1,0 +1,34 @@
+{
+  "name": "@massalabs/massa-sc-deployer",
+  "version": "0.0.1",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "prebuild": "rimraf dist",
+    "build": "compile && tsc -d",
+    "prettier": "prettier '**/src/**/*.ts' --check && as-prettier --check assembly",
+    "prettier:fix": "prettier '**/src/**/*.ts' --write && as-prettier --write assembly",
+    "lint": "",
+    "lint:fix": "",
+    "fmt": "npm run prettier:fix && npm run lint:fix",
+    "fmt:check": "npm run prettier && npm run lint"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@massalabs/as-types": "^1.1.1-dev",
+    "@massalabs/massa-as-sdk": "^2.0.1-dev",
+    "@massalabs/massa-sc-compiler": "0.0.1",
+    "@massalabs/massa-web3": "^1.12.0",
+    "@types/node": "^18.11.10",
+    "assemblyscript": "^0.25.1",
+    "ts-node": "^10.9.1",
+    "tslib": "^2.4.0",
+    "typescript": "^4.8.4"
+  },
+  "type": "module",
+  "files": [
+    "dist"
+  ]
+}
