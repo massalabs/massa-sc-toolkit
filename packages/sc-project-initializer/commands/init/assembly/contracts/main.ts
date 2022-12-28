@@ -2,6 +2,7 @@
 import {
   callerHasWriteAccess,
   generateEvent,
+  toBytes,
 } from '@massalabs/massa-as-sdk';
 import { Args } from '@massalabs/as-types';
 
@@ -25,5 +26,5 @@ export function constructor(args: StaticArray<u8>): StaticArray<u8> {
 export function event(_: StaticArray<u8>): StaticArray<u8> {
   const message = "I'm an event!";
   generateEvent(message);
-  return [];
+  return toBytes(message);
 }
