@@ -6,7 +6,7 @@ This repository is a monorepo for smart-contract development in AssemblyScript f
 
 ```bash
 # Install npm dependencies and packages (massa-sc-toolkit)
-npm run install
+npm install
 
 # Build massa-sc-compiler
 npm run build --workspace=packages/sc-compiler 
@@ -16,12 +16,6 @@ npm install
 
 # Build other packages
 npm run build
-```
-
-## Test
-
-```bash
-npm run test
 ```
 
 ## Code linting and formatting
