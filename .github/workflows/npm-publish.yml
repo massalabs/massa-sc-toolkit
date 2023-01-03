@@ -22,6 +22,7 @@ jobs:
         run: |
           npm ci
           npm run build
+          npm ci
           npm run init
           npm publish --ws --access public --dry-run
         env:
