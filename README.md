@@ -10,6 +10,7 @@ npm install
 
 # Build massa-sc-compiler
 npm run build --workspace=packages/sc-compiler 
+npm run init
 
 # This will install built massa-sc-compiler binary
 npm install
