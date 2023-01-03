@@ -3,6 +3,7 @@ name: Release workflow
 on:
   release:
     types: [ created ]
+  push:
 
 jobs:
   test:
@@ -20,8 +21,8 @@ jobs:
       - name: publish
         run: |
           npm ci
-          npm run build --workspace=packages/sc-compiler && npm ci # build and install sc-compiler
-          npm run build # build all packages
-          npm publish --ws --access public
+          npm run build
+          npm run init
+          npm publish --ws --access public --dry-run
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}

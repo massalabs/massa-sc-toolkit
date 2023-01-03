@@ -2,7 +2,6 @@ name: Npm nightly publish
 
 on:
   push:
-    branches: [ main ]
 
 jobs:
   test:
@@ -20,8 +19,8 @@ jobs:
       - name: publish
         run: |
          npm ci
-         npm run build --workspace=packages/sc-compiler && npm ci # build and install sc-compiler
-         npm run build # build all packages
+         npm run build
+         npm run init
          ./scripts/publish-dev.sh
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}

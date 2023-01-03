@@ -5,7 +5,7 @@
   "main": "dist/compiler.js",
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "tsc && chmod +x dist/compiler.js",
+    "build": "tsc",
     "prettier": "prettier '**/src/**/*.ts' --check && as-prettier --check assembly",
     "prettier:fix": "prettier '**/src/**/*.ts' --write && as-prettier --write assembly",
     "lint": "",

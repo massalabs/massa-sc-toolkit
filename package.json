@@ -5,6 +5,7 @@
     "type": "module",
     "scripts": {
         "build": "npm run build --ws --if-present",
+        "init": "npm run init --ws --if-present",
         "fmt:check": "npm run fmt:check --ws --if-present",
         "fmt": "npm run fmt --ws --if-present"
     },
@@ -23,10 +24,11 @@
         "packages/*"
     ],
     "devDependencies": {
-        "@massalabs/as-types": "^1.1.1-dev",
         "@massalabs/prettier-config-as": "^0.0.2",
         "prettier": "^2.8.1",
         "rimraf": "^3.0.2",
-        "ts-node": "^10.9.1"
+        "ts-node": "^10.9.1",
+        "tslib": "^2.4.0",
+        "typescript": "^4.8.4"
     }
 }
