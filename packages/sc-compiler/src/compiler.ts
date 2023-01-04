@@ -50,4 +50,6 @@ export async function compileAll() {
   );
 }
 
-await compileAll();
+(async () => {
+  await compileAll();
+})();

@@ -8,7 +8,7 @@ import { Args } from '@massalabs/as-types';
 
 /**
  * This function is meant to be called only one time: when the contract is deployed.
- * 
+ *
  * @param args - Arguments serialized with Args
  */
 export function constructor(args: StaticArray<u8>): StaticArray<u8> {
