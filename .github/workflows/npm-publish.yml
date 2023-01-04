@@ -3,7 +3,6 @@ name: Release workflow
 on:
   release:
     types: [ created ]
-  push:
 
 jobs:
   test:
@@ -22,6 +21,6 @@ jobs:
         run: |
           npm ci
           npm run build
-          npm publish --ws --access public --dry-run
+          npm publish --ws --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}

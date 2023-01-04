@@ -2,6 +2,7 @@ name: Npm nightly publish
 
 on:
   push:
+    branches: [ main ]
 
 jobs:
   test:
