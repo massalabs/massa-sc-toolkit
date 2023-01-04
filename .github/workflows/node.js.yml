@@ -27,8 +27,7 @@ jobs:
     - name: run test
       run: |
         npm ci
-        npm run build --workspace=packages/sc-compiler && npm ci # build and install sc-compiler
-        npm run build # build all packages
+        npm run build
         npm run fmt:check
 
   toolkit-tests:
@@ -43,7 +42,7 @@ jobs:
         - name: install
           run: |
             npm ci
-            npm run build --workspace=packages/sc-compiler && npm ci # build and install sc-compiler
+            npm run build
         - name: run toolkit init
           run: npx toolkit init testDir
         - name: run target tests

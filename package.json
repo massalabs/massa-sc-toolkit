@@ -5,7 +5,6 @@
     "type": "module",
     "scripts": {
         "build": "npm run build --ws --if-present",
-        "init": "npm run init --ws --if-present",
         "fmt:check": "npm run fmt:check --ws --if-present",
         "fmt": "npm run fmt --ws --if-present"
     },

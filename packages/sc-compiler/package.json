@@ -6,7 +6,7 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "tsc",
-    "postbuild": "chmod +x dist/compiler.js",
+    "postbuild": "node -e \"fs.chmod('test',0o755,()=>{})\"",
     "prettier": "prettier '**/src/**/*.ts' --check && as-prettier --check assembly",
     "prettier:fix": "prettier '**/src/**/*.ts' --write && as-prettier --write assembly",
     "lint": "",
@@ -21,7 +21,7 @@
     "dist"
   ],
   "bin": {
-    "compile": "dist/compiler.js"
+    "massa-as-compile": "dist/compiler.js"
   },
   "dependencies": {
     "assemblyscript": "^0.25.2"
