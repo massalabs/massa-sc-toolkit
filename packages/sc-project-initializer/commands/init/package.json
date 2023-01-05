@@ -18,7 +18,7 @@
         "@as-pect/cli": "^8.0.1",
         "@assemblyscript/loader": "^0.25.0",
         "@massalabs/as-transformer": "^0.1.1-dev",
-        "@massalabs/as-types": "^1.1.1-dev",
+        "@massalabs/as-types": "^0.0.2-dev",
         "@massalabs/massa-as-sdk": "^2.0.1-dev",
         "@massalabs/massa-sc-compiler": "0.0.1",
         "@massalabs/massa-sc-deployer": "0.0.1",
