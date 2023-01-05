@@ -8,7 +8,7 @@ import { Args } from '@massalabs/as-types';
 
 /**
  * This function is meant to be called only one time: when the contract is deployed.
- * 
+ *
  * @param args - Arguments serialized with Args
  */
 export function constructor(args: StaticArray<u8>): StaticArray<u8> {
@@ -18,7 +18,9 @@ export function constructor(args: StaticArray<u8>): StaticArray<u8> {
     return [];
   }
   const argsDeser = new Args(args);
-  const name = argsDeser.nextString().unwrap();
+  const name = argsDeser
+    .nextString()
+    .expect('Name argument is missing or invalid');
   generateEvent(`Constructor called with name ${name}`);
   return [];
 }

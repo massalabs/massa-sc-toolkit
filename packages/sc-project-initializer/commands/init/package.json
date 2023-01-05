@@ -5,7 +5,7 @@
     "main": "index.js",
     "scripts": {
         "test": "asp --summary",
-        "build": "compile",
+        "build": "massa-as-compile",
         "deploy": "npm run build && ts-node src/deploy.ts",
         "lint": "eslint --resolve-plugins-relative-to . \"./**/*.{ts,json}\" \"./*.{ts,json}\" --fix",
         "prettier": "prettier '**/src/**/*.ts' --write && as-prettier --write assembly",
@@ -18,7 +18,7 @@
         "@as-pect/cli": "^8.0.1",
         "@assemblyscript/loader": "^0.25.0",
         "@massalabs/as-transformer": "^0.1.1-dev",
-        "@massalabs/as-types": "^1.1.1-dev",
+        "@massalabs/as-types": "^0.0.2-dev",
         "@massalabs/massa-as-sdk": "^2.0.1-dev",
         "@massalabs/massa-sc-compiler": "0.0.1",
         "@massalabs/massa-sc-deployer": "0.0.1",
