@@ -18,7 +18,9 @@ export function constructor(args: StaticArray<u8>): StaticArray<u8> {
     return [];
   }
   const argsDeser = new Args(args);
-  const name = argsDeser.nextString().unwrap();
+  const name = argsDeser
+    .nextString()
+    .expect('Name argument is missing or invalid');
   generateEvent(`Constructor called with name ${name}`);
   return [];
 }
