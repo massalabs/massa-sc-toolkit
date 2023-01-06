@@ -1,4 +1,4 @@
-#!/usr/bin/env -S npx ts-node
+#!/usr/bin/sh
 import { readdir, readFileSync } from 'fs';
 import { join } from 'path';
 import asc from 'assemblyscript/dist/asc.js';
