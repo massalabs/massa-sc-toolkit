@@ -5,7 +5,7 @@
     "main": "index.js",
     "scripts": {
         "test": "asp --summary",
-        "build": "massa-as-compile",
+        "build": "npx massa-as-compile",
         "deploy": "npm run build && ts-node src/deploy.ts",
         "lint": "eslint --resolve-plugins-relative-to . \"./**/*.{ts,json}\" \"./*.{ts,json}\" --fix",
         "prettier": "prettier '**/src/**/*.ts' --write && as-prettier --write assembly",
