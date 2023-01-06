@@ -1,8 +1,8 @@
 {
   "name": "@massalabs/massa-sc-compiler",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
-  "main": "dist/compiler.js",
+  "main": "src/compiler.ts",
   "scripts": {
     "prettier": "prettier '**/src/**/*.ts' --check && as-prettier --check assembly",
     "prettier:fix": "prettier '**/src/**/*.ts' --write && as-prettier --write assembly",
