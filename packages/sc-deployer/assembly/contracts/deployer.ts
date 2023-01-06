@@ -25,8 +25,9 @@ export function main(_args: StaticArray<u8>): StaticArray<u8> {
   let nbSCSer = getOpData(masterKey);
   let nbSC = new Args(nbSCSer).nextU64().unwrap();
   for (let i: u64 = 0; i < nbSC; i++) {
-    let keyBase = new Args().add(i + 1);
-    let key = keyBase.serialize();
+    let keyBaseArgs = new Args().add(i + 1);
+    let keyBaseCoins = new Args().add(i + 1);
+    let key = keyBaseArgs.serialize();
     if (!hasOpKey(key)) {
       return [];
     }
@@ -35,10 +36,10 @@ export function main(_args: StaticArray<u8>): StaticArray<u8> {
     if (functionExists(contractAddr, 'constructor')) {
       let argsIdent = new Uint8Array(1);
       argsIdent[0] = 0x00;
-      let keyArgs = keyBase.add(argsIdent).serialize();
+      let keyArgs = keyBaseArgs.add(argsIdent).serialize();
       let coinsIdent = new Uint8Array(1);
       coinsIdent[0] = 0x01;
-      let keyCoins = keyBase.add(coinsIdent).serialize();
+      let keyCoins = keyBaseCoins.add(coinsIdent).serialize();
       let args: Args;
       if (hasOpKey(keyArgs)) {
         args = new Args(getOpData(keyArgs));
