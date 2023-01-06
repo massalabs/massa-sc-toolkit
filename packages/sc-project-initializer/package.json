@@ -1,6 +1,6 @@
 {
   "name": "@massalabs/sc-project-initializer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "",
   "main": "src/cli.js",
   "type": "module",
@@ -19,6 +19,6 @@
   "author": "",
   "license": "ISC",
   "bin": {
-    "toolkit": "src/cli.js"
+    "sc-project-initializer": "src/cli.js"
   }
 }

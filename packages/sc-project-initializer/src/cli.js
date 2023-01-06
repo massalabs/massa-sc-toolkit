@@ -8,7 +8,7 @@ import { hideBin } from 'yargs/helpers';
 const yargs = _yargs(hideBin(process.argv));
 
 yargs
-  .scriptName('massa-sc-toolkit')
+  .scriptName('sc-project-initializer')
   .usage('$0 [args]')
   .command(
     'init [name]',

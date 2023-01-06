@@ -1,6 +1,6 @@
-# massa-sc-toolkit
+# sc-project-initializer
 
-This toolkit is meant to facilitate smart contract development.
+This package is meant to facilitate smart contract development.
 
 > **PREREQUISITES:**
 >
@@ -11,11 +11,11 @@ This toolkit is meant to facilitate smart contract development.
 Simply run the following command:
 
 ```shell
-npx @massalabs/massa-sc-toolkit init <projectName>
+npx @massalabs/sc-project-initializer init <projectName>
 ```
 
 Toolkit documentation is available [here](commands/init/README.md)
 
 ## Develop
 
-You can initialize a project with `npx toolkit init testDir`.
+You can initialize a project with `npx sc-project-initializer init testDir`.

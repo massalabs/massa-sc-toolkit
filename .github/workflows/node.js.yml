@@ -43,8 +43,8 @@ jobs:
           run: |
             npm ci
             npm run build
-        - name: run toolkit init
-          run: npx toolkit init testDir
+        - name: run sc-project-initializer init
+          run: npx sc-project-initializer init testDir
         - name: run target tests
           run: |
               cd testDir
