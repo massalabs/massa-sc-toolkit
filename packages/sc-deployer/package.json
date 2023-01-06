@@ -7,7 +7,7 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "tsc -d",
-    "postbuild": "massa-as-compile",
+    "postbuild": "npx massa-as-compile",
     "prettier": "prettier '**/src/**/*.ts' --check && as-prettier --check assembly",
     "prettier:fix": "prettier '**/src/**/*.ts' --write && as-prettier --write assembly",
     "lint": "",
@@ -18,7 +18,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@massalabs/as-types": "^1.1.1-dev",
+    "@massalabs/as-types": "^0.0.2-dev.20221230082918",
     "@massalabs/massa-as-sdk": "^2.0.1-dev",
     "@massalabs/massa-sc-compiler": "0.0.1",
     "@massalabs/massa-web3": "^1.12.0",
