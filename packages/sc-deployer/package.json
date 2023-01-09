@@ -27,6 +27,7 @@
   },
   "type": "module",
   "files": [
-    "dist"
+    "dist",
+    "build"
   ]
 }
