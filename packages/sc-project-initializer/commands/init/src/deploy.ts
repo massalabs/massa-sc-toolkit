@@ -4,8 +4,32 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { deploySC, WalletClient, ISCData } from '@massalabs/massa-sc-deployer';
 import { Args } from '@massalabs/massa-web3';
+import fs from 'fs';
 
 dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(path.dirname(__filename));
+
+const isWasmFile = (contractWasm: string) => {
+  if (contractWasm.substring(contractWasm.length - 5) !== '.wasm') {
+    throw new Error(`${contractWasm} is not a .wasm file`);
+  }
+};
+
+const fileExists = (contractWasm: string) => {
+  if (!fs.existsSync(contractWasm)) {
+    throw new Error(
+      `Wasm contract file "${contractWasm}" does not exist. Did you forget to compile ?`,
+    );
+  }
+};
+
+let wasmFile = process.argv[2];
+if (!wasmFile) {
+  wasmFile = path.join(__dirname, 'build', 'main.wasm');
+}
+isWasmFile(wasmFile);
+fileExists(wasmFile);
 
 const publicApi = process.env.JSON_RPC_URL_PUBLIC;
 if (!publicApi) {
@@ -18,17 +42,13 @@ if (!privKey) {
 
 const deployerAccount = await WalletClient.getAccountFromSecretKey(privKey);
 
-const __filename = fileURLToPath(import.meta.url);
-
-const __dirname = path.dirname(path.dirname(__filename));
-
 (async () => {
   await deploySC(
     publicApi,
     deployerAccount,
     [
       {
-        data: readFileSync(path.join(__dirname, 'build', 'main.wasm')),
+        data: readFileSync(wasmFile),
         coins: 0,
         args: new Args().addString('Test'),
       } as ISCData,
