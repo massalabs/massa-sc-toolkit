@@ -42,6 +42,8 @@ async function deploySC(
     account,
   );
 
+  await checkBalance(client, account);
+
   let datastore = new Map<Uint8Array, Uint8Array>();
   // The SCs information are stored in operation datastore with the following structure.
   //
@@ -134,6 +136,17 @@ async function deploySC(
     });
   } else {
     console.log('Deployment success. No events has been generated');
+  }
+}
+
+async function checkBalance(web3Client: Client, deployerAccount: IAccount) {
+  const balance = await web3Client
+    .wallet()
+    .getAccountBalance(deployerAccount.address!);
+
+  console.log('Wallet balance: ', balance?.final);
+  if (!balance?.final || !parseFloat(balance.final)) {
+    throw new Error(`Insuficient MAS balance.`);
   }
 }
 
