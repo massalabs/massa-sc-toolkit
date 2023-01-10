@@ -6,16 +6,16 @@ This repository is a monorepo for smart-contract development in AssemblyScript f
 
 ### @massalabs/sc-project-initializer
 
-This package makes your first steps into massa smart-contracts development easy:
+sc-project-initializer (smart-contract project initializer), is a package that should be used as a first step when starting to develop smart contracts on Massa blockchain. It consists of the files necessary for setting up the environment for developing a smart-contract project.
 
 - [Installation](./packages/sc-project-initializer/README.md)
 - [Build your first smart-contract](./packages/sc-project-initializer/commands/init/README.md)
 
 ### @massalabs/sc-deployer
 
-This package is a tool to deploy your smart-contracts on the Massa network:
+sc-deployer is a tool used for deploying your smart contracts on the Massa network:
 
-- [sc-project-initializer](./packages/sc-deployer/README.md)
+- [sc-deployer](./packages/sc-deployer/README.md)
 
 ## Development setup
 
