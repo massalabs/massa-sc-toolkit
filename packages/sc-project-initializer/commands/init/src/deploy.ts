@@ -3,7 +3,9 @@ import { readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { deploySC, WalletClient, ISCData } from '@massalabs/massa-sc-deployer';
-import { Args } from '@massalabs/massa-web3';
+// TODO: add typings for deploy config
+// @ts-ignore
+import config from '../deploy.config';
 
 dotenv.config();
 
@@ -22,15 +24,23 @@ const __filename = fileURLToPath(import.meta.url);
 
 const __dirname = path.dirname(path.dirname(__filename));
 
+if (config.targets.length > 1) {
+  console.log(
+    `Warning: Only one target is supported for deployment. Loading target ${config.targets[0].name}`,
+  );
+}
+const target = config.targets[0];
+console.log(`Deploying target ${config.targets[0].name}`);
+
 (async () => {
   await deploySC(
     publicApi,
     deployerAccount,
     [
       {
-        data: readFileSync(path.join(__dirname, 'build', 'main.wasm')),
+        data: readFileSync(path.join(__dirname, target.wasmFile)),
         coins: 0,
-        args: new Args().addString('Test'),
+        args: target.args,
       } as ISCData,
     ],
     0,
