@@ -18,4 +18,4 @@ The initializer documentation is available [here](https://github.com/massalabs/m
 
 ## Contribute
 
-For development purpose you can initialize a local project with `npx sc-project-initializer init <projectName>`.
+For development purposes, you can initialize a local project with `npx sc-project-initializer init <projectName>`.
