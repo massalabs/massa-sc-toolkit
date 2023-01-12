@@ -31,9 +31,7 @@ The `constructor` function can be modified for specific needs, and its call argu
 
 ## Unit tests
 
-The test framework documentation is available here:  `./assembly/__test__/massa-example.spec.ts`
-
-Test framework documentation is available here: [as-pect docs](https://as-pect.gitbook.io/as-pect)
+The test framework documentation is available here: [as-pect docs](https://as-pect.gitbook.io/as-pect)
 
 ```shell
 npm run test
