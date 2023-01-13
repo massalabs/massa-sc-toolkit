@@ -1,6 +1,6 @@
 {
   "name": "@massalabs/massa-sc-deployer",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -18,7 +18,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@massalabs/as-types": "^0.0.2-dev.20221230082918",
+    "@massalabs/as-types": "^0.0.2-dev",
     "@massalabs/massa-as-sdk": "^2.0.1-dev",
     "@massalabs/massa-sc-compiler": "0.0.1",
     "@massalabs/massa-web3": "^1.12.0",
