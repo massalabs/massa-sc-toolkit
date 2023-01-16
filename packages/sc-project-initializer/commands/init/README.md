@@ -1,4 +1,4 @@
-# My Massa Smart-Contract Project
+# My Massa Smart-contract Project
 
 ## Build
 
@@ -18,7 +18,7 @@ Prerequisites :
 
 These keys will be the ones used by the deployer script to interact with the blockchain.
 
-The following command will build the contracts in `assembly/contracts` directory and execute the deployment script
+The following command will build contracts in `assembly/contracts` directory and execute the deployment script
 `src/deploy.ts`. This script will deploy on the node specified in the `.env` file.
 
 ```shell
