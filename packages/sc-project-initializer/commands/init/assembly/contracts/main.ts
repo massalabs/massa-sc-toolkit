@@ -26,7 +26,7 @@ export function constructor(binaryArgs: StaticArray<u8>): StaticArray<u8> {
 }
 
 export function event(_: StaticArray<u8>): StaticArray<u8> {
-  const message = "I'm an event!";
+  const message = 'I\'m an event!';
   generateEvent(message);
   return toBytes(message);
 }

@@ -33,9 +33,9 @@ async function deploySC(
   publicApi: string,
   account: IAccount,
   contracts: ISCData[],
-  fee: number = 0,
-  maxGas: number = 1_000_000,
-  wait: boolean = false,
+  fee = 0,
+  maxGas = 1_000_000,
+  wait = false,
 ): Promise<IDeploymentInfo> {
   const client: Client = await ClientFactory.createCustomClient(
     [
@@ -57,7 +57,8 @@ async function deploySC(
   //
   // key [0, 0, 0, 1]
   // ...
-  // key [x, x, x, x]: contains the bytecode of each SC. The 4 bytes of the key is the index (in 4 bytes) of the contract in the list of contracts to be deployed
+  // key [x, x, x, x]: contains the bytecode of each SC. The 4 bytes of the key is the index (in 4 bytes) of the
+  // contract in the list of contracts to be deployed
   //
   // key [0, 0, 0, 1, 0, 0, 0, 0]
   // ...
@@ -152,13 +153,17 @@ async function deploySC(
 }
 
 async function checkBalance(web3Client: Client, deployerAccount: IAccount) {
+  if (deployerAccount.address === null) {
+    throw new Error('Account has no address.');
+  }
+
   const balance = await web3Client
     .wallet()
-    .getAccountBalance(deployerAccount.address!);
+    .getAccountBalance(deployerAccount.address);
 
   console.log('Wallet balance: ', balance?.final);
   if (!balance?.final || !parseFloat(balance.final)) {
-    throw new Error(`Insufficient MAS balance.`);
+    throw new Error('Insufficient MAS balance.');
   }
 }
 

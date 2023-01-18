@@ -7,8 +7,8 @@
   "scripts": {
     "prettier": "prettier '**/src/**/*.js' --check && as-prettier --check assembly",
     "prettier:fix": "prettier '**/src/**/*.js' --write && as-prettier --write assembly",
-    "lint": "",
-    "lint:fix": "",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "fmt": "npm run prettier:fix && npm run lint:fix",
     "fmt:check": "npm run prettier && npm run lint"
   },
