@@ -8,12 +8,13 @@ import {
   IContractData,
   IProvider,
   EOperationStatus,
+  IEvent,
 } from '@massalabs/massa-web3';
 import { readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-export interface ISCData {
+interface ISCData {
   data: Uint8Array;
   args?: Args;
   coins: number;
@@ -23,6 +24,11 @@ const __filename = fileURLToPath(import.meta.url);
 
 const __dirname = path.dirname(__filename);
 
+interface IDeploymentInfo {
+  opId: string;
+  events?: IEvent[];
+}
+
 async function deploySC(
   publicApi: string,
   account: IAccount,
@@ -30,7 +36,7 @@ async function deploySC(
   fee: number = 0,
   maxGas: number = 1_000_000,
   wait: boolean = false,
-) {
+): Promise<IDeploymentInfo> {
   const client: Client = await ClientFactory.createCustomClient(
     [
       { url: publicApi, type: ProviderType.PUBLIC } as IProvider,
@@ -94,7 +100,7 @@ async function deploySC(
     }
   });
 
-  const opIds = await client.smartContracts().deploySmartContract(
+  const opId = await client.smartContracts().deploySmartContract(
     {
       fee: fee,
       maxGas: maxGas,
@@ -106,10 +112,12 @@ async function deploySC(
     } as IContractData,
     account,
   );
-  console.log(`Operation submitted with id: ${opIds[0]}`);
+  console.log(`Operation submitted with id: ${opId}`);
 
   if (!wait) {
-    return;
+    return {
+      opId,
+    } as IDeploymentInfo;
   }
 
   console.log('Waiting for events...');
@@ -117,26 +125,30 @@ async function deploySC(
   // Wait the end of deployment
   await client
     .smartContracts()
-    .awaitRequiredOperationStatus(opIds[0], EOperationStatus.FINAL);
+    .awaitRequiredOperationStatus(opId, EOperationStatus.FINAL);
 
-  const event = await client.smartContracts().getFilteredScOutputEvents({
+  const events = await client.smartContracts().getFilteredScOutputEvents({
     emitter_address: null,
     start: null,
     end: null,
     original_caller_address: null,
-    original_operation_id: opIds[0],
+    original_operation_id: opId,
     is_final: null,
   });
 
-  if (event.length) {
+  if (events.length) {
     // This prints the deployed SC address
     console.log('Deployment success with events: ');
-    event.forEach((e) => {
+    events.forEach((e) => {
       console.log(e.data);
     });
   } else {
     console.log('Deployment success. No events has been generated');
   }
+  return {
+    opId,
+    events,
+  } as IDeploymentInfo;
 }
 
 async function checkBalance(web3Client: Client, deployerAccount: IAccount) {
@@ -146,8 +158,8 @@ async function checkBalance(web3Client: Client, deployerAccount: IAccount) {
 
   console.log('Wallet balance: ', balance?.final);
   if (!balance?.final || !parseFloat(balance.final)) {
-    throw new Error(`Insuficient MAS balance.`);
+    throw new Error(`Insufficient MAS balance.`);
   }
 }
 
-export { IAccount, WalletClient, deploySC };
+export { IAccount, WalletClient, deploySC, ISCData, IDeploymentInfo };
