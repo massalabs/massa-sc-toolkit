@@ -20,7 +20,6 @@
   "dependencies": {
     "@massalabs/as-types": "^0.0.2-dev",
     "@massalabs/massa-as-sdk": "^2.0.1-dev",
-    "@massalabs/massa-sc-compiler": "0.0.1",
     "@massalabs/massa-web3": "^1.13.0",
     "@types/node": "^18.11.10",
     "assemblyscript": "^0.25.1"
