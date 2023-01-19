@@ -5,8 +5,12 @@
     "type": "module",
     "scripts": {
         "build": "npm run build --ws --if-present",
-        "fmt:check": "npm run fmt:check --ws --if-present",
-        "fmt": "npm run fmt --ws --if-present"
+        "prettier": "prettier '**/src/**/*.ts' --check && as-prettier --check **/assembly/**",
+        "prettier:fix": "prettier '**/src/**/*.ts' --write && as-prettier --write **/assembly/**",
+        "lint": "eslint .",
+        "lint:fix": "npm run lint -- --fix",
+        "fmt:check": "npm run prettier && npm run lint",
+        "fmt": "npm run prettier:fix && npm run lint:fix"
     },
     "repository": {
         "type": "git",

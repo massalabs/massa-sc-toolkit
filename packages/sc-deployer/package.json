@@ -7,13 +7,7 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "tsc -d",
-    "postbuild": "npx massa-as-compile",
-    "prettier": "prettier '**/src/**/*.ts' --check && as-prettier --check assembly",
-    "prettier:fix": "prettier '**/src/**/*.ts' --write && as-prettier --write assembly",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "fmt": "npm run prettier:fix && npm run lint:fix",
-    "fmt:check": "npm run prettier && npm run lint"
+    "postbuild": "npx massa-as-compile"
   },
   "author": "",
   "license": "ISC",
