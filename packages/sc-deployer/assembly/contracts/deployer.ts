@@ -14,9 +14,9 @@ import { Args } from '@massalabs/as-types';
  * The data structure of the operation datastore must be like describe in
  * packages/sc-deployer/src/index.ts
  *
- * @param _args - not used
+ * @param _ - not used
  */
-export function main(_args: StaticArray<u8>): StaticArray<u8> {
+export function main(_: StaticArray<u8>): StaticArray<u8> {
   let masterKey = new StaticArray<u8>(1);
   masterKey[0] = 0x00;
   if (!hasOpKey(masterKey)) {
