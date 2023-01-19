@@ -29,6 +29,48 @@ interface IDeploymentInfo {
   events?: IEvent[];
 }
 
+/**
+ * Deploys multiple smart contract.
+ *
+ * This function will go throw all provided smart contracts.
+ * For each one, it will deploy the contract and call its constructor function with the given arguments in the same
+ * transaction.
+ *
+ * @remarks
+ * Under the hood, this will generate a deployer smart contract with a main function.
+ * This function will deploy your smart contract and call the constructor function if it has one.
+ *
+ * This generated deployer smart contract will then be ran by an ExecuteSC operation.
+ *
+ * You smart contract and the constructor function arguments are passed to the deployer smart contract via the operation
+ * datastore of the ExecuteSC operation.
+ *
+ * @privateRemarks
+ * The smart contracts information are stored in operation datastore with the following structure.
+ *
+ * key [0] : Contains the numbers of SC to deploy
+ *
+ * key [0, 0, 0, 1]
+ * ...
+ * key [x, x, x, x]: contains the bytecode of each SC. The 4 bytes of the key is the index (in 4 bytes) of the
+ * contract in the list of contracts to be deployed
+ *
+ * key [0, 0, 0, 1, 0, 0, 0, 0]
+ * ...
+ * key [x, x, x, x, 0, 0, 0, 0]: optional key that have the args for each contract
+ *
+ * key [0, 0, 0, 1, 0, 0, 0, 1]
+ * ...
+ * key [x, x, x, x, 0, 0, 0, 1]: optional key that have the coins for each contract
+ *
+ * @param publicApi - public API node URL
+ * @param account - the wallet that will deploy
+ * @param contracts - contracts and constructors arguments
+ * @param fee - fees to provide to the deployment
+ * @param maxGas - maximum amount of gas to spend
+ * @param wait - waits for the first event if true
+ * @returns
+ */
 async function deploySC(
   publicApi: string,
   account: IAccount,
@@ -51,22 +93,6 @@ async function deploySC(
   await checkBalance(client, account);
 
   let datastore = new Map<Uint8Array, Uint8Array>();
-  // The SCs information are stored in operation datastore with the following structure.
-  //
-  // key [0] : Contains the numbers of SC to deploy
-  //
-  // key [0, 0, 0, 1]
-  // ...
-  // key [x, x, x, x]: contains the bytecode of each SC. The 4 bytes of the key is the index (in 4 bytes) of the
-  // contract in the list of contracts to be deployed
-  //
-  // key [0, 0, 0, 1, 0, 0, 0, 0]
-  // ...
-  // key [x, x, x, x, 0, 0, 0, 0]: optional key that have the args for each contract
-  //
-  // key [0, 0, 0, 1, 0, 0, 0, 1]
-  // ...
-  // key [x, x, x, x, 0, 0, 0, 1]: optional key that have the coins for each contract
 
   datastore.set(
     new Uint8Array([0x00]),
@@ -152,14 +178,19 @@ async function deploySC(
   } as IDeploymentInfo;
 }
 
-async function checkBalance(web3Client: Client, deployerAccount: IAccount) {
-  if (deployerAccount.address === null) {
+/**
+ * Check the balance
+ *
+ * @param web3Client - web3 client to use to check the balance
+ * @param account - the wallet
+ * @throws if the given account has insufficient founds
+ */
+async function checkBalance(web3Client: Client, account: IAccount) {
+  if (account.address === null) {
     throw new Error('Account has no address.');
   }
 
-  const balance = await web3Client
-    .wallet()
-    .getAccountBalance(deployerAccount.address);
+  const balance = await web3Client.wallet().getAccountBalance(account.address);
 
   console.log('Wallet balance: ', balance?.final);
   if (!balance?.final || !parseFloat(balance.final)) {
