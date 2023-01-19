@@ -30,7 +30,7 @@ export function constructor(binaryArgs: StaticArray<u8>): StaticArray<u8> {
  * @returns the emitted event serialized in bytes
  */
 export function event(_: StaticArray<u8>): StaticArray<u8> {
-  const message = 'I\'m an event!';
+  const message = "I'm an event!";
   generateEvent(message);
   return toBytes(message);
 }
