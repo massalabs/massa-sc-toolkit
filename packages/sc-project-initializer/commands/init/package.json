@@ -19,7 +19,7 @@
         "@assemblyscript/loader": "^0.25.0",
         "@massalabs/as-transformer": "^0.1.1-dev",
         "@massalabs/as-types": "^0.0.2-dev",
-        "@massalabs/eslint-config": "^0.0.5",
+        "@massalabs/eslint-config": "^0.0.6",
         "@massalabs/massa-as-sdk": "^2.0.1-dev",
         "@massalabs/massa-sc-compiler": "^0.0.3-dev",
         "@massalabs/massa-sc-deployer": "^0.0.3-dev",
