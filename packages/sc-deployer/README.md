@@ -23,7 +23,7 @@ In your smart contract, add an optional `constructor` function:
  * @param binaryArgs - Arguments serialized with Args
  */
 export function constructor(binaryArgs: StaticArray<u8>): StaticArray<u8> {
-  // This line is important. It ensure that this function can't be called in the future.
+  // This line is important. It ensures that this function can't be called in the future.
   // If you remove this check someone could call your constructor function and reset your SC.
   if (!callerHasWriteAccess()) {
     return [];
@@ -36,9 +36,9 @@ export function constructor(binaryArgs: StaticArray<u8>): StaticArray<u8> {
 
 ### Use this library to deploy it
 
-You can write a deployment script that use massa-web3 library and this sc-deployer to create complex deployment process.
+You can write a deployment script that uses massa-web3 library and this sc-deployer to create complex deployment process.
 
-A simple use-case is as follow:
+A simple use-case is as follows:
 
 ```typescript
 import { readFileSync } from 'fs';

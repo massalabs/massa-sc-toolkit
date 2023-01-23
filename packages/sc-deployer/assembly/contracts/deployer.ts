@@ -11,7 +11,7 @@ import { Args } from '@massalabs/as-types';
 const CONSTRUCTOR = 'constructor';
 
 /**
- * This function deploy and call the constructor function of the deployed smart contract.
+ * This function deploys and calls the constructor function of the deployed smart contract.
  *
  * The data structure of the operation datastore must be like describe in
  * packages/sc-deployer/src/index.ts

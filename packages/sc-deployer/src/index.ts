@@ -30,10 +30,10 @@ interface IDeploymentInfo {
 }
 
 /**
- * Deploys multiple smart contract.
+ * Deploys multiple smart contracts.
  *
- * This function will go throw all provided smart contracts.
- * For each one, it will deploy the contract and call its constructor function with the given arguments in the same
+ * This function will go through all provided smart contracts.
+ * For each one, it will deploy the contract and call its constructor function with given arguments in the same
  * transaction.
  *
  * @remarks
@@ -46,7 +46,7 @@ interface IDeploymentInfo {
  * datastore of the ExecuteSC operation.
  *
  * @privateRemarks
- * The smart contracts information are stored in operation datastore with the following structure.
+ * The smart-contract information is stored in the operation datastore with the following structure.
  *
  * key [0] : Contains the numbers of SC to deploy
  *
