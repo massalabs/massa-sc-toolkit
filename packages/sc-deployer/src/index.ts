@@ -129,8 +129,8 @@ async function deploySC(
 
   const opId = await client.smartContracts().deploySmartContract(
     {
-      fee: fee,
-      maxGas: maxGas,
+      fee,
+      maxGas,
       coins: contracts.reduce((acc, contract) => acc + contract.coins, 0),
       contractDataBinary: readFileSync(
         path.join(__dirname, '..', 'build', '/deployer.wasm'),
