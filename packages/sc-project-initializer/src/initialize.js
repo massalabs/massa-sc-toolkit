@@ -9,6 +9,11 @@ import { dirname } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+/**
+ * Initialize a smart-contract project
+ *
+ * @param {string} directory
+ */
 export function initialize(directory) {
   console.log('Installation begun...');
 

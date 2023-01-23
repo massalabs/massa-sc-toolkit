@@ -2,7 +2,7 @@
 
 This repository is a monorepo for smart-contract development in AssemblyScript for Massa blockchain.
 
-## Packages:
+## Packages
 
 ### @massalabs/sc-project-initializer
 

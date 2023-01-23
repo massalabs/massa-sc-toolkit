@@ -8,8 +8,10 @@ import {
 } from '@massalabs/massa-as-sdk';
 import { Args } from '@massalabs/as-types';
 
+const CONSTRUCTOR = 'constructor';
+
 /**
- * This function deploy and call the constructor function of the deployer smart contract.
+ * This function deploys and calls the constructor function of the deployed smart contract.
  *
  * The data structure of the operation datastore must be like describe in
  * packages/sc-deployer/src/index.ts
@@ -33,7 +35,7 @@ export function main(_: StaticArray<u8>): StaticArray<u8> {
     }
     let SCBytecode = getOpData(key);
     const contractAddr = createSC(SCBytecode);
-    if (functionExists(contractAddr, 'constructor')) {
+    if (functionExists(contractAddr, CONSTRUCTOR)) {
       let argsIdent = new Uint8Array(1);
       argsIdent[0] = 0x00;
       let keyArgs = keyBaseArgs.add(argsIdent).serialize();
@@ -52,7 +54,7 @@ export function main(_: StaticArray<u8>): StaticArray<u8> {
       } else {
         coins = 0;
       }
-      call(contractAddr, 'constructor', args, coins);
+      call(contractAddr, CONSTRUCTOR, args, coins);
     }
     generateEvent(
       `Contract deployed at address: ${contractAddr.toByteString()}`,
