@@ -8,7 +8,7 @@
         "build": "npx massa-as-compile",
         "deploy": "npm run build && ts-node src/deploy.ts",
         "lint": "eslint --resolve-plugins-relative-to . \"./**/*.{ts,json}\" \"./*.{ts,json}\" --fix",
-        "prettier": "prettier '**/src/**/*.ts' --write && as-prettier --write assembly",
+        "prettier": "prettier '**/src/**/*.ts' --write || as-prettier --write assembly",
         "fmt": "npm run lint && npm run prettier"
     },
     "keywords": [],
