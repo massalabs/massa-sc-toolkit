@@ -7,9 +7,12 @@
         "test": "asp --summary",
         "build": "npx massa-as-compile",
         "deploy": "npm run build && ts-node src/deploy.ts",
-        "lint": "eslint --resolve-plugins-relative-to . \"./**/*.{ts,json}\" \"./*.{ts,json}\" --fix",
-        "prettier": "prettier '**/src/**/*.ts' --write || as-prettier --write assembly",
-        "fmt": "npm run lint && npm run prettier"
+        "prettier": "prettier '**/src/**/*.ts' --check && as-prettier --check assembly",
+        "prettier:fix": "prettier '**/src/**/*.ts' --write || as-prettier --write assembly",
+        "lint": "eslint --resolve-plugins-relative-to . \"./**/*.{ts,json}\" \"./*.{ts,json}\"",
+        "lint:fix": "eslint --resolve-plugins-relative-to . \"./**/*.{ts,json}\" \"./*.{ts,json}\" --fix",
+        "fmt:check": "npm run prettier && npm run lint",
+        "fmt": "npm run prettier:fix && npm run lint:fix"
     },
     "keywords": [],
     "author": "",
