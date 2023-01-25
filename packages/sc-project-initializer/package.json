@@ -1,11 +1,10 @@
 {
   "name": "@massalabs/sc-project-initializer",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "",
   "main": "src/cli.js",
   "type": "module",
-  "scripts": {
-  },
+  "scripts": {},
   "dependencies": {
     "fs-extra": "^10.1.0",
     "yargs": "^17.6.0"

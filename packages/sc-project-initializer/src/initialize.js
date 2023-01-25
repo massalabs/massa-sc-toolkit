@@ -12,7 +12,7 @@ const __dirname = dirname(__filename);
 /**
  * Initialize a smart-contract project
  *
- * @param {string} directory
+ * @param {string} directory name of the target directory
  */
 export function initialize(directory) {
   console.log('Installation begun...');
