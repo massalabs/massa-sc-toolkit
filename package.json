@@ -27,7 +27,7 @@
         "packages/*"
     ],
     "devDependencies": {
-        "@massalabs/eslint-config": "^0.0.6",
+        "@massalabs/eslint-config": "^0.0.7",
         "@massalabs/massa-sc-compiler": "^0.0.3-dev",
         "@massalabs/prettier-config-as": "^0.0.2",
         "prettier": "^2.8.1",
