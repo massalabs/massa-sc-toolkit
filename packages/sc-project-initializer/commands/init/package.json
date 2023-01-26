@@ -24,7 +24,7 @@
         "@massalabs/as-types": "^0.0.3-dev",
         "@massalabs/eslint-config": "^0.0.7",
         "@massalabs/massa-as-sdk": "^2.0.2-dev",
-        "@massalabs/massa-sc-compiler": "^0.0.3-dev",
+        "@massalabs/massa-sc-compiler": "^0.0.4-dev",
         "@massalabs/massa-sc-deployer": "^0.0.3-dev",
         "@massalabs/massa-web3": "^1.13.0",
         "@massalabs/prettier-config-as": "^0.0.2",
