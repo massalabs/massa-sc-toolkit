@@ -24,7 +24,7 @@ In your smart contract, add an optional `constructor` function:
  */
 export function constructor(binaryArgs: StaticArray<u8>): StaticArray<u8> {
   // This line is important. It ensures that this function can't be called in the future.
-  // If you remove this check someone could call your constructor function and reset your SC.
+  // If you remove this check, someone could call your constructor function and reset your SC.
   if (!callerHasWriteAccess()) {
     return [];
   }

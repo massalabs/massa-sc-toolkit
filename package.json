@@ -6,7 +6,7 @@
     "scripts": {
         "build": "npm run build --ws --if-present",
         "prettier": "prettier '**/src/**/*.ts' --check && as-prettier --check **/assembly/**",
-        "prettier:fix": "prettier '**/src/**/*.ts' --write || as-prettier --write **/assembly/**",
+        "prettier:fix": "prettier '**/src/**/*.ts' --write && as-prettier --write **/assembly/**",
         "lint": "eslint .",
         "lint:fix": "npm run lint -- --fix",
         "fmt:check": "npm run prettier && npm run lint",
@@ -27,7 +27,7 @@
         "packages/*"
     ],
     "devDependencies": {
-        "@massalabs/eslint-config": "^0.0.7",
+        "@massalabs/eslint-config": "^0.0.9",
         "@massalabs/massa-sc-compiler": "^0.0.4-dev",
         "@massalabs/prettier-config-as": "^0.0.2",
         "prettier": "^2.8.1",

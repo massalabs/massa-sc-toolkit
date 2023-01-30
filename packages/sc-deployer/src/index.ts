@@ -172,6 +172,7 @@ async function deploySC(
   } else {
     console.log('Deployment success. No events has been generated');
   }
+
   return {
     opId,
     events,

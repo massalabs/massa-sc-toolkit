@@ -7,9 +7,9 @@ import { NoArg } from '@massalabs/as-types';
  * @param _ - not used
  */
 export function constructor(_: StaticArray<u8>): StaticArray<u8> {
-  // This line is important. It ensure that this function can't be called in the future.
-  // If you remove this check someone could call your constructor function and reset your SC.
-  if (!callerHasWriteAccess) {
+  // This line is important. It ensures that this function can't be called in the future.
+  // If you remove this check, someone could call your constructor function and reset your smart contract.
+  if (!callerHasWriteAccess()) {
     return [];
   }
   main([]);
