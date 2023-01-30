@@ -1,8 +1,8 @@
-import { toBytes } from '@massalabs/massa-as-sdk';
+import { stringToBytes } from '@massalabs/as-types';
 import { event } from '../contracts/main';
 
 describe('Group test', () => {
   test('Testing event', () => {
-    expect(event([])).toStrictEqual(toBytes("I'm an event!"));
+    expect(event([])).toStrictEqual(stringToBytes("I'm an event!"));
   });
 });

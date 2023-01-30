@@ -16,7 +16,7 @@
     "@massalabs/massa-as-sdk": "^2.0.2-dev",
     "@massalabs/massa-web3": "^1.13.0",
     "@types/node": "^18.11.10",
-    "assemblyscript": "^0.25.1"
+    "assemblyscript": "^0.25.2"
   },
   "type": "module",
   "files": [
