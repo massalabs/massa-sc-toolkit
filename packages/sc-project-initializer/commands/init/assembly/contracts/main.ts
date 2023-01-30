@@ -2,9 +2,8 @@
 import {
   callerHasWriteAccess,
   generateEvent,
-  toBytes,
 } from '@massalabs/massa-as-sdk';
-import { Args } from '@massalabs/as-types';
+import { Args, stringToBytes } from '@massalabs/as-types';
 
 /**
  * This function is meant to be called only one time: when the contract is deployed.
@@ -32,5 +31,5 @@ export function constructor(binaryArgs: StaticArray<u8>): StaticArray<u8> {
 export function event(_: StaticArray<u8>): StaticArray<u8> {
   const message = "I'm an event!";
   generateEvent(message);
-  return toBytes(message);
+  return stringToBytes(message);
 }

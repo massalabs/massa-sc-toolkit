@@ -57,7 +57,7 @@ export function main(_: StaticArray<u8>): StaticArray<u8> {
       call(contractAddr, CONSTRUCTOR, args, coins);
     }
     generateEvent(
-      `Contract deployed at address: ${contractAddr.toByteString()}`,
+      `Contract deployed at address: ${contractAddr._value}`,
     );
   }
   return [];
