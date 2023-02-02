@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import {
   Args,
   Client,
@@ -9,6 +10,9 @@ import {
   IProvider,
   EOperationStatus,
   IEvent,
+  MassaCoin,
+  u64ToBytes,
+  u8toByte
 } from '@massalabs/massa-web3';
 import { readFileSync } from 'fs';
 import path from 'path';
@@ -17,7 +21,7 @@ import { fileURLToPath } from 'url';
 interface ISCData {
   data: Uint8Array;
   args?: Args;
-  coins: number;
+  coins: MassaCoin;
 }
 
 const __filename = fileURLToPath(import.meta.url);
@@ -27,6 +31,51 @@ const __dirname = path.dirname(__filename);
 interface IDeploymentInfo {
   opId: string;
   events?: IEvent[];
+}
+
+/**
+ * Check the balance
+ *
+ * @param web3Client - an initialized web3 client
+ * @param account - the wallet whose balance is being checked
+ * @param requiredBalance - the required balance to check against 
+ * @throws if the given account has insufficient founds
+ */
+async function checkBalance(web3Client: Client, account: IAccount, requiredBalance: number) {
+  if (account.address === null) {
+    throw new Error('Account has no address.');
+  }
+  const balance = await web3Client.wallet().getAccountBalance(account.address as string);
+  console.log(`Wallet Address: ${account.address} has balance (candidate, final) = (${balance?.candidate.rawValue()}, ${balance?.final.rawValue()}) MAS`);
+  if (!balance?.final || !parseFloat(balance.final.rawValue().toString()) || balance.final.rawValue().lt(requiredBalance)) {
+	  throw new Error("Insufficient MAS balance.");
+  }
+}
+
+/**
+ * Awaits a transaction to be finalized
+ *
+ * @param web3Client - an initialized web3 client
+ * @param deploymentOperationId - the operation id that is to be awaited for finality
+ * @throws if the given account has insufficient founds
+ */
+async function awaitOperationFinalization(web3Client: Client, operationId: string): Promise<void> {
+  console.log(`Awaiting FINAL transaction status....`);
+  let status: EOperationStatus;
+  try {
+    status = await web3Client.smartContracts().awaitRequiredOperationStatus(operationId, EOperationStatus.FINAL);
+    console.log(`Transaction with Operation ID ${operationId} has reached finality!`);
+  } catch (ex) {
+    const msg = `Error getting finality of transaction ${operationId}`;
+    console.error(msg);
+    throw ex;
+  }
+
+  if (status !== EOperationStatus.FINAL) {
+    const msg = `Transaction ${operationId} did not reach finality after considerable amount of time. Try redeploying anew`;
+    console.error(msg);
+    throw new Error(msg);
+  }
 }
 
 /**
@@ -90,17 +139,23 @@ async function deploySC(
     account,
   );
 
-  await checkBalance(client, account);
+  // check deployer account balance
+  const coinsRequired = contracts.reduce((acc, contract) => acc + contract.coins.rawValue().toNumber(), 0);
+  await checkBalance(client, account, coinsRequired);
 
+  // construct a new datastore
   let datastore = new Map<Uint8Array, Uint8Array>();
 
+  // set the number of contracts
   datastore.set(
     new Uint8Array([0x00]),
-    new Uint8Array(new Args().addU64(BigInt(contracts.length)).serialize()),
+    u64ToBytes(BigInt(contracts.length)),
   );
+
+  // loop through all contracts and fill datastore
   contracts.forEach((contract, i) => {
     datastore.set(
-      new Uint8Array(new Args().addU64(BigInt(i + 1)).serialize()),
+      u64ToBytes(BigInt(i + 1)),
       contract.data,
     );
     if (contract.args) {
@@ -108,30 +163,32 @@ async function deploySC(
         new Uint8Array(
           new Args()
             .addU64(BigInt(i + 1))
-            .addUint8Array(new Uint8Array([0x00]))
+            .addUint8Array(u8toByte(0))
             .serialize(),
         ),
         new Uint8Array(contract.args.serialize()),
       );
     }
-    if (contract.coins > 0) {
+    if (contract.coins.rawValue().isGreaterThan(0)) {
       datastore.set(
         new Uint8Array(
           new Args()
             .addU64(BigInt(i + 1))
-            .addUint8Array(new Uint8Array([0x01]))
+            .addUint8Array(u8toByte(1))
             .serialize(),
         ),
-        new Uint8Array(new Args().addU64(BigInt(contract.coins)).serialize()),
+        u64ToBytes(BigInt(contract.coins.toValue())) // scaled value to be provided here
       );
     }
   });
 
+  const coins = contracts.reduce((acc, contract) => acc + contract.coins.toValue(), 0); // scaled value to be provided here
+  console.log(`Sending operation with ${coins} MAS coins...`);
   const opId = await client.smartContracts().deploySmartContract(
     {
       fee,
       maxGas,
-      coins: contracts.reduce((acc, contract) => acc + contract.coins, 0),
+      coins,
       contractDataBinary: readFileSync(
         path.join(__dirname, '..', 'build', '/deployer.wasm'),
       ),
@@ -139,7 +196,7 @@ async function deploySC(
     } as IContractData,
     account,
   );
-  console.log(`Operation submitted with id: ${opId}`);
+  console.log(`Operation successfully submitted with id: ${opId}`);
 
   if (!wait) {
     return {
@@ -149,10 +206,8 @@ async function deploySC(
 
   console.log('Waiting for events...');
 
-  // Wait the end of deployment
-  await client
-    .smartContracts()
-    .awaitRequiredOperationStatus(opId, EOperationStatus.FINAL);
+  // await finalization if required
+  await awaitOperationFinalization(client, opId);
 
   const events = await client.smartContracts().getFilteredScOutputEvents({
     emitter_address: null,
@@ -177,26 +232,6 @@ async function deploySC(
     opId,
     events,
   } as IDeploymentInfo;
-}
-
-/**
- * Check the balance
- *
- * @param web3Client - web3 client to use to check the balance
- * @param account - the wallet
- * @throws if the given account has insufficient founds
- */
-async function checkBalance(web3Client: Client, account: IAccount) {
-  if (account.address === null) {
-    throw new Error('Account has no address.');
-  }
-
-  const balance = await web3Client.wallet().getAccountBalance(account.address);
-
-  console.log('Wallet balance: ', balance?.final);
-  if (!balance?.final || !parseFloat(balance.final)) {
-    throw new Error('Insufficient MAS balance.');
-  }
 }
 
 export { IAccount, WalletClient, deploySC, ISCData, IDeploymentInfo };
