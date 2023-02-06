@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import {
   Args,
   Client,
@@ -12,11 +11,12 @@ import {
   IEvent,
   MassaCoin,
   u64ToBytes,
-  u8toByte
+  u8toByte,
 } from '@massalabs/massa-web3';
 import { readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import BigNumber from 'bignumber.js';
 
 interface ISCData {
   data: Uint8Array;
@@ -38,17 +38,27 @@ interface IDeploymentInfo {
  *
  * @param web3Client - an initialized web3 client
  * @param account - the wallet whose balance is being checked
- * @param requiredBalance - the required balance to check against 
+ * @param requiredBalance - the required balance to check against
  * @throws if the given account has insufficient founds
  */
-async function checkBalance(web3Client: Client, account: IAccount, requiredBalance: number) {
+async function checkBalance(
+  web3Client: Client,
+  account: IAccount,
+  requiredBalance: BigNumber,
+) {
   if (account.address === null) {
     throw new Error('Account has no address.');
   }
-  const balance = await web3Client.wallet().getAccountBalance(account.address as string);
-  console.log(`Wallet Address: ${account.address} has balance (candidate, final) = (${balance?.candidate.rawValue()}, ${balance?.final.rawValue()}) MAS`);
-  if (!balance?.final || !parseFloat(balance.final.rawValue().toString()) || balance.final.rawValue().lt(requiredBalance)) {
-	  throw new Error("Insufficient MAS balance.");
+  const balance = await web3Client
+    .wallet()
+    .getAccountBalance(account.address as string);
+  console.log(
+    `Wallet Address: ${
+      account.address
+    } has balance (candidate, final) = (${balance?.candidate.rawValue()}, ${balance?.final.rawValue()}) MAS`,
+  );
+  if (!balance?.final || balance.final.rawValue().lt(requiredBalance)) {
+    throw new Error('Insufficient MAS balance.');
   }
 }
 
@@ -59,12 +69,19 @@ async function checkBalance(web3Client: Client, account: IAccount, requiredBalan
  * @param deploymentOperationId - the operation id that is to be awaited for finality
  * @throws if the given account has insufficient founds
  */
-async function awaitOperationFinalization(web3Client: Client, operationId: string): Promise<void> {
+async function awaitOperationFinalization(
+  web3Client: Client,
+  operationId: string,
+): Promise<void> {
   console.log(`Awaiting FINAL transaction status....`);
   let status: EOperationStatus;
   try {
-    status = await web3Client.smartContracts().awaitRequiredOperationStatus(operationId, EOperationStatus.FINAL);
-    console.log(`Transaction with Operation ID ${operationId} has reached finality!`);
+    status = await web3Client
+      .smartContracts()
+      .awaitRequiredOperationStatus(operationId, EOperationStatus.FINAL);
+    console.log(
+      `Transaction with Operation ID ${operationId} has reached finality!`,
+    );
   } catch (ex) {
     const msg = `Error getting finality of transaction ${operationId}`;
     console.error(msg);
@@ -72,7 +89,8 @@ async function awaitOperationFinalization(web3Client: Client, operationId: strin
   }
 
   if (status !== EOperationStatus.FINAL) {
-    const msg = `Transaction ${operationId} did not reach finality after considerable amount of time. Try redeploying anew`;
+    let msg = `Transaction ${operationId} did not reach finality after considerable amount of time.`;
+    msg += 'Try redeploying anew';
     console.error(msg);
     throw new Error(msg);
   }
@@ -140,24 +158,21 @@ async function deploySC(
   );
 
   // check deployer account balance
-  const coinsRequired = contracts.reduce((acc, contract) => acc + contract.coins.rawValue().toNumber(), 0);
+  const coinsRequired = contracts.reduce(
+    (acc, contract) => acc.plus(contract.coins.rawValue()),
+    new BigNumber(0),
+  );
   await checkBalance(client, account, coinsRequired);
 
   // construct a new datastore
   let datastore = new Map<Uint8Array, Uint8Array>();
 
   // set the number of contracts
-  datastore.set(
-    new Uint8Array([0x00]),
-    u64ToBytes(BigInt(contracts.length)),
-  );
+  datastore.set(new Uint8Array([0x00]), u64ToBytes(BigInt(contracts.length)));
 
   // loop through all contracts and fill datastore
   contracts.forEach((contract, i) => {
-    datastore.set(
-      u64ToBytes(BigInt(i + 1)),
-      contract.data,
-    );
+    datastore.set(u64ToBytes(BigInt(i + 1)), contract.data);
     if (contract.args) {
       datastore.set(
         new Uint8Array(
@@ -177,12 +192,15 @@ async function deploySC(
             .addUint8Array(u8toByte(1))
             .serialize(),
         ),
-        u64ToBytes(BigInt(contract.coins.toValue())) // scaled value to be provided here
+        u64ToBytes(BigInt(contract.coins.toValue())), // scaled value to be provided here
       );
     }
   });
 
-  const coins = contracts.reduce((acc, contract) => acc + contract.coins.toValue(), 0); // scaled value to be provided here
+  const coins = contracts.reduce(
+    (acc, contract) => acc + contract.coins.toValue(),
+    0,
+  ); // scaled value to be provided here
   console.log(`Sending operation with ${coins} MAS coins...`);
   const opId = await client.smartContracts().deploySmartContract(
     {
