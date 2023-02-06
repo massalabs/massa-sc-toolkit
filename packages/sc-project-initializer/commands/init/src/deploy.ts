@@ -15,7 +15,6 @@ const privKey = process.env.WALLET_PRIVATE_KEY;
 if (!privKey) {
   throw new Error('Missing WALLET_PRIVATE_KEY in .env file');
 }
-const coins = process.env.COINS;
 
 const deployerAccount = await WalletClient.getAccountFromSecretKey(privKey);
 
@@ -30,7 +29,7 @@ const __dirname = path.dirname(path.dirname(__filename));
     [
       {
         data: readFileSync(path.join(__dirname, 'build', 'main.wasm')),
-        coins: new MassaCoin(coins ? coins : 0),
+        coins: new MassaCoin(0),
         args: new Args().addString('Test'),
       } as ISCData,
     ],
