@@ -16,13 +16,13 @@ if (!privKey) {
   throw new Error('Missing WALLET_PRIVATE_KEY in .env file');
 }
 
-const deployerAccount = await WalletClient.getAccountFromSecretKey(privKey);
-
-const __filename = fileURLToPath(import.meta.url);
-
-const __dirname = path.dirname(path.dirname(__filename));
-
 (async () => {
+  const deployerAccount = await WalletClient.getAccountFromSecretKey(privKey);
+
+  const __filename = fileURLToPath(import.meta.url);
+
+  const __dirname = path.dirname(path.dirname(__filename));
+
   await deploySC(
     publicApi,
     deployerAccount,

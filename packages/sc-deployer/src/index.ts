@@ -133,9 +133,10 @@ async function awaitOperationFinalization(
  * @param publicApi - public API node URL
  * @param account - the wallet that will deploy
  * @param contracts - contracts and constructors arguments
- * @param fee - fees to provide to the deployment
- * @param maxGas - maximum amount of gas to spend
- * @param wait - waits for the first event if true
+ * @param fee - fees to provide to the deployment, default 0
+ * @param maxGas - maximum amount of gas to spend, default 1 000 000
+ * @param wait - waits for the first event if true, default false
+ * @param isFinal - waits for the events to be final if true, default false
  * @returns
  */
 async function deploySC(
@@ -145,6 +146,7 @@ async function deploySC(
   fee = 0,
   maxGas = 1_000_000,
   wait = false,
+  isFinal = false,
 ): Promise<IDeploymentInfo> {
   const client: Client = await ClientFactory.createCustomClient(
     [
@@ -233,7 +235,7 @@ async function deploySC(
     end: null,
     original_caller_address: null,
     original_operation_id: opId,
-    is_final: null,
+    is_final: isFinal,
   });
 
   if (events.length) {
