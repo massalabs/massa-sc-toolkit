@@ -3,7 +3,7 @@ import { readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { deploySC, WalletClient, ISCData } from '@massalabs/massa-sc-deployer';
-import { Args } from '@massalabs/massa-web3';
+import { Args, MassaCoin } from '@massalabs/massa-web3';
 
 dotenv.config();
 
@@ -29,7 +29,7 @@ const __dirname = path.dirname(path.dirname(__filename));
     [
       {
         data: readFileSync(path.join(__dirname, 'build', 'main.wasm')),
-        coins: 0,
+        coins: new MassaCoin(0),
         args: new Args().addString('Test'),
       } as ISCData,
     ],

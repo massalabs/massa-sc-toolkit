@@ -14,7 +14,7 @@
   "dependencies": {
     "@massalabs/as-types": "^0.0.3-dev",
     "@massalabs/massa-as-sdk": "^2.0.2-dev",
-    "@massalabs/massa-web3": "^1.13.0",
+    "@massalabs/massa-web3": "^1.14.0",
     "@types/node": "^18.11.10",
     "assemblyscript": "^0.25.2"
   },
