@@ -72,9 +72,11 @@ async function checkBalance(
 async function awaitOperationFinalization(
   web3Client: Client,
   operationId: string,
-  isFinal: boolean | null = null
+  isFinal: boolean | null = null,
 ): Promise<void> {
-  const wantedStatus = isFinal ? EOperationStatus.FINAL : EOperationStatus.INCLUDED_PENDING;
+  const wantedStatus = isFinal
+    ? EOperationStatus.FINAL
+    : EOperationStatus.INCLUDED_PENDING;
   const wantedStatusName = isFinal ? 'FINAL' : 'INCLUDED_PENDING';
   console.log(`Awaiting ${wantedStatusName} transaction status....`);
   let status: EOperationStatus;
