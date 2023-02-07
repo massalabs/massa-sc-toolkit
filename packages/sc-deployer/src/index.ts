@@ -72,24 +72,27 @@ async function checkBalance(
 async function awaitOperationFinalization(
   web3Client: Client,
   operationId: string,
+  isFinal: boolean | null = null
 ): Promise<void> {
-  console.log(`Awaiting FINAL transaction status....`);
+  const wantedStatus = isFinal ? EOperationStatus.FINAL : EOperationStatus.INCLUDED_PENDING;
+  const wantedStatusName = isFinal ? 'FINAL' : 'INCLUDED_PENDING';
+  console.log(`Awaiting ${wantedStatusName} transaction status....`);
   let status: EOperationStatus;
   try {
     status = await web3Client
       .smartContracts()
-      .awaitRequiredOperationStatus(operationId, EOperationStatus.FINAL);
+      .awaitRequiredOperationStatus(operationId, wantedStatus);
     console.log(
-      `Transaction with Operation ID ${operationId} has reached finality!`,
+      `Transaction with Operation ID ${operationId} has reached ${wantedStatusName}!`,
     );
   } catch (ex) {
-    const msg = `Error getting finality of transaction ${operationId}`;
+    const msg = `Error getting ${wantedStatusName} of transaction ${operationId}`;
     console.error(msg);
     throw ex;
   }
 
-  if (status !== EOperationStatus.FINAL) {
-    let msg = `Transaction ${operationId} did not reach finality after considerable amount of time.`;
+  if (status !== wantedStatus) {
+    let msg = `Transaction ${operationId} did not reach status ${wantedStatusName} after considerable amount of time.`;
     msg += 'Try redeploying anew';
     console.error(msg);
     throw new Error(msg);
@@ -136,7 +139,7 @@ async function awaitOperationFinalization(
  * @param fee - fees to provide to the deployment, default 0
  * @param maxGas - maximum amount of gas to spend, default 1 000 000
  * @param wait - waits for the first event if true, default false
- * @param isFinal - waits for the events to be final if true, default false
+ * @param isFinal - waits for the events to be final if true, default null (final and candidate events)
  * @returns
  */
 async function deploySC(
@@ -146,7 +149,7 @@ async function deploySC(
   fee = 0,
   maxGas = 1_000_000,
   wait = false,
-  isFinal = false,
+  isFinal: boolean | null = null,
 ): Promise<IDeploymentInfo> {
   const client: Client = await ClientFactory.createCustomClient(
     [
@@ -227,7 +230,9 @@ async function deploySC(
   console.log('Waiting for events...');
 
   // await finalization if required
-  await awaitOperationFinalization(client, opId);
+  if (isFinal) {
+    await awaitOperationFinalization(client, opId, isFinal);
+  }
 
   const events = await client.smartContracts().getFilteredScOutputEvents({
     emitter_address: null,
