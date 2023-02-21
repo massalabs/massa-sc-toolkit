@@ -12,6 +12,10 @@ import {
   MassaCoin,
   u64ToBytes,
   u8toByte,
+  ON_MASSA_EVENT_DATA,
+  ON_MASSA_EVENT_ERROR,
+  EventPoller,
+  IEventFilter,
 } from '@massalabs/massa-web3';
 import { readFileSync } from 'fs';
 import path from 'path';
@@ -22,6 +26,11 @@ interface ISCData {
   data: Uint8Array;
   args?: Args;
   coins: MassaCoin;
+}
+
+interface IEventPollerResult {
+  eventPoller: EventPoller;
+  events: IEvent[];
 }
 
 const __filename = fileURLToPath(import.meta.url);
@@ -95,6 +104,57 @@ async function awaitOperationFinalization(
     throw new Error(msg);
   }
 }
+
+/**
+ * Asynchronously polls events from the chain for a given operationId
+ *
+ * @param web3Client - an initialized web3 client
+ * @param opId - the operation id whose events are to be polled
+ * @returns An interface of type `IEventPollerResult` which contains the results or an error
+ * @throws in case of a timeout or massa execution error
+ */
+const pollAsyncEvents = (
+  webClient: Client,
+  opId: string,
+): Promise<IEventPollerResult> => {
+  const eventsFilter = {
+    start: null,
+    end: null,
+    original_caller_address: null,
+    original_operation_id: opId,
+    emitter_address: null,
+    is_final: false,
+  } as IEventFilter;
+
+  const eventPoller = EventPoller.startEventsPolling(
+    eventsFilter,
+    1000,
+    webClient,
+  );
+
+  return new Promise((resolve, reject) => {
+    eventPoller.on(ON_MASSA_EVENT_DATA, (events: Array<IEvent>) => {
+      console.log('Event Data Received:', events);
+      if (events.length) {
+        // This prints the deployed SC address
+        console.log('Deployment success with events: ');
+        events.forEach((e) => {
+          console.log(e.data);
+        });
+        return resolve({
+          eventPoller,
+          events,
+        } as IEventPollerResult);
+      } else {
+        console.log('Deployment success. No events has been generated');
+      }
+    });
+    eventPoller.on(ON_MASSA_EVENT_ERROR, (error: Error) => {
+      console.log('Event Data Error:', error);
+      return reject(error);
+    });
+  });
+};
 
 /**
  * Deploys multiple smart contracts.
@@ -224,27 +284,17 @@ async function deploySC(
 
   console.log('Waiting for events...');
 
+  // async poll events in the background for the given opId
+  const { eventPoller, events }: IEventPollerResult = await pollAsyncEvents(
+    client,
+    opId,
+  );
+
+  // cleanup and finish polling
+  eventPoller.stopPolling();
+
   // await finalization if required
   await awaitOperationFinalization(client, opId);
-
-  const events = await client.smartContracts().getFilteredScOutputEvents({
-    emitter_address: null,
-    start: null,
-    end: null,
-    original_caller_address: null,
-    original_operation_id: opId,
-    is_final: null,
-  });
-
-  if (events.length) {
-    // This prints the deployed SC address
-    console.log('Deployment success with events: ');
-    events.forEach((e) => {
-      console.log(e.data);
-    });
-  } else {
-    console.log('Deployment success. No events has been generated');
-  }
 
   return {
     opId,
