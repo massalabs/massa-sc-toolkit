@@ -16,11 +16,32 @@ import {
   ON_MASSA_EVENT_ERROR,
   EventPoller,
   IEventFilter,
+  INodeStatus,
 } from '@massalabs/massa-web3';
 import { readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import BigNumber from 'bignumber.js';
+
+export async function withTimeoutRejection<T>(
+  promise: Promise<T>,
+  timeoutMs: number,
+): Promise<T> {
+  const sleep = new Promise((resolve, reject) =>
+    setTimeout(
+      () =>
+        reject(
+          new Error(
+            `Timeout of ${timeoutMs} has passed and promise did not resolve`,
+          ),
+        ),
+      timeoutMs,
+    ),
+  );
+  return Promise.race([promise, sleep]) as Promise<T>;
+}
+
+const MASSA_EXEC_ERROR = 'massa_execution_error';
 
 interface ISCData {
   data: Uint8Array;
@@ -29,6 +50,7 @@ interface ISCData {
 }
 
 interface IEventPollerResult {
+  isError: boolean;
   eventPoller: EventPoller;
   events: IEvent[];
 }
@@ -113,12 +135,18 @@ async function awaitOperationFinalization(
  * @returns An interface of type `IEventPollerResult` which contains the results or an error
  * @throws in case of a timeout or massa execution error
  */
-const pollAsyncEvents = (
-  webClient: Client,
+const pollAsyncEvents = async (
+  web3Client: Client,
   opId: string,
 ): Promise<IEventPollerResult> => {
+  // determine the last slot
+  let nodeStatusInfo: INodeStatus | null | undefined = await web3Client
+    .publicApi()
+    .getNodeStatus();
+
+  // set the events filter
   const eventsFilter = {
-    start: null,
+    start: (nodeStatusInfo as INodeStatus).last_slot,
     end: null,
     original_caller_address: null,
     original_operation_id: opId,
@@ -129,24 +157,31 @@ const pollAsyncEvents = (
   const eventPoller = EventPoller.startEventsPolling(
     eventsFilter,
     1000,
-    webClient,
+    web3Client,
   );
 
   return new Promise((resolve, reject) => {
     eventPoller.on(ON_MASSA_EVENT_DATA, (events: Array<IEvent>) => {
       console.log('Event Data Received:', events);
-      if (events.length) {
-        // This prints the deployed SC address
-        console.log('Deployment success with events: ');
-        events.forEach((e) => {
-          console.log(e.data);
-        });
+      let errorEvents: IEvent[] = events.filter((e) =>
+        e.data.includes(MASSA_EXEC_ERROR),
+      );
+      if (errorEvents.length > 0) {
         return resolve({
+          isError: true,
+          eventPoller,
+          events: errorEvents,
+        } as IEventPollerResult);
+      }
+
+      if (events.length > 0) {
+        return resolve({
+          isError: false,
           eventPoller,
           events,
         } as IEventPollerResult);
       } else {
-        console.log('Deployment success. No events has been generated');
+        console.log('No events have been emitted during deployment');
       }
     });
     eventPoller.on(ON_MASSA_EVENT_ERROR, (error: Error) => {
@@ -285,15 +320,23 @@ async function deploySC(
   console.log('Waiting for events...');
 
   // async poll events in the background for the given opId
-  const { eventPoller, events }: IEventPollerResult = await pollAsyncEvents(
-    client,
-    opId,
-  );
+  const { isError, eventPoller, events }: IEventPollerResult =
+    await withTimeoutRejection<IEventPollerResult>(
+      pollAsyncEvents(client, opId),
+      20000,
+    );
 
-  // cleanup and finish polling
-  eventPoller.stopPolling();
+  // stop polling
+  eventPoller.stopPolling;
 
-  // await finalization if required
+  // if errors, dont await finalization
+  if (isError) {
+    throw new Error(
+      `Massa Deployment Error: ${JSON.stringify(events, null, 4)}`,
+    );
+  }
+
+  // await finalization
   await awaitOperationFinalization(client, opId);
 
   return {
