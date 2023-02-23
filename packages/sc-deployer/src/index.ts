@@ -192,13 +192,13 @@ async function deploySC(
             .addUint8Array(u8toByte(1))
             .serialize(),
         ),
-        u64ToBytes(BigInt(contract.coins.toValue())), // scaled value to be provided here
+        u64ToBytes(BigInt(contract.coins.toNumber())), // scaled value to be provided here
       );
     }
   });
 
   const coins = contracts.reduce(
-    (acc, contract) => acc + contract.coins.toValue(),
+    (acc, contract) => acc + contract.coins.toNumber(),
     0,
   ); // scaled value to be provided here
   console.log(`Sending operation with ${coins} MAS coins...`);
