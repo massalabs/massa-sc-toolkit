@@ -12,16 +12,30 @@ import {
   MassaCoin,
   u64ToBytes,
   u8toByte,
+  ON_MASSA_EVENT_DATA,
+  ON_MASSA_EVENT_ERROR,
+  EventPoller,
+  IEventFilter,
+  INodeStatus,
 } from '@massalabs/massa-web3';
 import { readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import BigNumber from 'bignumber.js';
+import { time } from '@massalabs/massa-web3';
+
+const MASSA_EXEC_ERROR = 'massa_execution_error';
 
 interface ISCData {
   data: Uint8Array;
   args?: Args;
   coins: MassaCoin;
+}
+
+interface IEventPollerResult {
+  isError: boolean;
+  eventPoller: EventPoller;
+  events: IEvent[];
 }
 
 const __filename = fileURLToPath(import.meta.url);
@@ -95,6 +109,70 @@ async function awaitOperationFinalization(
     throw new Error(msg);
   }
 }
+
+/**
+ * Asynchronously polls events from the chain for a given operationId
+ *
+ * @param web3Client - an initialized web3 client
+ * @param opId - the operation id whose events are to be polled
+ * @returns An interface of type `IEventPollerResult` which contains the results or an error
+ * @throws in case of a timeout or massa execution error
+ */
+const pollAsyncEvents = async (
+  web3Client: Client,
+  opId: string,
+): Promise<IEventPollerResult> => {
+  // determine the last slot
+  let nodeStatusInfo: INodeStatus | null | undefined = await web3Client
+    .publicApi()
+    .getNodeStatus();
+
+  // set the events filter
+  const eventsFilter = {
+    start: (nodeStatusInfo as INodeStatus).last_slot,
+    end: null,
+    original_caller_address: null,
+    original_operation_id: opId,
+    emitter_address: null,
+    is_final: false,
+  } as IEventFilter;
+
+  const eventPoller = EventPoller.startEventsPolling(
+    eventsFilter,
+    1000,
+    web3Client,
+  );
+
+  return new Promise((resolve, reject) => {
+    eventPoller.on(ON_MASSA_EVENT_DATA, (events: Array<IEvent>) => {
+      console.log('Event Data Received:', events);
+      let errorEvents: IEvent[] = events.filter((e) =>
+        e.data.includes(MASSA_EXEC_ERROR),
+      );
+      if (errorEvents.length > 0) {
+        return resolve({
+          isError: true,
+          eventPoller,
+          events: errorEvents,
+        } as IEventPollerResult);
+      }
+
+      if (events.length > 0) {
+        return resolve({
+          isError: false,
+          eventPoller,
+          events,
+        } as IEventPollerResult);
+      } else {
+        console.log('No events have been emitted during deployment');
+      }
+    });
+    eventPoller.on(ON_MASSA_EVENT_ERROR, (error: Error) => {
+      console.log('Event Data Error:', error);
+      return reject(error);
+    });
+  });
+};
 
 /**
  * Deploys multiple smart contracts.
@@ -224,27 +302,25 @@ async function deploySC(
 
   console.log('Waiting for events...');
 
-  // await finalization if required
-  await awaitOperationFinalization(client, opId);
+  // async poll events in the background for the given opId
+  const { isError, eventPoller, events }: IEventPollerResult =
+    await time.withTimeoutRejection<IEventPollerResult>(
+      pollAsyncEvents(client, opId),
+      20000,
+    );
 
-  const events = await client.smartContracts().getFilteredScOutputEvents({
-    emitter_address: null,
-    start: null,
-    end: null,
-    original_caller_address: null,
-    original_operation_id: opId,
-    is_final: null,
-  });
+  // stop polling
+  eventPoller.stopPolling;
 
-  if (events.length) {
-    // This prints the deployed SC address
-    console.log('Deployment success with events: ');
-    events.forEach((e) => {
-      console.log(e.data);
-    });
-  } else {
-    console.log('Deployment success. No events has been generated');
+  // if errors, don't await finalization
+  if (isError) {
+    throw new Error(
+      `Massa Deployment Error: ${JSON.stringify(events, null, 4)}`,
+    );
   }
+
+  // await finalization
+  await awaitOperationFinalization(client, opId);
 
   return {
     opId,
