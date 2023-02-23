@@ -22,24 +22,7 @@ import { readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import BigNumber from 'bignumber.js';
-
-export async function withTimeoutRejection<T>(
-  promise: Promise<T>,
-  timeoutMs: number,
-): Promise<T> {
-  const sleep = new Promise((resolve, reject) =>
-    setTimeout(
-      () =>
-        reject(
-          new Error(
-            `Timeout of ${timeoutMs} has passed and promise did not resolve`,
-          ),
-        ),
-      timeoutMs,
-    ),
-  );
-  return Promise.race([promise, sleep]) as Promise<T>;
-}
+import { withTimeoutRejection } from '@massalabs/massa-web3/dist/utils/time';
 
 const MASSA_EXEC_ERROR = 'massa_execution_error';
 
@@ -287,13 +270,13 @@ async function deploySC(
             .addUint8Array(u8toByte(1))
             .serialize(),
         ),
-        u64ToBytes(BigInt(contract.coins.toValue())), // scaled value to be provided here
+        u64ToBytes(BigInt(contract.coins.toNumber())), // scaled value to be provided here
       );
     }
   });
 
   const coins = contracts.reduce(
-    (acc, contract) => acc + contract.coins.toValue(),
+    (acc, contract) => acc + contract.coins.toNumber(),
     0,
   ); // scaled value to be provided here
   console.log(`Sending operation with ${coins} MAS coins...`);
