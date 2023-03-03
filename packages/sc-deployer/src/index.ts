@@ -242,38 +242,7 @@ async function deploySC(
   );
   await checkBalance(client, account, coinsRequired);
 
-  // construct a new datastore
-  let datastore = new Map<Uint8Array, Uint8Array>();
-
-  // set the number of contracts
-  datastore.set(new Uint8Array([0x00]), u64ToBytes(BigInt(contracts.length)));
-
-  // loop through all contracts and fill datastore
-  contracts.forEach((contract, i) => {
-    datastore.set(u64ToBytes(BigInt(i + 1)), contract.data);
-    if (contract.args) {
-      datastore.set(
-        new Uint8Array(
-          new Args()
-            .addU64(BigInt(i + 1))
-            .addUint8Array(u8toByte(0))
-            .serialize(),
-        ),
-        new Uint8Array(contract.args.serialize()),
-      );
-    }
-    if (contract.coins.rawValue().isGreaterThan(0)) {
-      datastore.set(
-        new Uint8Array(
-          new Args()
-            .addU64(BigInt(i + 1))
-            .addUint8Array(u8toByte(1))
-            .serialize(),
-        ),
-        u64ToBytes(BigInt(contract.coins.toNumber())), // scaled value to be provided here
-      );
-    }
-  });
+  const datastore = setDatastore(contracts);
 
   const coins = contracts.reduce(
     (acc, contract) => acc + contract.coins.toNumber(),
@@ -328,4 +297,48 @@ async function deploySC(
   } as IDeploymentInfo;
 }
 
-export { IAccount, WalletClient, deploySC, ISCData, IDeploymentInfo };
+function setDatastore(contracts: ISCData[]): Map<Uint8Array, Uint8Array> {
+  // construct a new datastore
+  let datastore = new Map<Uint8Array, Uint8Array>();
+
+  // set the number of contracts
+  datastore.set(new Uint8Array([0x00]), u64ToBytes(BigInt(contracts.length)));
+
+  // loop through all contracts and fill datastore
+  contracts.forEach((contract, i) => {
+    datastore.set(u64ToBytes(BigInt(i + 1)), contract.data);
+    if (contract.args) {
+      datastore.set(
+        new Uint8Array(
+          new Args()
+            .addU64(BigInt(i + 1))
+            .addUint8Array(u8toByte(0))
+            .serialize(),
+        ),
+        new Uint8Array(contract.args.serialize()),
+      );
+    }
+    if (contract.coins.rawValue().isGreaterThan(0)) {
+      datastore.set(
+        new Uint8Array(
+          new Args()
+            .addU64(BigInt(i + 1))
+            .addUint8Array(u8toByte(1))
+            .serialize(),
+        ),
+        u64ToBytes(BigInt(contract.coins.toNumber())), // scaled value to be provided here
+      );
+    }
+  });
+
+  return datastore;
+}
+
+export {
+  IAccount,
+  WalletClient,
+  deploySC,
+  setDatastore,
+  ISCData,
+  IDeploymentInfo,
+};
