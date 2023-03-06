@@ -20,32 +20,31 @@ import {
 } from '@massalabs/massa-web3';
 import { readFileSync } from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import BigNumber from 'bignumber.js';
 import { time } from '@massalabs/massa-web3';
 
 const MASSA_EXEC_ERROR = 'massa_execution_error';
 
-interface ISCData {
+type ISCData = {
   data: Uint8Array;
   args?: Args;
   coins: MassaCoin;
-}
+};
 
-interface IEventPollerResult {
+type IEventPollerResult = {
   isError: boolean;
   eventPoller: EventPoller;
   events: IEvent[];
-}
+};
 
-const __filename = fileURLToPath(import.meta.url);
+const __filename = new URL(import.meta.url).pathname;
 
 const __dirname = path.dirname(__filename);
 
-interface IDeploymentInfo {
+type IDeploymentInfo = {
   opId: string;
   events?: IEvent[];
-}
+};
 
 /**
  * Check the balance
