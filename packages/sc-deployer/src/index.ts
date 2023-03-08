@@ -9,7 +9,6 @@ import {
   IProvider,
   EOperationStatus,
   IEvent,
-  MassaCoin,
   u64ToBytes,
   u8toByte,
   ON_MASSA_EVENT_DATA,
@@ -17,11 +16,11 @@ import {
   EventPoller,
   IEventFilter,
   INodeStatus,
+  toMAS,
 } from '@massalabs/massa-web3';
 import { readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import BigNumber from 'bignumber.js';
 import { time } from '@massalabs/massa-web3';
 
 const MASSA_EXEC_ERROR = 'massa_execution_error';
@@ -29,7 +28,7 @@ const MASSA_EXEC_ERROR = 'massa_execution_error';
 interface ISCData {
   data: Uint8Array;
   args?: Args;
-  coins: MassaCoin;
+  coins: bigint;
 }
 
 interface IEventPollerResult {
@@ -58,7 +57,7 @@ interface IDeploymentInfo {
 async function checkBalance(
   web3Client: Client,
   account: IAccount,
-  requiredBalance: BigNumber,
+  requiredBalance: bigint,
 ) {
   if (account.address === null) {
     throw new Error('Account has no address.');
@@ -69,9 +68,12 @@ async function checkBalance(
   console.log(
     `Wallet Address: ${
       account.address
-    } has balance (candidate, final) = (${balance?.candidate.rawValue()}, ${balance?.final.rawValue()}) MAS`,
+    } has balance (candidate, final) = (${toMAS(
+      balance?.candidate.toString() as string,
+    )}, ${toMAS(balance?.final.toString() as string)})`,
   );
-  if (!balance?.final || balance.final.rawValue().lt(requiredBalance)) {
+
+  if (!balance?.final || balance.final < requiredBalance) {
     throw new Error('Insufficient MAS balance.');
   }
 }
@@ -220,8 +222,8 @@ async function deploySC(
   publicApi: string,
   account: IAccount,
   contracts: ISCData[],
-  fee = 0,
-  maxGas = 1_000_000,
+  fee = 0n,
+  maxGas = 1_000_000n,
   wait = false,
 ): Promise<IDeploymentInfo> {
   const client: Client = await ClientFactory.createCustomClient(
@@ -237,8 +239,8 @@ async function deploySC(
 
   // check deployer account balance
   const coinsRequired = contracts.reduce(
-    (acc, contract) => acc.plus(contract.coins.rawValue()),
-    new BigNumber(0),
+    (acc, contract) => acc + contract.coins,
+    0n,
   );
   await checkBalance(client, account, coinsRequired);
 
@@ -262,7 +264,7 @@ async function deploySC(
         new Uint8Array(contract.args.serialize()),
       );
     }
-    if (contract.coins.rawValue().isGreaterThan(0)) {
+    if (contract.coins > 0) {
       datastore.set(
         new Uint8Array(
           new Args()
@@ -270,26 +272,23 @@ async function deploySC(
             .addUint8Array(u8toByte(1))
             .serialize(),
         ),
-        u64ToBytes(BigInt(contract.coins.toNumber())), // scaled value to be provided here
+        u64ToBytes(BigInt(contract.coins)), // scaled value to be provided here
       );
     }
   });
 
-  const coins = contracts.reduce(
-    (acc, contract) => acc + contract.coins.toNumber(),
-    0,
-  ); // scaled value to be provided here
+  const coins = contracts.reduce((acc, contract) => acc + contract.coins, 0n); // scaled value to be provided here
   console.log(`Sending operation with ${coins} MAS coins...`);
   const opId = await client.smartContracts().deploySmartContract(
     {
-      fee,
-      maxGas,
-      coins,
       contractDataBinary: readFileSync(
         path.join(__dirname, '..', 'build', '/deployer.wasm'),
       ),
       datastore,
+      fee,
+      maxGas,
     } as IContractData,
+
     account,
   );
   console.log(`Operation successfully submitted with id: ${opId}`);
