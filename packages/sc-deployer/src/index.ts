@@ -222,6 +222,7 @@ async function deploySC(
   publicApi: string,
   account: IAccount,
   contracts: ISCData[],
+  maxCoins: bigint,
   fee = 0n,
   maxGas = 1_000_000n,
   wait = false,
@@ -287,6 +288,7 @@ async function deploySC(
       datastore,
       fee,
       maxGas,
+      maxCoins,
     } as IContractData,
 
     account,
