@@ -214,6 +214,7 @@ const pollAsyncEvents = async (
  * @param account - the wallet that will deploy
  * @param contracts - contracts and constructors arguments
  * @param fee - fees to provide to the deployment
+ * @param maxCoins - maximum amount of coins to spend
  * @param maxGas - maximum amount of gas to spend
  * @param wait - waits for the first event if true
  * @returns
@@ -222,8 +223,8 @@ async function deploySC(
   publicApi: string,
   account: IAccount,
   contracts: ISCData[],
-  maxCoins: bigint,
   fee = 0n,
+  maxCoins: bigint,
   maxGas = 1_000_000n,
   wait = false,
 ): Promise<IDeploymentInfo> {
