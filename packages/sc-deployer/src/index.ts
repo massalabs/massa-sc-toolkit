@@ -199,6 +199,27 @@ const pollAsyncEvents = async (
 };
 
 /**
+ * Estimates the value of the maxCoins maximum number of coins to that should be used while deploying a smart contract.
+ *
+ * @param contractByteCode - The byte code of the smart contract to be deployed.
+ * @param transactionOperationCost - The transaction operation cost in the smallest massa unit.
+ * (it should be the same as the 'coins' parameter used in the deploySC function).
+ *
+ * @returns The estimated value of the maxCoins value in the smallest massa unit.
+ */
+function estimateMaxCoin(
+  contractByteCode: Buffer,
+  transactionOperationCost: string,
+) {
+  const byteCodeSize = BigInt(contractByteCode.length);
+  return (
+    BigInt(10250000) +
+    byteCodeSize * BigInt(250000) +
+    BigInt(transactionOperationCost)
+  );
+}
+
+/**
  * Deploys multiple smart contracts.
  *
  * This function will go through all provided smart contracts.
@@ -238,17 +259,34 @@ const pollAsyncEvents = async (
  * @param fee - fees to provide to the deployment
  * @param maxGas - maximum amount of gas to spend
  * @param wait - waits for the first event if true
- *
- * @returns a promise that resolves to an `IDeploymentInfo` which contains the operation id and the events
+ * @param maxCoins - maximum amount of coins to spend (optional. if not set, we use the estimated value)
+ * @returns
  */
 async function deploySC(
   publicApi: string,
   account: IAccount,
   contracts: ISCData[],
+  maxCoins?: bigint,
   fee = 0n,
   maxGas = 1_000_000n,
   wait = false,
 ): Promise<IDeploymentInfo> {
+  // check if maxCoins is set
+  if (!maxCoins) {
+    try {
+      // estimate the maxCoins value
+      maxCoins = estimateMaxCoin(
+        readFileSync(path.join(__dirname, '..', 'build', '/main.wasm')),
+        contracts
+          .reduce((acc, contract) => acc + contract.coins, 0n)
+          .toString(),
+      );
+    } catch (ex) {
+      console.log('Error estimating maxCoins value. Using default value.');
+      maxCoins = 4_200_000_000n;
+    }
+  }
+
   const client: Client = await ClientFactory.createCustomClient(
     [
       { url: publicApi, type: ProviderType.PUBLIC } as IProvider,
