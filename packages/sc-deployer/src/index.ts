@@ -24,6 +24,8 @@ import { fileURLToPath } from 'url';
 import { time } from '@massalabs/massa-web3';
 
 const MASSA_EXEC_ERROR = 'massa_execution_error';
+const STORAGE_COST = BigInt(10250000); // 0.01025 massa
+const BYTECODE_PRICE = BigInt(250000); // smart contract bytecode price per byte (0.00025 massa/byte)
 
 /**
  * Interface for smart contract data
@@ -202,21 +204,14 @@ const pollAsyncEvents = async (
  * Estimates the value of the maxCoins maximum number of coins to that should be used while deploying a smart contract.
  *
  * @param contractByteCode - The byte code of the smart contract to be deployed.
- * @param transactionOperationCost - The transaction operation cost in the smallest massa unit.
+ * @param coinsSent - The transaction operation cost in the smallest massa unit.
  * (it should be the same as the 'coins' parameter used in the deploySC function).
  *
  * @returns The estimated value of the maxCoins value in the smallest massa unit.
  */
-function estimateMaxCoin(
-  contractByteCode: Buffer,
-  transactionOperationCost: string,
-) {
+function estimateMaxCoin(contractByteCode: Buffer, coinsSent: string) {
   const byteCodeSize = BigInt(contractByteCode.length);
-  return (
-    BigInt(10250000) +
-    byteCodeSize * BigInt(250000) +
-    BigInt(transactionOperationCost)
-  );
+  return STORAGE_COST + byteCodeSize * BYTECODE_PRICE + BigInt(coinsSent);
 }
 
 /**
@@ -273,18 +268,15 @@ async function deploySC(
 ): Promise<IDeploymentInfo> {
   // check if maxCoins is set
   if (!maxCoins) {
-    try {
-      // estimate the maxCoins value
-      maxCoins = estimateMaxCoin(
-        readFileSync(path.join(__dirname, '..', 'build', '/main.wasm')),
-        contracts
-          .reduce((acc, contract) => acc + contract.coins, 0n)
-          .toString(),
-      );
-    } catch (ex) {
-      console.log('Error estimating maxCoins value. Using default value.');
-      maxCoins = 4_200_000_000n;
+    let totalBytecode: Buffer = Buffer.from([]);
+    for (const contract of contracts) {
+      totalBytecode = Buffer.concat([totalBytecode, contract.data]);
     }
+    // estimate the maxCoins value
+    maxCoins = estimateMaxCoin(
+      totalBytecode,
+      contracts.reduce((acc, contract) => acc + contract.coins, 0n).toString(),
+    );
   }
 
   const client: Client = await ClientFactory.createCustomClient(
