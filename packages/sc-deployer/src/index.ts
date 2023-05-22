@@ -22,28 +22,14 @@ import { readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { time } from '@massalabs/massa-web3';
+import { IDeploymentInfo, IEventPollerResult, ISCData } from './interfaces';
+import {
+  calculateCoinsSent,
+  calculateBytecodeSize,
+  calculateMaxCoins,
+} from './utils';
 
 const MASSA_EXEC_ERROR = 'massa_execution_error';
-const STORAGE_COST = BigInt(10250000); // 0.01025 massa
-const BYTECODE_PRICE = BigInt(250000); // smart contract bytecode price per byte (0.00025 massa/byte)
-
-/**
- * Interface for smart contract data
- */
-interface ISCData {
-  data: Uint8Array;
-  args?: Args;
-  coins: bigint;
-}
-
-/**
- * Interface for event poller result
- */
-interface IEventPollerResult {
-  isError: boolean;
-  eventPoller: EventPoller;
-  events: IEvent[];
-}
 
 /**
  * Used to get the current file name
@@ -54,14 +40,6 @@ const __filename = fileURLToPath(import.meta.url);
  * Used to get the current directory name
  */
 const __dirname = path.dirname(__filename);
-
-/**
- * Interface for deployment information
- */
-interface IDeploymentInfo {
-  opId: string;
-  events?: IEvent[];
-}
 
 /**
  * Check if the balance of a given account is above a given threshold
@@ -80,19 +58,25 @@ async function checkBalance(
   if (account.address === null) {
     throw new Error('Account has no address.');
   }
-  const balance = await web3Client
-    .wallet()
-    .getAccountBalance(account.address as string);
+
+  const balance = await web3Client.wallet().getAccountBalance(account.address);
+  const candidateBalance: string = balance?.candidate?.toString() || '0';
+  const finalBalance: string = balance?.final?.toString() || '0';
+
   console.log(
     `Wallet Address: ${
       account.address
-    } has balance (candidate, final) = (${toMAS(
-      balance?.candidate.toString() as string,
-    )}, ${toMAS(balance?.final.toString() as string)})`,
+    } has balance (candidate, final) = (${toMAS(candidateBalance)}, ${toMAS(
+      finalBalance,
+    )})`,
   );
 
   if (!balance?.final || balance.final < requiredBalance) {
-    throw new Error('Insufficient MAS balance.');
+    throw new Error(
+      `Insufficient MAS balance. Required: ${toMAS(
+        requiredBalance.toString(),
+      )}`,
+    );
   }
 }
 
@@ -201,20 +185,6 @@ const pollAsyncEvents = async (
 };
 
 /**
- * Estimates the value of the maxCoins maximum number of coins to that should be used while deploying a smart contract.
- *
- * @param contractByteCode - The byte code of the smart contract to be deployed.
- * @param coinsSent - The transaction operation cost in the smallest massa unit.
- * (it should be the same as the 'coins' parameter used in the deploySC function).
- *
- * @returns The estimated value of the maxCoins value in the smallest massa unit.
- */
-function estimateMaxCoin(contractByteCode: Buffer, coinsSent: string) {
-  const byteCodeSize = BigInt(contractByteCode.length);
-  return STORAGE_COST + byteCodeSize * BYTECODE_PRICE + BigInt(coinsSent);
-}
-
-/**
  * Deploys multiple smart contracts.
  *
  * This function will go through all provided smart contracts.
@@ -266,19 +236,6 @@ async function deploySC(
   maxGas = 1_000_000n,
   wait = false,
 ): Promise<IDeploymentInfo> {
-  // check if maxCoins is set
-  if (!maxCoins) {
-    let totalBytecode: Buffer = Buffer.from([]);
-    for (const contract of contracts) {
-      totalBytecode = Buffer.concat([totalBytecode, contract.data]);
-    }
-    // estimate the maxCoins value
-    maxCoins = estimateMaxCoin(
-      totalBytecode,
-      contracts.reduce((acc, contract) => acc + contract.coins, 0n).toString(),
-    );
-  }
-
   const client: Client = await ClientFactory.createCustomClient(
     [
       { url: publicApi, type: ProviderType.PUBLIC } as IProvider,
@@ -290,12 +247,12 @@ async function deploySC(
     account,
   );
 
+  const coins = calculateCoinsSent(contracts); // scaled value to be provided here
+  const bytecodeSize = calculateBytecodeSize(contracts);
+  const totalEstimatedCost = calculateMaxCoins(bytecodeSize, coins);
+
   // check deployer account balance
-  const coinsRequired = contracts.reduce(
-    (acc, contract) => acc + contract.coins,
-    0n,
-  );
-  await checkBalance(client, account, coinsRequired);
+  await checkBalance(client, account, totalEstimatedCost);
 
   // construct a new datastore
   let datastore = new Map<Uint8Array, Uint8Array>();
@@ -330,8 +287,10 @@ async function deploySC(
     }
   });
 
-  const coins = contracts.reduce((acc, contract) => acc + contract.coins, 0n); // scaled value to be provided here
-  console.log(`Sending operation with ${toMAS(coins)} MAS coins...`);
+  console.log(`Sending operation with ${coins} MAS coins...`);
+
+  maxCoins = maxCoins ? maxCoins : totalEstimatedCost;
+
   const opId = await client.smartContracts().deploySmartContract(
     {
       contractDataBinary: readFileSync(
@@ -344,6 +303,7 @@ async function deploySC(
 
     account,
   );
+
   console.log(`Operation successfully submitted with id: ${opId}`);
 
   if (!wait) {
