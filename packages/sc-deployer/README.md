@@ -48,7 +48,7 @@ import { Args } from '@massalabs/massa-web3';
 (async () => {
   await deploySC(
     'http://127.0.0.1:33035', // deploy on your local sandbox node
-    await WalletClient.getAccountFromSecretKey('my private key'), 
+    await WalletClient.getAccountFromSecretKey('my secret key'), 
     [
       {
         data: readFileSync('path/to/theContractIWantToDeploy.wasm'), // path to the compiler contract to deploy
