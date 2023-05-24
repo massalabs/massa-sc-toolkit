@@ -33,7 +33,6 @@ const __dirname = path.dirname(path.dirname(__filename));
         args: new Args().addString('Test'),
       } as ISCData,
     ],
-    fromMAS(0.1),
     0n,
     4_200_000_000n,
     true,
