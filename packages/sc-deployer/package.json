@@ -12,9 +12,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@massalabs/as-types": "^0.0.3-dev",
-    "@massalabs/massa-as-sdk": "^2.0.2-dev",
-    "@massalabs/massa-web3": "^1.16.2-dev",
+    "@massalabs/as-types": "^1.0.0",
+    "@massalabs/massa-as-sdk": "^2.1.0",
+    "@massalabs/massa-web3": "^1.17.0",
     "@types/node": "^18.11.10",
     "assemblyscript": "^0.25.2"
   },
