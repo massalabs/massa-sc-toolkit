@@ -70,7 +70,7 @@ interface IDeploymentInfo {
  * @param web3Client - an initialized web3 client
  * @param account - the wallet whose balance is being checked
  * @param requiredBalance - the required balance to check against
- * 
+ *
  * @throws if the given account has insufficient founds
  */
 async function checkBalance(
@@ -102,9 +102,9 @@ async function checkBalance(
  *
  * @param web3Client - an initialized web3 client
  * @param deploymentOperationId - the operation id that is to be awaited for finality
- * 
+ *
  * @throws if the given account has insufficient founds
- * 
+ *
  * @returns a promise that resolves to void when the transaction is finalized
  */
 async function awaitOperationFinalization(
@@ -139,11 +139,11 @@ async function awaitOperationFinalization(
  *
  * @param web3Client - an initialized web3 client
  * @param opId - the operation id whose events are to be polled
- * 
+ *
  * @throws in case of a timeout or massa execution error
- * 
+ *
  * @returns A promise that resolves to an `IEventPollerResult` which contains the results or an error
- * 
+ *
  */
 const pollAsyncEvents = async (
   web3Client: Client,
@@ -241,7 +241,7 @@ const pollAsyncEvents = async (
  * @param fee - fees to provide to the deployment
  * @param maxGas - maximum amount of gas to spend
  * @param wait - waits for the first event if true
- * 
+ *
  * @returns a promise that resolves to an `IDeploymentInfo` which contains the operation id and the events
  */
 async function deploySC(
