@@ -23,35 +23,54 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { time } from '@massalabs/massa-web3';
 
+/**
+ * Used to identify a Massa execution error in the events
+ */
 const MASSA_EXEC_ERROR = 'massa_execution_error';
 
+/**
+ * Interface for smart contract data
+ */
 interface ISCData {
   data: Uint8Array;
   args?: Args;
   coins: bigint;
 }
 
+/**
+ * Interface for event poller result
+ */
 interface IEventPollerResult {
   isError: boolean;
   eventPoller: EventPoller;
   events: IEvent[];
 }
 
+/**
+ * Used to get the current file name
+ */
 const __filename = fileURLToPath(import.meta.url);
 
+/**
+ * Used to get the current directory name
+ */
 const __dirname = path.dirname(__filename);
 
+/**
+ * Interface for deployment information
+ */
 interface IDeploymentInfo {
   opId: string;
   events?: IEvent[];
 }
 
 /**
- * Check the balance
+ * Check if the balance of a given account is above a given threshold
  *
  * @param web3Client - an initialized web3 client
  * @param account - the wallet whose balance is being checked
  * @param requiredBalance - the required balance to check against
+ * 
  * @throws if the given account has insufficient founds
  */
 async function checkBalance(
@@ -83,7 +102,10 @@ async function checkBalance(
  *
  * @param web3Client - an initialized web3 client
  * @param deploymentOperationId - the operation id that is to be awaited for finality
+ * 
  * @throws if the given account has insufficient founds
+ * 
+ * @returns a promise that resolves to void when the transaction is finalized
  */
 async function awaitOperationFinalization(
   web3Client: Client,
@@ -117,8 +139,11 @@ async function awaitOperationFinalization(
  *
  * @param web3Client - an initialized web3 client
  * @param opId - the operation id whose events are to be polled
- * @returns An interface of type `IEventPollerResult` which contains the results or an error
+ * 
  * @throws in case of a timeout or massa execution error
+ * 
+ * @returns A promise that resolves to an `IEventPollerResult` which contains the results or an error
+ * 
  */
 const pollAsyncEvents = async (
   web3Client: Client,
@@ -216,7 +241,8 @@ const pollAsyncEvents = async (
  * @param fee - fees to provide to the deployment
  * @param maxGas - maximum amount of gas to spend
  * @param wait - waits for the first event if true
- * @returns
+ * 
+ * @returns a promise that resolves to an `IDeploymentInfo` which contains the operation id and the events
  */
 async function deploySC(
   publicApi: string,
