@@ -24,6 +24,8 @@ jobs:
     - name: Install project dependencies
       run: |
         npm ci
+    - name: Make script executable
+      run: chmod +x generate_powered-by.sh
     - name: Generate Powered-By for 'sc-deployer'
       run: |
         cd packages/sc-deployer && npm i && ./../../generate_powered-by.sh && cd ../../
