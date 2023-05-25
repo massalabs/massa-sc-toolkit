@@ -11,12 +11,12 @@ const publicApi = process.env.JSON_RPC_URL_PUBLIC;
 if (!publicApi) {
   throw new Error('Missing JSON_RPC_URL_PUBLIC in .env file');
 }
-const privKey = process.env.WALLET_PRIVATE_KEY;
-if (!privKey) {
-  throw new Error('Missing WALLET_PRIVATE_KEY in .env file');
+const secretKey = process.env.WALLET_SECRET_KEY;
+if (!secretKey) {
+  throw new Error('Missing WALLET_SECRET_KEY in .env file');
 }
 
-const deployerAccount = await WalletClient.getAccountFromSecretKey(privKey);
+const deployerAccount = await WalletClient.getAccountFromSecretKey(secretKey);
 
 const __filename = fileURLToPath(import.meta.url);
 
