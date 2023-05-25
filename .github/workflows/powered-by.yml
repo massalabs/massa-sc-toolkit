@@ -29,6 +29,9 @@ jobs:
     - name: Generate Powered-By for 'sc-deployer'
       run: |
         cd packages/sc-deployer && npm i && ./../../generate_powered-by.sh && cd ../../
+    - name: Generate Powered-By for 'sc-project-initializer'
+      run: |
+        cd packages/sc-project-initializer && npm i && ./../../generate_powered-by.sh && cd ../../
     - name: Commit Changes
       uses: stefanzweifel/git-auto-commit-action@v4
       with:
