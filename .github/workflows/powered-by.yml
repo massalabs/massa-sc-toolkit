@@ -1,8 +1,6 @@
 name: Generate Powered-By
 on: 
   push:
-    branches:
-      - 170-add-powered_by
 
 jobs:
   generate-powered-by:
