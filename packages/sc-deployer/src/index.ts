@@ -225,7 +225,10 @@ const pollAsyncEvents = async (
  * @param maxGas - maximum amount of gas to spend
  * @param wait - waits for the first event if true
  * @param maxCoins - maximum amount of coins to spend (optional. if not set, we use the estimated value)
- * @returns
+ *
+ * @throws If error during the deployment
+ *
+ * @returns a promise that resolves to an `IDeploymentInfo` which contains the operation id and the events
  */
 async function deploySC(
   publicApi: string,
