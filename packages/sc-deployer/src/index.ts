@@ -23,9 +23,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { time } from '@massalabs/massa-web3';
 
-/**
- * Used to identify a Massa execution error in the events
- */
 const MASSA_EXEC_ERROR = 'massa_execution_error';
 
 /**
