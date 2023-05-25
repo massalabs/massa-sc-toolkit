@@ -6,7 +6,7 @@ If you discover a bug, please create a [new issue](https://github.com/massalabs/
 In your issue, please include a clear and concise description of the bug, any relevant code snippets, error messages, and steps to reproduce the issue.
 
 ## Installation
-To start developing with as, you must install all the necessary dev dependencies. You can do so by running the following command:
+To start developing with sc-deployer, you must install and build all the necessary dev dependencies. You can do so by running the following commands:
 
 ```sh
 # Install npm dependencies
