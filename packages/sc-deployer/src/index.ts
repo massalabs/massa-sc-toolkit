@@ -278,7 +278,7 @@ async function deploySC(
   });
 
   const coins = contracts.reduce((acc, contract) => acc + contract.coins, 0n); // scaled value to be provided here
-  console.log(`Sending operation with ${coins} MAS coins...`);
+  console.log(`Sending operation with ${toMAS(coins)} MAS coins...`);
   const opId = await client.smartContracts().deploySmartContract(
     {
       contractDataBinary: readFileSync(
