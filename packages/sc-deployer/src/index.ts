@@ -231,9 +231,9 @@ async function deploySC(
   publicApi: string,
   account: IAccount,
   contracts: ISCData[],
-  maxCoins?: bigint,
   fee = 0n,
   maxGas = 1_000_000n,
+  maxCoins = 0n,
   wait = false,
 ): Promise<IDeploymentInfo> {
   const client: Client = await ClientFactory.createCustomClient(
