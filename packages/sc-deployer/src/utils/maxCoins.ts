@@ -1,8 +1,8 @@
 import { fromMAS } from '@massalabs/massa-web3';
 import { ISCData } from '../interfaces';
 
-const STORAGE_COST = BigInt(fromMAS(0.01025));
-const PRICE_PER_BYTE = BigInt(fromMAS(0.00025));
+const STORAGE_COST = fromMAS(0.01025);
+const PRICE_PER_BYTE = fromMAS(0.00025);
 
 /**
  * Estimates the value of the maxCoins maximum number of coins to that should be used while deploying a smart contract.
