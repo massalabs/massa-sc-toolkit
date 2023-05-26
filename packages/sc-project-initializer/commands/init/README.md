@@ -13,7 +13,7 @@ npm run build
 Prerequisites :
 
 - You must add a `.env` file at the root of the repository with the following keys set to valid values :
-  - WALLET_SECRET_KEY="wallet_secret_key"
+  - WALLET_PRIVATE_KEY="wallet_secret_key"
   - JSON_RPC_URL_PUBLIC=<https://test.massa.net/api/v2:33035>
 
 These keys will be the ones used by the deployer script to interact with the blockchain.
@@ -32,7 +32,7 @@ function:
 - line 33: create the `Args` object to pass to the constructor of the contract you want to deploy
 
 When the deployment operation is executed on-chain, the
-[constructor](https://github.com/massalabs/massa-sc-toolkit/blob/main/packages/sc-project-initializer/commands/init/assembly/contracts/main.ts#L14)
+[constructor](https://github.com/massalabs/massa-sc-toolkit/blob/main/packages/sc-project-initializer/commands/init/assembly/contracts/main.ts#L10)
 function of the smart contract being deployed will
 be called with the arguments provided in the deployment script.
 
