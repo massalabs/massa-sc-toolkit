@@ -17,3 +17,19 @@ The following is a list of all the dependencies of this project:
 
 **Many thanks to:** n/a
 
+## [eslint-plugin-jest](git+https://github.com/jest-community/eslint-plugin-jest.git)
+
+**License:** MIT - perpetual
+
+**Used version:** 27.2.1
+
+**Many thanks to:** Jonathan Kim hello@jkimbo.com jkimbo.com
+
+## [jest](git+https://github.com/facebook/jest.git)
+
+**License:** MIT - perpetual
+
+**Used version:** 29.5.0
+
+**Many thanks to:** n/a
+
