@@ -302,6 +302,7 @@ async function deploySC(
       datastore,
       fee,
       maxGas,
+      maxCoins,
     } as IContractData,
 
     account,
