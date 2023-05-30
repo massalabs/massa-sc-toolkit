@@ -1,0 +1,8 @@
+commands
+node_modules
+*.json
+.lintstagedrc
+README.md
+*.html
+*.md
+coverage

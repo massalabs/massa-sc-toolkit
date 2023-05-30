@@ -4,7 +4,16 @@
   "description": "",
   "main": "src/cli.js",
   "type": "module",
-  "scripts": {},
+  "scripts": {
+    "test": "jest --testPathPattern=test",
+    "test:cov": "jest --coverage --testPathPattern=test",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "prettier": "prettier --check .",
+    "prettier:fix": "prettier --write .",
+    "fmt": "npm run prettier:fix && npm run lint:fix",
+    "fmt:check": "npm run prettier && npm run lint"
+  },
   "dependencies": {
     "fs-extra": "^10.1.0",
     "yargs": "^17.7.1"
@@ -13,5 +22,14 @@
   "license": "ISC",
   "bin": {
     "sc-project-initializer": "src/cli.js"
+  },
+  "devDependencies": {
+    "eslint-plugin-jest": "^27.2.1",
+    "jest": "^29.5.0"
+  },
+  "jest": {
+    "testPathIgnorePatterns": [
+      "/commands/init/"
+    ]
   }
 }

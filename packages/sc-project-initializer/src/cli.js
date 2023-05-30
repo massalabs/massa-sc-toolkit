@@ -2,7 +2,7 @@
 'use strict';
 
 /**
- * This script serves as a command-line interface (CLI) tool for initializing a new Massa Smart Contract project. 
+ * This script serves as a command-line interface (CLI) tool for initializing a new Massa Smart Contract project.
  * It uses several external dependencies and follows a specific command structure provided by the 'yargs' package.
  */
 
