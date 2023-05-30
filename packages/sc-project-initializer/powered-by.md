@@ -17,6 +17,46 @@ The following is a list of all the dependencies of this project:
 
 **Many thanks to:** n/a
 
+## [@babel/core](https://github.com/babel/babel.git)
+
+**License:** MIT - perpetual
+
+**Used version:** 7.22.1
+
+**Many thanks to:** The Babel Team (https://babel.dev/team)
+
+## [@babel/preset-env](https://github.com/babel/babel.git)
+
+**License:** MIT - perpetual
+
+**Used version:** 7.22.4
+
+**Many thanks to:** The Babel Team (https://babel.dev/team)
+
+## [@babel/preset-typescript](https://github.com/babel/babel.git)
+
+**License:** MIT - perpetual
+
+**Used version:** 7.21.5
+
+**Many thanks to:** The Babel Team (https://babel.dev/team)
+
+## [@types/jest](https://github.com/DefinitelyTyped/DefinitelyTyped.git)
+
+**License:** MIT - perpetual
+
+**Used version:** 29.5.1
+
+**Many thanks to:** n/a
+
+## [@types/testing-library__jest-dom](https://github.com/DefinitelyTyped/DefinitelyTyped.git)
+
+**License:** MIT - perpetual
+
+**Used version:** 5.14.6
+
+**Many thanks to:** n/a
+
 ## [eslint-plugin-jest](git+https://github.com/jest-community/eslint-plugin-jest.git)
 
 **License:** MIT - perpetual
@@ -32,4 +72,12 @@ The following is a list of all the dependencies of this project:
 **Used version:** 29.5.0
 
 **Many thanks to:** n/a
+
+## [ts-jest](git+https://github.com/kulshekhar/ts-jest.git)
+
+**License:** MIT - perpetual
+
+**Used version:** 29.1.0
+
+**Many thanks to:** [Kulshekhar Kabra](kulshekhar@users.noreply.github.com> (https://github.com/kulshekhar)
 
