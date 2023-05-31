@@ -56,10 +56,10 @@ import { Args } from '@massalabs/massa-web3';
         args: new Args().addString('Test'), // Arguments to pass to the constructor of the contract, use `NoArg` if any
       } as ISCData,
     ],
-    fromMAS(0.1), // max coins
     0n, // fees
     4_200_000_000n, // max gas
     true, // wait for the first event to be emitted and print it into the console.
+    fromMAS(0.1), // max coins (Optional. If not set, an estimated value will be used)
   );
 })();
 ```
