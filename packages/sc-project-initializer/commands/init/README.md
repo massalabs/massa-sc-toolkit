@@ -32,7 +32,7 @@ function:
 - line 33: create the `Args` object to pass to the constructor of the contract you want to deploy
 
 When the deployment operation is executed on-chain, the
-[constructor](https://github.com/massalabs/massa-sc-toolkit/blob/main/packages/sc-project-initializer/commands/init/assembly/contracts/main.ts#L14)
+[constructor](https://github.com/massalabs/massa-sc-toolkit/blob/main/packages/sc-project-initializer/commands/init/assembly/contracts/main.ts#L10)
 function of the smart contract being deployed will
 be called with the arguments provided in the deployment script.
 
