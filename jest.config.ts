@@ -1,18 +1,9 @@
-import type { Config } from 'jest';
-
-const config: Config = {
-  verbose: true,
-  testEnvironment: 'jsdom',
-  preset: 'ts-jest',
-  roots: ['<rootDir>'],
-  testMatch: ['**/*.spec.ts'],
-  transform: {
-    '^.+\\.ts$': 'ts-jest',
+module.exports = {
+  "roots": [
+    "<rootDir>/**/src"
+  ],
+  "testMatch": ['**/*.spec.ts'],
+  "transform": {
+    "^.+\\.(ts|tsx)$": "ts-jest"
   },
-  moduleNameMapper: {
-    '@/(.*)': '<rootDir>/src/$1',
-  },
-  moduleFileExtensions: ['ts', 'js', 'json', 'node'],
-};
-
-export default config;
+}
