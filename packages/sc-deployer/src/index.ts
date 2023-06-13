@@ -11,7 +11,7 @@ import {
   IEvent,
   u64ToBytes,
   u8toByte,
-  stringToBytes,
+  strToBytes,
   ON_MASSA_EVENT_DATA,
   ON_MASSA_EVENT_ERROR,
   EventPoller,
@@ -191,7 +191,7 @@ function serializeProto(paths: string[]) : Uint8Array {
     protos += readFileSync(proto);
   });
 
-  return stringToBytes(protos);
+  return strToBytes(protos);
 }
 
 /**
