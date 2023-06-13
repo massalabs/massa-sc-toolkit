@@ -11,6 +11,7 @@ import {
   IEvent,
   u64ToBytes,
   u8toByte,
+  stringToBytes,
   ON_MASSA_EVENT_DATA,
   ON_MASSA_EVENT_ERROR,
   EventPoller,
@@ -184,6 +185,15 @@ const pollAsyncEvents = async (
   });
 };
 
+function serializeProto(paths: string[]) : Uint8Array {
+  let protos : string = "";
+  paths.forEach(proto => {
+    protos += readFileSync(proto);
+  });
+
+  return stringToBytes(protos);
+}
+
 /**
  * Deploys multiple smart contracts.
  *
@@ -239,6 +249,7 @@ async function deploySC(
   wait = false,
   maxCoins = 0n,
 ): Promise<IDeploymentInfo> {
+
   const client: Client = await ClientFactory.createCustomClient(
     [
       { url: publicApi, type: ProviderType.PUBLIC } as IProvider,
@@ -259,12 +270,13 @@ async function deploySC(
 
   // construct a new datastore
   let datastore = new Map<Uint8Array, Uint8Array>();
-
+  
   // set the number of contracts
   datastore.set(new Uint8Array([0x00]), u64ToBytes(BigInt(contracts.length)));
 
   // loop through all contracts and fill datastore
   contracts.forEach((contract, i) => {
+
     datastore.set(u64ToBytes(BigInt(i + 1)), contract.data);
     if (contract.args) {
       datastore.set(
@@ -286,6 +298,18 @@ async function deploySC(
             .serialize(),
         ),
         u64ToBytes(BigInt(contract.coins)), // scaled value to be provided here
+      );
+    }
+    let protos: Uint8Array = serializeProto(contract.protoPaths);
+    if (protos.length > 0) {
+      datastore.set(
+        new Uint8Array(
+          new Args()
+            .addU64(BigInt(i + 1))
+            .addUint8Array(u8toByte(2))
+            .serialize(),
+        ),
+        protos, // proto files linked to the contract
       );
     }
   });
@@ -337,7 +361,7 @@ async function deploySC(
 
   // await finalization
   await awaitOperationFinalization(client, opId);
-
+  
   return {
     opId,
     events,

@@ -4,6 +4,7 @@ export interface ISCData {
   data: Uint8Array;
   args?: Args;
   coins: bigint;
+  protoPaths: string[],
 }
 
 export interface IEventPollerResult {
