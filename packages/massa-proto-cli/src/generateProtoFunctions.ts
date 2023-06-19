@@ -30,10 +30,10 @@ export interface IFunctionArguments {
 }
 
 /**
- * Retrieve all the functions in the string (format: proto3) and return them in an array of IProtoFile
+ * Retrieve all the function's data and return them as an IProtoFile
  * 
  * @param protoFileContent - the content of the proto file to parse
- * @returns The array of IProtoFile containing all the functions, their arguments, arguments types and their return type
+ * @returns The aIProtoFile containing the function, its arguments name, arguments type and its return type
  */
 export async function getProtoFunctions(protoFileContent: string): Promise<IProtoFile[]> {
     
@@ -51,58 +51,40 @@ export async function getProtoFunctions(protoFileContent: string): Promise<IProt
     // convert root to JSON
     const json = root.toJSON();
     
-    let protoFunctions: IProtoFile[] = [];
+    let protoFunction: IProtoFile;
+    const messageNames = Object.keys(json.nested);
 
-    for (const key in json.nested) {
-        // if the key name ends with "Helper", it's a function
-        if (key.endsWith("RHelper") && protoFunctions.length > 0 ) {
-
-            // check if the function name is the same as the previous one
-            if (protoFunctions[protoFunctions.length - 1].funcName != key.slice(0, -7)) {
-                throw new Error("Error: {func}RHelper should be placed after {func}Helper in the protoFile.\n Their name do not match. Error at message " + key);
-            }
-
-            let protoFunction: IProtoFile = protoFunctions[protoFunctions.length - 1];
-
-            const keys = Object.keys(json.nested[key][`fields`]);
-            if(keys.length == 1) {
-                protoFunction.resType = json.nested[key][`fields`][keys[0]].type;
-            } else if (keys.length == 0) {
-                protoFunction.resType = "void";
-            } else {
-                throw new Error("Error: {func}RHelper should have only one field. Error at message " + key);
-            }
-
-        } else if (key.endsWith("RHelper") && protoFunctions.length <= 0) {
-            throw new Error("Error: {func}Helper should be placed before {func}RHelper in the protoFile. Error at message " + key);
-        
-        } else if (key.endsWith("Helper")) {
-            // get the arguments
-            let argFields: IFunctionArguments[] = [];
-            for (const arg in json.nested[key][`fields`]) {
-                const name: string = arg;
-                const type: string = root.nested[key][`fields`][arg].type;
-                argFields.push ({name, type});
-            }
-
-            let protoFunction: IProtoFile = {
-                argFields: argFields, 
-                funcName: key.slice(0, -6), // cut the last 6 characters (Helper) to get the initial name of the function
-                resType: "", // will be filled at the next iteration
-                fileData: protoFileContent,
-            };
-            protoFunctions.push(protoFunction);
-        } else {
-            throw new Error("Error: all functions name in the protoFile should end with 'Helper' or 'RHelper'. Error at message " + key);
-        }
-        
+    // check if the proto file contains 2 messages
+    if (messageNames.length != 2) {
+        throw new Error("Error: the protoFile should contain 2 messages.");
     }
+
+    // get the Helper message
+    const helperName = json.nested[messageNames[0]];
+    // get the arguments of the Helper
+    let argFields: IFunctionArguments[] = [];
+        for (const arg in helperName[`fields`]) {
+            const name: string = arg;
+            const type: string = root.nested[messageNames[0]][`fields`][arg].type;
+            argFields.push ({name, type});
+        }
+    
+    // get the RHelper message
+    const rHelperName = json.nested[messageNames[1]];
+    // get the return type from the RHelper
+    const keys = Object.keys(rHelperName[`fields`]);
+    let returnType = "void";
+    if(keys.length == 1) {
+        returnType = rHelperName[`fields`][keys[0]].type;
+    }
+
     // delete the temporary proto file
     fs.unlink(tempProtoFilePath + protoFileName, (err) => {
         if (err) {
             console.error('Error deleting file:', err);
         }
     });
-    
-    return protoFunctions;
+
+    const funcName = messageNames[0].slice(0, -6);
+    return [{argFields, funcName: funcName, resType: returnType, fileData: protoFileContent}];
 }
