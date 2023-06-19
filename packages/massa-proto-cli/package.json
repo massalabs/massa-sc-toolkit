@@ -13,5 +13,8 @@
     "child_process": "^1.0.2",
     "ts-proto": "^1.149.0",
     "ts-protoc-gen": "^0.15.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.3.1"
   }
 }
