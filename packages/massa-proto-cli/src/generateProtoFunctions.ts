@@ -3,19 +3,39 @@ import { load } from "protobufjs";
 export const tempProtoFilePath: string = "./src/proto/";
 export const helperFilePath: string = "./generated";
 
+/**
+ * Represents a function in a proto file
+ * 
+ * @see argFields - the arguments of the function as an array of IFunctionArguments
+ * @see funcName - the name of the function
+ * @see resType - the return type of the function
+ * @see fileData - the content of the proto file
+ */
 export interface IProtoFile {
-    argPath: string; // argPath: chemin vers le fichier helper généré pour les args
-    resPath: string; // res : meme chose pour les returns
-    argFields: Map<string, string>; // args fields : Mapping argument name -> argument type (string string)
+    argFields: IFunctionArguments[];
     funcName: string;
-    resType: string; // resType: type du retour
+    resType: string;
     fileData: string;
-    argProtoData: string;
-    resProtoData: string;
 }
 
+/**
+ * Represents an argument of a function
+ * 
+ * @see name - the name of the argument
+ * @see type - the type of the argument
+ */
+export interface IFunctionArguments {
+    name: string;
+    type: string;
+}
 
-export async function getProtoFunctions(protoFileContent: string, argPath?: string, resPath?: string): Promise<IProtoFile[]> {
+/**
+ * Retrieve all the functions in the string (format: proto3) and return them in an array of IProtoFile
+ * 
+ * @param protoFileContent - the content of the proto file to parse
+ * @returns The array of IProtoFile containing all the functions, their arguments, arguments types and their return type
+ */
+export async function getProtoFunctions(protoFileContent: string): Promise<IProtoFile[]> {
     
     // generate a temporary proto file and write the content of protoFileContent in it
     const protoFileName = "temp.proto";
@@ -58,22 +78,18 @@ export async function getProtoFunctions(protoFileContent: string, argPath?: stri
         
         } else if (key.endsWith("Helper")) {
             // get the arguments
-            let argFields = new Map<string, string>();
+            let argFields: IFunctionArguments[] = [];
             for (const arg in json.nested[key][`fields`]) {
                 const name: string = arg;
                 const type: string = root.nested[key][`fields`][arg].type;
-                argFields.set(name, type);
+                argFields.push ({name, type});
             }
 
             let protoFunction: IProtoFile = {
-                argPath: argPath,
-                resPath: resPath,
                 argFields: argFields, 
                 funcName: key.slice(0, -6), // cut the last 6 characters (Helper) to get the initial name of the function
-                resType: "", 
-                fileData: "", // ????
-                argProtoData: "", // ???
-                resProtoData: "", // ???
+                resType: "", // will be filled at the next iteration
+                fileData: protoFileContent,
             };
             protoFunctions.push(protoFunction);
         } else {
@@ -87,9 +103,6 @@ export async function getProtoFunctions(protoFileContent: string, argPath?: stri
             console.error('Error deleting file:', err);
         }
     });
-
+    
     return protoFunctions;
 }
-
-// const content = 'syntax = "proto3";message eventHelper {uint64 num = 1;string name = 2;}message eventRHelper { uint64 value = 1;}';
-// const a = getProtoFunctions(content, "argPath", "resPath");
