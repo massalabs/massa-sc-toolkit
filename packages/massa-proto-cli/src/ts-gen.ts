@@ -1,5 +1,5 @@
-import { exec } from "child_process";
-import { IProtoFile, tempProtoFilePath } from "./protobuf.ts";
+import { execSync } from "child_process";
+import { IProtoFile, IFunctionArguments, tempProtoFilePath } from "./protobuf.ts";
 
 /**
  * Generates a helper function for a proto file to allow serialization/deserialization.
@@ -12,25 +12,18 @@ export function generateTSHelper(protoFile: IProtoFile, helperFilePath: string):
     // generate a temporary proto file and write the content of protoFileContent in it
     const protoFileName = `${protoFile.funcName}.proto`;
     const fs = require('fs');
-    fs.writeFile(tempProtoFilePath + protoFileName, protoFile, (err) => {
+    fs.writeFileSync(tempProtoFilePath + protoFileName, protoFile.fileData, (err) => {
         if (err) {
             console.error('Error writing to file:', err);
         }
     });
 
     // generate the helper file using protoc. Throws an error if the command fails.
-    exec(`npx protoc --ts_out="${helperFilePath}" ${tempProtoFilePath}${protoFileName}`, (error, stdout, stderr) => {
-        if (error) {
-            throw error;
-        }
-        if (stderr) {
-            throw stderr;
-        }
-        console.log(stdout);
-    });
+    const command = `npx protoc --ts_out="${helperFilePath}" ${tempProtoFilePath}${protoFileName}`;
+    execSync(command, {stdio: 'inherit'});
 
     // delete the temporary proto file
-    fs.unlink(tempProtoFilePath + protoFileName, (err) => {
+    fs.unlinkSync(tempProtoFilePath + protoFileName, (err) => {
         if (err) {
             console.error('Error deleting file:', err);
         }
