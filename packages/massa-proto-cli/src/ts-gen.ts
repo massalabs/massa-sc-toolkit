@@ -1,5 +1,5 @@
 import { exec } from "child_process";
-import { IProtoFile, IFunctionArguments, tempProtoFilePath } from "./protobuf.ts";
+import { IProtoFile, tempProtoFilePath } from "./protobuf.ts";
 
 /**
  * Generates a helper function for a proto file to allow serialization/deserialization.
