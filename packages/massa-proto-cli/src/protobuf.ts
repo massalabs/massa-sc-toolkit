@@ -1,6 +1,6 @@
 import { load } from "protobufjs"; 
 
-export const tempProtoFilePath: string = "./src/";
+export const tempProtoFilePath: string = "./build/";
 
 /**
  * Represents a function in a proto file
@@ -8,13 +8,13 @@ export const tempProtoFilePath: string = "./src/";
  * @see argFields - the arguments of the function as an array of IFunctionArguments
  * @see funcName - the name of the function
  * @see resType - the return type of the function
- * @see fileData - the content of the proto file
+ * @see protoData - the content of the proto file
  */
-export interface IProtoFile {
+export interface ProtoFile {
     argFields: IFunctionArguments[];
     funcName: string;
     resType: string;
-    fileData: string;
+    protoData: string;
 }
 
 /**
@@ -29,12 +29,12 @@ export interface IFunctionArguments {
 }
 
 /**
- * Retrieve all the function's data and return them as an IProtoFile
+ * Retrieve all the function's data and return them as an ProtoFile
  * 
  * @param protoFileContent - the content of the proto file to parse
- * @returns The aIProtoFile containing the function, its arguments name, arguments type and its return type
+ * @returns The ProtoFile containing the function, its arguments name, arguments type and its return type
  */
-export async function getProtoFunction(protoFileContent: string): Promise<IProtoFile> {
+export async function getProtoFunction(protoFileContent: string): Promise<ProtoFile> {
     
     // generate a temporary proto file and write the content of protoFileContent in it
     const protoFileName = "temp.proto";
@@ -48,10 +48,10 @@ export async function getProtoFunction(protoFileContent: string): Promise<IProto
     // load the proto file
     const root = await load(tempProtoFilePath + protoFileName);
     // convert root to JSON
-    const json = root.toJSON();
+    const protoJSON = root.toJSON();
     
-    let protoFunction: IProtoFile;
-    const messageNames = Object.keys(json.nested);
+    let protoFunction: ProtoFile;
+    const messageNames = Object.keys(protoJSON.nested);
 
     // check if the proto file contains 2 messages
     if (messageNames.length != 2) {
@@ -59,17 +59,17 @@ export async function getProtoFunction(protoFileContent: string): Promise<IProto
     }
 
     // get the Helper message
-    const helperName = json.nested[messageNames[0]];
+    const helperName = protoJSON.nested[messageNames[0]];
     // get the arguments of the Helper
     let argFields: IFunctionArguments[] = [];
         for (const arg in helperName[`fields`]) {
             const name: string = arg;
-            const type: string = root.nested[messageNames[0]][`fields`][arg].type;
+            const type: string = helperName[`fields`][arg].type;
             argFields.push ({name, type});
         }
     
     // get the RHelper message
-    const rHelperName = json.nested[messageNames[1]];
+    const rHelperName = protoJSON.nested[messageNames[1]];
     // get the return type from the RHelper
     const keys = Object.keys(rHelperName[`fields`]);
     let returnType = "void";
@@ -84,6 +84,6 @@ export async function getProtoFunction(protoFileContent: string): Promise<IProto
         }
     });
 
-    const funcName = messageNames[0].slice(0, -6);
-    return {argFields, funcName: funcName, resType: returnType, fileData: protoFileContent};
+    const funcName = messageNames[0].replace(/Helper$/, '');
+    return {argFields, funcName: funcName, resType: returnType, protoData: protoFileContent};
 }
