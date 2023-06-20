@@ -1,7 +1,6 @@
 import { load } from "protobufjs"; 
 
 export const tempProtoFilePath: string = "./src/proto/";
-export const helperFilePath: string = "./generated";
 
 /**
  * Represents a function in a proto file
