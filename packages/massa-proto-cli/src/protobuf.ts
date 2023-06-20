@@ -46,11 +46,10 @@ export async function getProtoFunction(protoFileContent: string): Promise<ProtoF
       });
 
     // load the proto file
-    const root = await load(tempProtoFilePath + protoFileName);
-    // convert root to JSON
-    const protoJSON = root.toJSON();
+    const protoContent = await load(tempProtoFilePath + protoFileName);
+    // convert protoContent to JSON
+    const protoJSON = protoContent.toJSON();
     
-    let protoFunction: ProtoFile;
     const messageNames = Object.keys(protoJSON.nested);
 
     // check if the proto file contains 2 messages
