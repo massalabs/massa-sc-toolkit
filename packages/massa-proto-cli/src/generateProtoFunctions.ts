@@ -35,7 +35,7 @@ export interface IFunctionArguments {
  * @param protoFileContent - the content of the proto file to parse
  * @returns The aIProtoFile containing the function, its arguments name, arguments type and its return type
  */
-export async function getProtoFunctions(protoFileContent: string): Promise<IProtoFile[]> {
+export async function getProtoFunctions(protoFileContent: string): Promise<IProtoFile> {
     
     // generate a temporary proto file and write the content of protoFileContent in it
     const protoFileName = "temp.proto";
@@ -86,5 +86,5 @@ export async function getProtoFunctions(protoFileContent: string): Promise<IProt
     });
 
     const funcName = messageNames[0].slice(0, -6);
-    return [{argFields, funcName: funcName, resType: returnType, fileData: protoFileContent}];
+    return {argFields, funcName: funcName, resType: returnType, fileData: protoFileContent};
 }
