@@ -1,32 +1,16 @@
 import { execSync } from "child_process";
-import { IProtoFile, IFunctionArguments, tempProtoFilePath } from "./protobuf.ts";
+import { tempProtoFilePath } from "./protobuf.ts";
 
 /**
  * Generates a helper function for a proto file to allow serialization/deserialization.
  * 
- * @param protoFile - The proto file data used to generate the serialization/deserialization.
+ * @param protoFile - The path to the proto file.
  * @param helperFilePath - The path to save the helper file.
  */
-export function generateTSHelper(protoFile: IProtoFile, helperFilePath: string): void{
-
-    // generate a temporary proto file and write the content of protoFileContent in it
-    const protoFileName = `${protoFile.funcName}.proto`;
-    const fs = require('fs');
-    fs.writeFileSync(tempProtoFilePath + protoFileName, protoFile.fileData, (err) => {
-        if (err) {
-            console.error('Error writing to file:', err);
-        }
-    });
+export function generateTSHelper(protoFilePath: string, helperFilePath: string): void{
 
     // generate the helper file using protoc. Throws an error if the command fails.
-    const command = `npx protoc --ts_out="${helperFilePath}" ${tempProtoFilePath}${protoFileName}`;
+    const command = `npx protoc --ts_out="${helperFilePath}" ${protoFilePath}`;
     execSync(command, {stdio: 'inherit'});
 
-    // delete the temporary proto file
-    fs.unlinkSync(tempProtoFilePath + protoFileName, (err) => {
-        if (err) {
-            console.error('Error deleting file:', err);
-        }
-    }
-    );
 }
