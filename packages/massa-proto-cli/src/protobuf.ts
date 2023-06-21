@@ -8,13 +8,14 @@ export const tempProtoFilePath: string = "./build/";
  * @see argFields - the arguments of the function as an array of IFunctionArguments
  * @see funcName - the name of the function
  * @see resType - the return type of the function
- * @see protoPath - the path to the proto file
+ * @see protoData - the path to the proto file
  */
 export interface ProtoFile {
     argFields: IFunctionArguments[];
     funcName: string;
     resType: string;
-    protoPath: string;
+    protoData?: string;
+    protoPath?: string;
 }
 
 /**
@@ -68,7 +69,19 @@ export async function getProtoFunction(protoFilePath: string): Promise<ProtoFile
     }
 
     const funcName = messageNames[0].replace(/Helper$/, '');
-    return {argFields, funcName: funcName, resType: returnType, protoPath: protoFilePath};
+    // get the content of the .proto file
+    const fs = require('fs');
+    let protoFileContent = "";
+    fs.readFile(protoFilePath, 'utf8', (error, data) => {
+        if (error) {
+          console.error('Error reading the protoFile:', error);
+          return;
+        }
+        protoFileContent = data;
+    });
+
+
+    return {argFields, funcName: funcName, resType: returnType, protoData: protoFileContent};
 }
 
 
