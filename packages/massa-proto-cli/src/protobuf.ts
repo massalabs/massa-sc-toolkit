@@ -14,7 +14,7 @@ export interface ProtoFile {
     argFields: IFunctionArguments[];
     funcName: string;
     resType: string;
-    protoData: string;
+    protoPath: string;
 }
 
 /**
@@ -31,22 +31,13 @@ export interface IFunctionArguments {
 /**
  * Retrieve all the function's data and return them as an ProtoFile
  * 
- * @param protoFileContent - the content of the proto file to parse
+ * @param protoFilePath - the path to the proto file
  * @returns The ProtoFile containing the function, its arguments name, arguments type and its return type
  */
-export async function getProtoFunction(protoFileContent: string): Promise<ProtoFile> {
+export async function getProtoFunction(protoFilePath: string): Promise<ProtoFile> {
     
-    // generate a temporary proto file and write the content of protoFileContent in it
-    const protoFileName = "temp.proto";
-    const fs = require('fs');
-    fs.writeFile(tempProtoFilePath + protoFileName, protoFileContent, (err) => {
-        if (err) {
-          console.error('Error writing to file:', err);
-        }
-      });
-
     // load the proto file
-    const protoContent = await load(tempProtoFilePath + protoFileName);
+    const protoContent = await load(protoFilePath);
     // convert protoContent to JSON
     const protoJSON = protoContent.toJSON();
     
@@ -76,13 +67,8 @@ export async function getProtoFunction(protoFileContent: string): Promise<ProtoF
         returnType = rHelperName[`fields`][keys[0]].type;
     }
 
-    // delete the temporary proto file
-    fs.unlink(tempProtoFilePath + protoFileName, (err) => {
-        if (err) {
-            console.error('Error deleting file:', err);
-        }
-    });
-
     const funcName = messageNames[0].replace(/Helper$/, '');
-    return {argFields, funcName: funcName, resType: returnType, protoData: protoFileContent};
+    return {argFields, funcName: funcName, resType: returnType, protoPath: protoFilePath};
 }
+
+
