@@ -14,7 +14,6 @@ export function generateTSCaller(
     throw new Error('Error while generating the helper file: ' + e);
   }
 
-
   let content = '';
 
   // generate the caller imports
