@@ -1,0 +1,22 @@
+{
+  "name": "massa-proto-cli",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@protobuf-ts/plugin": "^2.9.0",
+    "@protobuf-ts/protoc": "^2.9.0",
+    "child_process": "^1.0.2",
+    "google-protobuf": "^3.21.2",
+    "ts-proto": "^1.149.0",
+    "ts-protoc-gen": "^0.15.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.3.1"
+  }
+}
