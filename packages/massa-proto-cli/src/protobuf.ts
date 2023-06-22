@@ -12,7 +12,7 @@ export const tempProtoFilePath = './build/';
  * @see protoData - the path to the proto file
  */
 export interface ProtoFile {
-  argFields: IFunctionArguments[];
+  argFields: FunctionArguments[];
   funcName: string;
   resType: string;
   protoData?: string;
@@ -25,7 +25,7 @@ export interface ProtoFile {
  * @see name - the name of the argument
  * @see type - the type of the argument
  */
-export interface IFunctionArguments {
+export interface FunctionArguments {
   name: string;
   type: string;
 }
@@ -54,7 +54,7 @@ export async function getProtoFunction(
   // get the Helper message
   const helperName = protoJSON.nested[messageNames[0]];
   // get the arguments of the Helper
-  let argFields: IFunctionArguments[] = [];
+  let argFields: FunctionArguments[] = [];
   for (const arg in helperName[`fields`]) {
     if (helperName[`fields`][arg]) {
       const name: string = arg;
