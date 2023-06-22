@@ -1,5 +1,26 @@
+import { MassaProtoFile } from '@massalabs/massa-web3/dist/esm/interfaces/MassaProtoFile';
 import { generateAsCallers } from './as-gen';
 import { IProtoFile } from './protobuf';
+import { Client, ClientFactory, IProvider, ProviderType, SmartContractsClient, WalletClient } from '@massalabs/massa-web3';
+import * as dotenv from 'dotenv';
+
+// Load .env file content into process.env
+dotenv.config();
+
+// Get the URL for a public JSON RPC API endpoint from the environment variables
+const publicApi = process.env.JSON_RPC_URL_PUBLIC;
+if (!publicApi) {
+  throw new Error('Missing JSON_RPC_URL_PUBLIC in .env file');
+}
+
+// Get the secret key for the wallet to be used for the deployment from the environment variables
+const secretKey = process.env.WALLET_SECRET_KEY;
+if (!secretKey) {
+  throw new Error('Missing WALLET_SECRET_KEY in .env file');
+}
+
+// Create an account using the private key
+const deployerAccount = await WalletClient.getAccountFromSecretKey(secretKey);
 
 function displayHelp() {
   console.log('Usage:');
@@ -39,23 +60,34 @@ function getDir(args: string[]): string {
   if (index >= 0 && index + 1 < args.length) {
     return args[index + 1];
   }
-  return '.';
+  return './helpers/';
 }
 
-function run(args: string[]) {
+async function run(args: string[]) {
   let files: IProtoFile[] = [];
   let mode = getGenMode(args);
   let address = getAddr(args);
   let out = getDir(args);
 
+  const client: Client = await ClientFactory.createCustomClient(
+  [
+      { url: publicApi, type: ProviderType.PUBLIC } as IProvider,
+      // This IP is false but we don't need private for this script so we don't want to ask one to the user
+      // but massa-web3 requires one
+      { url: publicApi, type: ProviderType.PRIVATE } as IProvider,
+    ],
+    true,
+    deployerAccount,
+  );
   // call sc client to fetch protos
-
-  // split and parese proto files
+  let pFiles : MassaProtoFile[] = await client.smartContracts().getProtoFiles([address], out);
+  // call proto generator with fetched files
+  // TODO: @Elli610
 
   // call the generator
   if (mode === 'sc') {
     generateAsCallers(files, address, out);
   }
 }
-é
+
 run(process.argv);
