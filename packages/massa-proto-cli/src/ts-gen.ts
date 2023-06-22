@@ -1,4 +1,6 @@
 import { ProtoFile, tempProtoFilePath } from './protobuf';
+import * as returnType from './ProtoTypes.json';
+import { writeFileSync } from 'fs';
 
 export function generateTSCaller(
   outputPath: string,
@@ -17,7 +19,6 @@ export function generateTSCaller(
   let content = `import { ${protoFile.funcName}Helper } from "${helperRelativePath}";\n\n`;
 
   // generate the caller function header
-  const returnType = require('./ProtoTypes.json');
   content += `export async function ${protoFile.funcName}(`;
   for (let arg of protoFile.argFields) {
     if (!returnType[arg.type]) {
@@ -66,12 +67,7 @@ export function generateTSCaller(
 
   // save content to file
   const fileName = `${protoFile.funcName}.ts`;
-  const fs = require('fs');
-  fs.writeFileSync(tempProtoFilePath + fileName, content, (err) => {
-    if (err) {
-      console.error('Error writing to file:', err);
-    }
-  });
+  writeFileSync(tempProtoFilePath + fileName, content, 'utf8');
   console.log('Generated caller file: ' + fileName);
   console.log('file generated at: ', tempProtoFilePath + fileName);
 }
