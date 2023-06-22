@@ -1,7 +1,8 @@
 import { execSync } from 'child_process';
 
 /**
- * Generates a helper function for a proto file to allow serialization/deserialization.
+ * Generates TypeScript helper class for a given .proto file to allow
+ * serialization/deserialization.
  *
  * @param protoFile - The path to the proto file.
  * @param helperFilePath - The path to save the helper file.
