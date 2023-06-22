@@ -13,6 +13,7 @@ function generateImports(protoFile: ProtoFile, helperRelativePath): string {
 export interface ITransactionDetails {
   operationId: string;
 }
+
 `;
   return content;
 }
