@@ -5,7 +5,7 @@
     "type": "module",
     "scripts": {
         "build": "npm run build --ws --if-present",
-        "prettier": "prettier '**/src/**/*.ts' --check && as-prettier --check **/assembly/**",
+        "prettier": "prettier **/src/**/*.ts --check && as-prettier --check **/assembly/**",
         "prettier:fix": "prettier **/src/**/*.ts --write && as-prettier --write **/assembly/**",
         "lint": "eslint .",
         "lint:fix": "npm run lint -- --fix",

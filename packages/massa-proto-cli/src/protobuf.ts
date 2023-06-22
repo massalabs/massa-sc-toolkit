@@ -1,6 +1,7 @@
 import { load } from 'protobufjs';
+import * as fs from 'fs';
 
-export const tempProtoFilePath: string = './build/';
+export const tempProtoFilePath = './build/';
 
 /**
  * Represents a function in a proto file
@@ -55,11 +56,12 @@ export async function getProtoFunction(
   // get the arguments of the Helper
   let argFields: IFunctionArguments[] = [];
   for (const arg in helperName[`fields`]) {
-    const name: string = arg;
-    const type: string = helperName[`fields`][arg].type;
-    argFields.push({ name, type });
+    if (helperName[`fields`][arg]) {
+      const name: string = arg;
+      const type: string = helperName[`fields`][arg].type;
+      argFields.push({ name, type });
+    }
   }
-
   // get the RHelper message
   const rHelperName = protoJSON.nested[messageNames[1]];
   // get the return type from the RHelper
@@ -71,7 +73,6 @@ export async function getProtoFunction(
 
   const funcName = messageNames[0].replace(/Helper$/, '');
   // get the content of the .proto file
-  const fs = require('fs');
   let protoFileContent = '';
   fs.readFile(protoFilePath, 'utf8', (error, data) => {
     if (error) {
