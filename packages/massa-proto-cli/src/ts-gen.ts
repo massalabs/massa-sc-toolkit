@@ -1,5 +1,4 @@
 import { ProtoFile, tempProtoFilePath } from './protobuf';
-import * as returnType from './ProtoTypes.json';
 import { writeFileSync } from 'fs';
 
 export function generateTSCaller(
@@ -15,54 +14,32 @@ export function generateTSCaller(
     throw new Error('Error while generating the helper file: ' + e);
   }
 
-  // generate the caller file
-  let content = `import { ${protoFile.funcName}Helper } from "${helperRelativePath}";\n\n`;
+
+  let content = '';
+
+  // generate the caller imports
+  content += generateImports(protoFile, helperRelativePath);
 
   // generate the caller function header
-  content += `export async function ${protoFile.funcName}(`;
-  for (let arg of protoFile.argFields) {
-    if (!returnType[arg.type]) {
-      throw new Error('Invalid type: ' + arg.type);
-    }
-    content += `${arg.name}: ${returnType[arg.type]}, `;
-  }
-  content = content.slice(0, -2); // remove the last comma and space
-  content += `): Promise<${protoFile.resType}> {\n`;
+  content += generateHeader(protoFile);
 
   // verify that the given arguments are valid
-  for (let arg of protoFile.argFields) {
-    if (
-      arg.type === 'uint32' ||
-      arg.type === 'uint64' ||
-      arg.type === 'fixed32' ||
-      arg.type === 'fixed64'
-    ) {
-      content += `\tif(${arg.name} < 0){\n`;
-      content += `\t\tthrow new Error("Invalid argument: ${arg.name} cannot be negative");\n`;
-      content += `\t}\n`;
-    }
-  }
+  content += generateArgVerification(protoFile);
 
   // generate the caller function body
-  content += `\t// Serialize the arguments\n`;
-  content += `\tconst serializedArgs = ${protoFile.funcName}Helper.toBinary({\n`;
-  for (let arg of protoFile.argFields) {
-    content += `\t\t${arg.name}: ${arg.name},\n`;
-  }
-  content = content.slice(0, -2); // remove the last comma and line break
-  content += `\n\t});\n`;
-  content += `\t// Call the Smart Contract and get an operation ID\n`;
+  content += argumentSerialization(protoFile);
 
-  // set the contract address to the default value if it is not provided
+  // send the operation to the blockchain using the provider
   if (!contractAddress) {
     contractAddress = 'Paste your contract address here';
   }
+  content += sendOperation(protoFile, contractAddress);
 
-  // call the contract
-  content += `\tconst opId = await callContract("${contractAddress}", "${protoFile.funcName}", serializedArgs);\n`;
+  // use the operation ID to get the events generated and the output of the sc function
+  content += getResultFromOpID();
 
-  // return the operation ID
-  content += `\treturn opId;\n`;
+  // return the event generated and the output of the sc function
+  content += `\treturn outputData;\n`;
   content += `}\n`;
 
   // save content to file
