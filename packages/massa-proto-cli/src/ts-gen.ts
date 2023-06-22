@@ -1,8 +1,17 @@
 import { ProtoFile } from './protobuf';
 
+/**
+ * Generate the TypeScript code for the ts caller function
+ * to serialize the arguments
+ *
+ * @param {ProtoFile} protoFile - The protoFile object
+ * @returns {string} - The generated serialization code
+ */
 function argumentSerialization(protoFile: ProtoFile): string {
-  let content = `\t// Serialize the arguments\n`;
-  content += `\tconst serializedArgs = ${protoFile.funcName}Helper.toBinary({\n`;
+  let content = `
+  // Serialize the arguments
+  const serializedArgs = ${protoFile.funcName}Helper.toBinary({
+  `;
   for (let arg of protoFile.argFields) {
     content += `\t\t${arg.name}: ${arg.name},\n`;
   }
