@@ -4,8 +4,8 @@ import { ProtoFile } from './protobuf';
  * Generate the TypeScript code for the ts caller function
  * to serialize the arguments
  *
- * @param {ProtoFile} protoFile - The protoFile object
- * @returns {string} - The generated serialization code
+ * @param protoFile - The protoFile object
+ * @returns - The generated serialization code
  */
 function argumentSerialization(protoFile: ProtoFile): string {
   let content = `
