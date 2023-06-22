@@ -1,6 +1,11 @@
 import { ProtoFile } from './protobuf';
 
-function generateArgVerification(protoFile: ProtoFile): string {
+/**
+ * Generates code to check if unsigned arguments of a protobuf message are negative.
+ * @param {ProtoFile} protoFile - The protofile object.
+ * @return {string} The string containing code for unsigned argument checks.
+ */
+function generateUnsignedArgCheckCode(protoFile: ProtoFile): string {
   let content = '';
   for (let arg of protoFile.argFields) {
     if (
