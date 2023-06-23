@@ -10,10 +10,16 @@ import { ProtoFile } from './protobuf';
  */
 function generateImports(protoFile: ProtoFile, helperRelativePath): string {
   let content = `import { ${protoFile.funcName}Helper } from "${helperRelativePath}";
-export interface ITransactionDetails {
+  
+`;
+  return content;
+}
+
+function generateIterface(protoFile: ProtoFile): string {
+  let content = `export interface TransactionDetails {
   operationId: string;
 }
 
-`;
+  `;
   return content;
 }
