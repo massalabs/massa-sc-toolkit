@@ -10,7 +10,8 @@ import { ProtoFile } from './protobuf';
 function sendOperation(protoFile: ProtoFile, contractAddress: string): string {
   let content = `
   // Call the Smart Contract and get an operation ID
-  const opId = await account.callSC("${contractAddress}", "${protoFile.funcName}", serializedArgs, amount: bigint);
+  const opId = await callSC("${contractAddress}", "${protoFile.funcName}", serializedArgs, coins);
+  
   `;
   return content;
 }
