@@ -1,25 +1,23 @@
 import { ProtoFile } from './protobuf';
 
 /**
- * Generates the typescript code to import the helper file
+ * Generates the protobuf helper import.
  *
  * @param protoFile - The proto file data
  * @param helperRelativePath - The relative path to the previously generated helper
- *
- * @returns The typescript code to import the helper and the Account interface
+ * @returns The TypeScript code to import the helper and the Account interface
  */
-function generateImports(protoFile: ProtoFile, helperRelativePath): string {
-  let content = `import { ${protoFile.funcName}Helper } from "${helperRelativePath}";
-  
-`;
-  return content;
+function generateImports(protoFile: ProtoFile, helperRelativePath: string): string {
+  return `import { ${protoFile.funcName}Helper } from "${helperRelativePath}";`;
 }
 
-function generateIterface(protoFile: ProtoFile): string {
-  let content = `export interface TransactionDetails {
+/**
+ * Generates the TransactionDetails interface used to get the operation Id returned by a Massa node.
+ * @param protoFile 
+ * @returns The TypeScript code that represents the interface.
+ */
+function generateTransactionDetailsExport(protoFile: ProtoFile): string {
+  return `export interface TransactionDetails {
   operationId: string;
-}
-
-  `;
-  return content;
+}`;
 }
