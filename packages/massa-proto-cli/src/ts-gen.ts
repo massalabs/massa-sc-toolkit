@@ -26,10 +26,10 @@ export function compileProtoToTSHelper(
 function setupArguments(protoFile: ProtoFile): string {
   return protoFile.argFields
     .reduce(
-            (content, arg) => {
-              if (!returnType[arg.type]) throw new Error(`Unsupported type: ${arg.type}`);
-              return `${content}${arg.name}: ${returnType[arg.type]}, `;
-            },'') + 'coins: bigint';
+      (content, arg) => {
+        if (!returnType[arg.type]) throw new Error(`Unsupported type: ${arg.type}`);
+        return `${content}${arg.name}: ${returnType[arg.type]}, `;
+      },'') + 'coins: bigint';
 }
 
 /**
