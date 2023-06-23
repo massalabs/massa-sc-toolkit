@@ -1,7 +1,4 @@
 import { ProtoFile } from './protobuf';
-import { writeFileSync } from 'fs';
-import { execSync } from 'child_process';
-import * as returnType from './protoTypes.json';
 
 /**
  * Generates code to check if unsigned arguments of a protobuf message are negative.
