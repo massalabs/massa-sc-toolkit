@@ -3,11 +3,6 @@ set -e
 
 npm ci
 npm run build
-npm version --ws --preid dev --no-git-tag-version --no-commit-hooks prepatch
-
-#Use timestamp as package suffix
-TIME=$(date -u +%Y%m%d%H%M%S)
-sed -i "/version/s/dev.0/dev.$TIME/g" packages/*/package.json
 
 for packageDir in packages/*; do
   if [ -d "$packageDir" ]; then
@@ -19,10 +14,11 @@ done
 
 BRANCH=${GITHUB_REF##*/}
 TAG=""
+
 if [[ "$BRANCH" == "buildnet" ]]; then
-  TAG="buildnet-"
+  TAG="--tag buildnet"
 elif [[ "$BRANCH" == "testnet" ]]; then
-  TAG="testnet-"
+  TAG="--tag testnet"
 fi
 
-npm publish --ws --access public --tag ${TAG}dev
+npm publish --workspace --access public $TAG
