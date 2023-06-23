@@ -13,7 +13,9 @@ export function compileProtoToTSHelper(
   protoFilePath: string,
   helperFilePath: string,
 ): void {
-  execSync(`npx protoc --ts_out="${helperFilePath}" ${protoFilePath}`, { stdio: 'inherit' });
+  execSync(`npx protoc --ts_out="${helperFilePath}" ${protoFilePath}`, {
+    stdio: 'inherit',
+  });
 }
 
 /**
@@ -24,12 +26,13 @@ export function compileProtoToTSHelper(
  * @throws Error if the type of an argument is not supported.
  */
 function setupArguments(protoFile: ProtoFile): string {
-  return protoFile.argFields
-    .reduce(
-            (content, arg) => {
-              if (!returnType[arg.type]) throw new Error(`Unsupported type: ${arg.type}`);
-              return `${content}${arg.name}: ${returnType[arg.type]}, `;
-            },'') + 'coins: bigint';
+  return (
+    protoFile.argFields.reduce((content, arg) => {
+      if (!returnType[arg.type])
+        throw new Error(`Unsupported type: ${arg.type}`);
+      return `${content}${arg.name}: ${returnType[arg.type]}, `;
+    }, '') + 'coins: bigint'
+  );
 }
 
 /**
@@ -42,13 +45,16 @@ function generateUnsignedArgCheckCode(protoFile: ProtoFile): string {
   const unsignedPBTypes = new Set(['uint32', 'uint64', 'fixed32', 'fixed64']);
 
   const checks = protoFile.argFields
-    .filter(arg => unsignedPBTypes.has(arg.type))
-    .map(arg => `\tif (${arg.name} < 0) throw new Error("Invalid argument: ${arg.name} cannot be negative according to protobuf file.");`);
+    .filter((arg) => unsignedPBTypes.has(arg.type))
+    .map(
+      (arg) =>
+        `\tif (${arg.name} < 0) throw new Error("Invalid argument: ${arg.name} cannot be negative according to protobuf file.");`,
+    );
 
   if (checks.length > 0) {
-    return '// Verify that the given arguments are valid\n' + checks.join('\n')
+    return '// Verify that the given arguments are valid\n' + checks.join('\n');
   }
- 
+
   return '';
 }
 
@@ -61,17 +67,17 @@ function generateUnsignedArgCheckCode(protoFile: ProtoFile): string {
  */
 function argumentSerialization(protoFile: ProtoFile): string {
   const args = protoFile.argFields
-    .map(arg => `${arg.name}: ${arg.name}`)
+    .map((arg) => `${arg.name}: ${arg.name}`)
     .join(',\n    ');
-  
+
   if (protoFile.argFields.length > 0) {
     return `// Serialize the arguments
   const serializedArgs = ${protoFile.funcName}Helper.toBinary({
     ${args}
   });`;
- }
- 
- return '';
+  }
+
+  return '';
 }
 
 /**
@@ -82,7 +88,8 @@ function argumentSerialization(protoFile: ProtoFile): string {
  */
 function generateDocArgs(protoFile: ProtoFile): string {
   return protoFile.argFields
-    .map(arg => ` * @param {${arg.type}} ${arg.name} - `).join('\n');
+    .map((arg) => ` * @param {${arg.type}} ${arg.name} - `)
+    .join('\n');
 }
 
 /**
@@ -122,7 +129,9 @@ export function generateTSCaller(
   const argsSerialization = argumentSerialization(protoFile);
 
   // generate the caller function
-  const content = `import { ${protoFile.funcName}Helper } from "${helperRelativePath}";
+  const content = `import { ${
+    protoFile.funcName
+  }Helper } from "${helperRelativePath}";
 
 export interface TransactionDetails {
   operationId: string;
@@ -133,17 +142,23 @@ export interface TransactionDetails {
  * It allows you to call the "${protoFile.funcName}" function of the 
  * "${contractAddress}" Smart Contract.
  * 
- ${documentationArgs}
+ ${documentationArgs.slice(1)}
  *
- * @returns {${protoFile.resType}} The result of the "${protoFile.funcName}" function.
+ * @returns {${protoFile.resType}} The result of the "${
+    protoFile.funcName
+  }" function.
  */
- export async function ${protoFile.funcName}(${args}): Promise<${protoFile.resType}> {
-  ${checkUnsignedArgs.slice(1)}
+ export async function ${protoFile.funcName}(${args}): Promise<${
+    protoFile.resType
+  }> {
+  ${checkUnsignedArgs}
 
   ${argsSerialization}
 
   // Send the operation to the blockchain and retrieve its ID
-  const opId = await callSC("${contractAddress}", "${protoFile.funcName}", serializedArgs, coins);
+  const opId = await callSC("${contractAddress}", "${
+    protoFile.funcName
+  }", serializedArgs, coins);
 
   // Retrieve the events and outPuts from the operation ID
   // TODO: Retrieve the events and outPuts from the operation ID
