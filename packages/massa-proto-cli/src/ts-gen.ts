@@ -11,9 +11,9 @@ function argumentSerialization(protoFile: ProtoFile): string {
   let content = `
   // Serialize the arguments
   const serializedArgs = ${protoFile.funcName}Helper.toBinary({
-  `;
+`;
   for (let arg of protoFile.argFields) {
-    content += `\t\t${arg.name}: ${arg.name},\n`;
+    content += `    ${arg.name}: ${arg.name},\n`;
   }
   content = content.slice(0, -2); // remove the last comma and line break
   content += `\n\t});\n`;
