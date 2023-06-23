@@ -1,3 +1,4 @@
+import { ProtoFile } from './protobuf';
 import { execSync } from 'child_process';
 
 /**
