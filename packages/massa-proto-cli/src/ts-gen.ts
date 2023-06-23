@@ -26,13 +26,12 @@ export function compileProtoToTSHelper(
  * @throws Error if the type of an argument is not supported.
  */
 function setupArguments(protoFile: ProtoFile): string {
-  return (
-    protoFile.argFields.reduce((content, arg) => {
-      if (!returnType[arg.type])
-        throw new Error(`Unsupported type: ${arg.type}`);
-      return `${content}${arg.name}: ${returnType[arg.type]}, `;
-    }, '') + 'coins: bigint'
-  );
+  return protoFile.argFields
+    .reduce(
+      (content, arg) => {
+        if (!returnType[arg.type]) throw new Error(`Unsupported type: ${arg.type}`);
+        return `${content}${arg.name}: ${returnType[arg.type]}, `;
+      },'') + 'coins: bigint';
 }
 
 /**
@@ -46,10 +45,8 @@ function generateUnsignedArgCheckCode(protoFile: ProtoFile): string {
 
   const checks = protoFile.argFields
     .filter((arg) => unsignedPBTypes.has(arg.type))
-    .map(
-      (arg) =>
-        `\tif (${arg.name} < 0) throw new Error("Invalid argument: ${arg.name} cannot be negative according to protobuf file.");`, // eslint-disable-line
-    );
+    /* eslint-disable max-len */
+    .map((arg) => `\tif (${arg.name} < 0) throw new Error("Invalid argument: ${arg.name} cannot be negative according to protobuf file.");`);
 
   if (checks.length > 0) {
     return '// Verify that the given arguments are valid\n' + checks.join('\n');
@@ -76,7 +73,7 @@ function argumentSerialization(protoFile: ProtoFile): string {
     ${args}
   });`;
   }
-
+ 
   return '';
 }
 
