@@ -129,9 +129,9 @@ export function generateTSCaller(
   const argsSerialization = argumentSerialization(protoFile);
 
   // generate the caller function
-  const content = `import { ${
-    protoFile.funcName
-  }Helper } from "${helperRelativePath}";
+  const content = `import { 
+    ${protoFile.funcName}Helper 
+  } from "${helperRelativePath}";
 
 export interface TransactionDetails {
   operationId: string;
@@ -170,6 +170,9 @@ export interface TransactionDetails {
 
   // save content to file
   const fileName = `${protoFile.funcName}Caller.ts`;
+  if (outputPath.slice(-1) != '/') {
+    outputPath += '/';
+  }
   writeFileSync(`${outputPath}${fileName}`, content, 'utf8');
   console.log(`Caller file: ${fileName} generated at: ${outputPath}`);
 }
