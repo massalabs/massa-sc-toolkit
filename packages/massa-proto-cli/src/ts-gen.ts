@@ -129,6 +129,7 @@ export function generateTSCaller(
   const argsSerialization = argumentSerialization(protoFile);
 
   // generate the caller function
+  // prettier-ignore
   const content = `import { 
     ${protoFile.funcName}Helper 
   } from "${helperRelativePath}";
@@ -145,20 +146,20 @@ export interface TransactionDetails {
  ${documentationArgs.slice(1)}
  *
  * @returns {${protoFile.resType}} The result of the "${
-    protoFile.funcName
-  }" function.
+  protoFile.funcName
+}" function.
  */
  export async function ${protoFile.funcName}(${args}): Promise<${
-    protoFile.resType
-  }> {
+  protoFile.resType
+}> {
   ${checkUnsignedArgs}
 
   ${argsSerialization}
 
   // Send the operation to the blockchain and retrieve its ID
   const opId = await callSC("${contractAddress}", "${
-    protoFile.funcName
-  }", serializedArgs, coins);
+  protoFile.funcName
+}", serializedArgs, coins);
 
   // Retrieve the events and outPuts from the operation ID
   // TODO: Retrieve the events and outPuts from the operation ID
