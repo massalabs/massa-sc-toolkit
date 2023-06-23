@@ -176,3 +176,4 @@ export interface TransactionDetails {
   writeFileSync(`${outputPath}${fileName}`, content, 'utf8');
   console.log(`Caller file: ${fileName} generated at: ${outputPath}`);
 }
+//
