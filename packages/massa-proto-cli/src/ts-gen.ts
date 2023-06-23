@@ -4,36 +4,32 @@ import { execSync } from 'child_process';
 import * as returnType from './protoTypes.json';
 
 /**
- * Generates TypeScript helper class for a given .proto file to allow
- * serialization/deserialization.
+ * Compile protofile to TypeScript helper class.
  *
  * @param protoFile - The path to the proto file.
  * @param helperFilePath - The path to save the helper file.
  */
-export function generateTSHelper(
+export function compileProtoToTSHelper(
   protoFilePath: string,
   helperFilePath: string,
 ): void {
-  // generate the helper file using protoc
-  const command = `npx protoc --ts_out="${helperFilePath}" ${protoFilePath}`;
-  execSync(command, { stdio: 'inherit' });
+  execSync(`npx protoc --ts_out="${helperFilePath}" ${protoFilePath}`, { stdio: 'inherit' });
 }
 
 /**
- * Setup the arguments for the caller function definition
+ * Setup the arguments for the caller function definition.
  *
- * @param protoFile - The proto file object
- * @returns The formatted arguments for the caller function definition
+ * @param protoFile - The proto file object.
+ * @returns The formatted arguments for the caller function definition.
+ * @throws Error if the type of an argument is not supported.
  */
 function setupArguments(protoFile: ProtoFile): string {
-  let content = 'coins: bigint, ';
-  for (let arg of protoFile.argFields) {
-    if (!returnType[arg.type]) {
-      throw new Error('Invalid type: ' + arg.type);
-    }
-    content += `${arg.name}: ${returnType[arg.type]}, `;
-  }
-  return content.slice(0, -2); // remove the last comma and space
+  return protoFile.argFields
+    .reduce(
+            (content, arg) => {
+              if (!returnType[arg.type]) throw new Error(`Unsupported type: ${arg.type}`);
+              return `${content}${arg.name}: ${returnType[arg.type]}, `;
+            },'') + 'coins: bigint';
 }
 
 /**
@@ -44,19 +40,16 @@ function setupArguments(protoFile: ProtoFile): string {
  */
 function generateUnsignedArgCheckCode(protoFile: ProtoFile): string {
   const unsignedPBTypes = new Set(['uint32', 'uint64', 'fixed32', 'fixed64']);
-  let content = '';
-  let i = 0;
-  for (const arg of protoFile.argFields) {
-    if (unsignedPBTypes.has(arg.type)) {
-      content += `\tif (${arg.name} < 0) {
-    throw new Error("Invalid argument: ${arg.name} cannot be negative according to protobuf file.");\n\t}\n`;
-      i++;
-    }
+
+  const checks = protoFile.argFields
+    .filter(arg => unsignedPBTypes.has(arg.type))
+    .map(arg => `\tif (${arg.name} < 0) throw new Error("Invalid argument: ${arg.name} cannot be negative according to protobuf file.");`);
+
+  if (checks.length > 0) {
+    return '// Verify that the given arguments are valid\n' + checks.join('\n')
   }
-  if (i > 0) {
-    return '// Verify that the given arguments are valid\n' + content;
-  }
-  return content;
+ 
+  return '';
 }
 
 /**
@@ -67,18 +60,18 @@ function generateUnsignedArgCheckCode(protoFile: ProtoFile): string {
  * @returns - The generated serialization arguments
  */
 function argumentSerialization(protoFile: ProtoFile): string {
-  let content = `\tconst serializedArgs = ${protoFile.funcName}Helper.toBinary({
-`;
-  for (let arg of protoFile.argFields) {
-    content += `    ${arg.name}: ${arg.name},\n`;
-  }
-  content = content.slice(0, -2); // remove the last comma and line break
-  content += `\n\t});\n`;
-
+  const args = protoFile.argFields
+    .map(arg => `${arg.name}: ${arg.name}`)
+    .join(',\n    ');
+  
   if (protoFile.argFields.length > 0) {
-    return '// Serialize the arguments\n' + content.slice(0, -1);
-  }
-  return content;
+    return `// Serialize the arguments
+  const serializedArgs = ${protoFile.funcName}Helper.toBinary({
+    ${args}
+  });`;
+ }
+ 
+ return '';
 }
 
 /**
@@ -88,11 +81,8 @@ function argumentSerialization(protoFile: ProtoFile): string {
  * @returns - The generated documentation arguments
  */
 function generateDocArgs(protoFile: ProtoFile): string {
-  let content = '';
-  for (let arg of protoFile.argFields) {
-    content += ` * @param {${arg.type}} ${arg.name} - \n`;
-  }
-  return content.slice(0, -1);
+  return protoFile.argFields
+    .map(arg => ` * @param {${arg.type}} ${arg.name} - `).join('\n');
 }
 
 /**
@@ -111,7 +101,7 @@ export function generateTSCaller(
 ): void {
   // generate the helper file using protoc. Throws an error if the command fails.
   try {
-    generateTSHelper(protoFile.protoPath, outputPath);
+    compileProtoToTSHelper(protoFile.protoPath, outputPath);
   } catch (e) {
     throw new Error('Error while generating the helper file: ' + e);
   }
@@ -132,9 +122,7 @@ export function generateTSCaller(
   const argsSerialization = argumentSerialization(protoFile);
 
   // generate the caller function
-  const content = `import { ${
-    protoFile.funcName
-  }Helper } from "${helperRelativePath}";
+  const content = `import { ${protoFile.funcName}Helper } from "${helperRelativePath}";
 
 export interface TransactionDetails {
   operationId: string;
@@ -145,23 +133,17 @@ export interface TransactionDetails {
  * It allows you to call the "${protoFile.funcName}" function of the 
  * "${contractAddress}" Smart Contract.
  * 
- ${documentationArgs.slice(1)}
+ ${documentationArgs}
  *
- * @returns {${protoFile.resType}} The result of the "${
-    protoFile.funcName
-  }" function.
+ * @returns {${protoFile.resType}} The result of the "${protoFile.funcName}" function.
  */
-export async function ${protoFile.funcName}(${args}): Promise<${
-    protoFile.resType
-  }> {
-  ${checkUnsignedArgs.slice(0, -1)}
+ export async function ${protoFile.funcName}(${args}): Promise<${protoFile.resType}> {
+  ${checkUnsignedArgs.slice(1)}
 
   ${argsSerialization}
 
   // Send the operation to the blockchain and retrieve its ID
-  const opId = await callSC("${contractAddress}", "${
-    protoFile.funcName
-  }", serializedArgs, coins);
+  const opId = await callSC("${contractAddress}", "${protoFile.funcName}", serializedArgs, coins);
 
   // Retrieve the events and outPuts from the operation ID
   // TODO: Retrieve the events and outPuts from the operation ID
@@ -173,7 +155,6 @@ export async function ${protoFile.funcName}(${args}): Promise<${
 
   // save content to file
   const fileName = `${protoFile.funcName}Caller.ts`;
-  console.log('filename: ' + fileName);
-  writeFileSync(outputPath + fileName, content, 'utf8');
-  console.log('Caller file: ' + fileName + ' generated at: ' + outputPath);
+  writeFileSync(`${outputPath}${fileName}`, content, 'utf8');
+  console.log(`Caller file: ${fileName} generated at: ${outputPath}`);
 }
