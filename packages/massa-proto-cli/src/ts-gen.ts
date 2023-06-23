@@ -13,9 +13,7 @@ export function compileProtoToTSHelper(
   protoFilePath: string,
   helperFilePath: string,
 ): void {
-  execSync(`npx protoc --ts_out="${helperFilePath}" ${protoFilePath}`, {
-    stdio: 'inherit',
-  });
+  execSync(`npx protoc --ts_out="${helperFilePath}" ${protoFilePath}`, { stdio: 'inherit' });
 }
 
 /**
@@ -28,10 +26,10 @@ export function compileProtoToTSHelper(
 function setupArguments(protoFile: ProtoFile): string {
   return protoFile.argFields
     .reduce(
-      (content, arg) => {
-        if (!returnType[arg.type]) throw new Error(`Unsupported type: ${arg.type}`);
-        return `${content}${arg.name}: ${returnType[arg.type]}, `;
-      },'') + 'coins: bigint';
+            (content, arg) => {
+              if (!returnType[arg.type]) throw new Error(`Unsupported type: ${arg.type}`);
+              return `${content}${arg.name}: ${returnType[arg.type]}, `;
+            },'') + 'coins: bigint';
 }
 
 /**
@@ -126,10 +124,7 @@ export function generateTSCaller(
   const argsSerialization = argumentSerialization(protoFile);
 
   // generate the caller function
-  // prettier-ignore
-  const content = `import { 
-    ${protoFile.funcName}Helper 
-  } from "${helperRelativePath}";
+  const content = `import { ${protoFile.funcName}Helper } from "${helperRelativePath}";
 
 export interface TransactionDetails {
   operationId: string;
@@ -140,23 +135,17 @@ export interface TransactionDetails {
  * It allows you to call the "${protoFile.funcName}" function of the 
  * "${contractAddress}" Smart Contract.
  * 
- ${documentationArgs.slice(1)}
+ ${documentationArgs}
  *
- * @returns {${protoFile.resType}} The result of the "${
-  protoFile.funcName
-}" function.
+ * @returns {${protoFile.resType}} The result of the "${protoFile.funcName}" function.
  */
- export async function ${protoFile.funcName}(${args}): Promise<${
-  protoFile.resType
-}> {
-  ${checkUnsignedArgs}
+ export async function ${protoFile.funcName}(${args}): Promise<${protoFile.resType}> {
+  ${checkUnsignedArgs.slice(1)}
 
   ${argsSerialization}
 
   // Send the operation to the blockchain and retrieve its ID
-  const opId = await callSC("${contractAddress}", "${
-  protoFile.funcName
-}", serializedArgs, coins);
+  const opId = await callSC("${contractAddress}", "${protoFile.funcName}", serializedArgs, coins);
 
   // Retrieve the events and outPuts from the operation ID
   // TODO: Retrieve the events and outPuts from the operation ID
@@ -174,4 +163,3 @@ export interface TransactionDetails {
   writeFileSync(`${outputPath}${fileName}`, content, 'utf8');
   console.log(`Caller file: ${fileName} generated at: ${outputPath}`);
 }
-//
