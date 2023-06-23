@@ -1,4 +1,4 @@
-import { ProtoFile, tempProtoFilePath } from './protobuf';
+import { ProtoFile } from './protobuf';
 import { writeFileSync } from 'fs';
 
 export function generateTSCaller(
@@ -9,7 +9,7 @@ export function generateTSCaller(
 ) {
   // generate the helper file using protoc. Throws an error if the command fails.
   try {
-    generateTSHelper(protoFile, outputPath);
+    generateTSHelper(protoFile.protoPath, outputPath);
   } catch (e) {
     throw new Error('Error while generating the helper file: ' + e);
   }
@@ -19,19 +19,22 @@ export function generateTSCaller(
   // generate the caller imports
   content += generateImports(protoFile, helperRelativePath);
 
+  // generate the documentation
+  if (!contractAddress) {
+    contractAddress = 'Paste your contract address here';
+  }
+  content += generateDoc(protoFile, contractAddress);
+
   // generate the caller function header
   content += generateHeader(protoFile);
 
   // verify that the given arguments are valid
-  content += generateArgVerification(protoFile);
+  content += generateUnsignedArgCheckCode(protoFile);
 
   // generate the caller function body
   content += argumentSerialization(protoFile);
 
   // send the operation to the blockchain using the provider
-  if (!contractAddress) {
-    contractAddress = 'Paste your contract address here';
-  }
   content += sendOperation(protoFile, contractAddress);
 
   // use the operation ID to get the events generated and the output of the sc function
@@ -42,8 +45,8 @@ export function generateTSCaller(
   content += `}\n`;
 
   // save content to file
-  const fileName = `${protoFile.funcName}.ts`;
-  writeFileSync(tempProtoFilePath + fileName, content, 'utf8');
-  console.log('Generated caller file: ' + fileName);
-  console.log('file generated at: ', tempProtoFilePath + fileName);
+  const fileName = `${protoFile.funcName}Caller.ts`;
+  console.log('filename: ' + fileName);
+  writeFileSync(outputPath + fileName, content, 'utf8');
+  console.log('Caller file: ' + fileName + ' generated at: ' + outputPath);
 }
