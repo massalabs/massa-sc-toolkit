@@ -17,10 +17,7 @@ jobs:
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
-      - name: publish
-        run: |
-          npm ci
-          npm run build
-          npm publish --ws --access public
+      - name: publish on npm
+        run: .scripts/publish-npm.sh
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
