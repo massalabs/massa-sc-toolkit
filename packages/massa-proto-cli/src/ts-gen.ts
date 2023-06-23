@@ -1,4 +1,7 @@
 import { ProtoFile } from './protobuf';
+import { writeFileSync } from 'fs';
+import { execSync } from 'child_process';
+import * as returnType from './protoTypes.json';
 
 /**
  * Generates code to check if unsigned arguments of a protobuf message are negative.
@@ -13,7 +16,7 @@ function generateUnsignedArgCheckCode(protoFile: ProtoFile): string {
     if (unsignedPBTypes.has(arg.type)) {
       content += `
   if (${arg.name} < 0) {
-    throw new Error("Invalid argument: ${arg.name} cannot be negative accordind to protobuf file.");
+    throw new Error("Invalid argument: ${arg.name} cannot be negative according to protobuf file.");
   }
   `;
     }
