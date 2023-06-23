@@ -44,11 +44,12 @@ function setupArguments(protoFile: ProtoFile): string {
 function generateUnsignedArgCheckCode(protoFile: ProtoFile): string {
   const unsignedPBTypes = new Set(['uint32', 'uint64', 'fixed32', 'fixed64']);
 
+  //pretter-ignore
   const checks = protoFile.argFields
     .filter((arg) => unsignedPBTypes.has(arg.type))
     .map(
       (arg) =>
-        `\tif (${arg.name} < 0) throw new Error("Invalid argument: ${arg.name} cannot be negative according to protobuf file.");`,
+        `\tif (${arg.name} < 0) throw new Error("Invalid argument: ${arg.name} cannot be negative according to protobuf file.");`, // eslint-disable-line no-use-before-define
     );
 
   if (checks.length > 0) {
