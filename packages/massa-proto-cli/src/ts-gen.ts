@@ -9,7 +9,7 @@ import { ProtoFile } from './protobuf';
 function generateUnsignedArgCheckCode(protoFile: ProtoFile): string {
   const unsignedPBTypes = new Set(['uint32', 'uint64', 'fixed32', 'fixed64']);
   let content = '';
-  for (let arg of protoFile.argFields) {
+  for (const arg of protoFile.argFields) {
     if (unsignedPBTypes.has(arg.type)) {
       content += `
   if (${arg.name} < 0) {
