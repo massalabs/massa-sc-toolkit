@@ -40,7 +40,7 @@ export function main(_: StaticArray<u8>): StaticArray<u8> {
     const contractAddr = createSC(SCBytecode);
     if (hasOpKey(protoKey)) {
       let protos = getOpData(protoKey);
-      setOf(contractAddr, stringToBytes("massaProto"), protos);
+      setOf(contractAddr, stringToBytes("protoMassa"), protos);
     }
     if (functionExists(contractAddr, CONSTRUCTOR)) {
       let argsIdent = new Uint8Array(1);
