@@ -2,22 +2,35 @@ import { ProtoFile } from './protobuf';
 import { writeFileSync } from 'fs';
 import { execSync } from 'child_process';
 import * as returnType from './protoTypes.json';
-import { resolve } from 'path';
+import { resolve, relative } from 'path';
+
 
 /**
- * Compile protofile to TypeScript helper class.
+ * Compile proto file to TypeScript helper class.
  *
  * @remarks
  * - If the @see protoFilePath is the relative path, it should be based on the location of your terminal
+ * - If 'protoFilePath' is absolute, then 'npx protoc' will not work. We need to convert it to a close relative path. 
+ * To do so, we copy the protoFile to the current directory of the terminal and then we compile.
  * 
  * @param protoFilePath - The path to the proto file.
  */
 export function compileProtoToTSHelper(
   protoFilePath: string,
+  protoFileName: string,
 ): void {
-  // if the 
+  // If 'protoFilePath' is absolute, then 'npx protoc' will not work. 
+  // We need to convert it to a close relative path. To do so, we copy the protoFile to 
+  // the current directory of the terminal.
 
-  execSync(`npx protoc --ts_out="." ${protoFilePath}`, { stdio: 'inherit' });
+  // copy the protoFile to the current directory of the terminal
+  execSync(`copy "${protoFilePath}" "./proto_build/${protoFileName}.proto"`, { stdio: 'inherit' });
+
+  // compile the protoFile to a ts file // ./proto_build/${protoFileName}.proto
+  execSync(`npx protoc --ts_out="." ${convertToRelativePath(protoFilePath)}`, { stdio: 'inherit' });
+
+  // remove the protoFile from the current directory of the terminal
+  execSync(`del "./proto_build/${protoFileName}.proto"`, { stdio: 'inherit' }); // doesn't work. IDK why
 }
 
 /**
@@ -102,6 +115,7 @@ function generateDocArgs(protoFile: ProtoFile): string {
  * @remarks
  * - If the @see helperFilePath is the relative path based on the .proto file path
  * - If the @see outputPath is the relative path based on the location of your terminal
+ * - Don't forget to run 'npm install @protobuf-ts/plugin' in your project folder for the caller to work
  * 
  * @param outputPath - The path where the file will be generated
  * @param protoFile - The protoFile object used to generate the caller
@@ -114,26 +128,22 @@ export function generateTSCaller(
 ): void {
   // generate the helper file using protoc. Throws an error if the command fails.
   try {
-    compileProtoToTSHelper(protoFile.protoPath);
+    compileProtoToTSHelper(protoFile.protoPath, protoFile.funcName);
   } catch (e) {
     throw new Error('Error while generating the helper file: ' + e);
   }
   
-  // get the absolute path of the previously generated helper file
-  const helperAbsolutePath = convertPathToAbsolute(protoFile.protoPath).replace(/\.proto$/, '.ts');
-
   // Get the new location for the helper file (it should be in the same folder as the caller file)
-  let newLocation = convertPathToAbsolute(outputPath);
+  let newLocation = convertToAbsolutePath(outputPath);
 
-  // New location = absolute_outputPath + protoFile.funcName + 'Helper.ts'
-  // we also rename the helper file to match the function name + 'Helper.ts'
+  // New location and renaming = absolute_outputPath + protoFile.funcName + 'Helper.ts'
   if(!newLocation.endsWith('/') && !newLocation.endsWith('\\')) {
     newLocation += '/' + protoFile.funcName + 'Helper.ts';
   } else{
     newLocation += protoFile.funcName + 'Helper.ts';
   }
 
-  execSync(`move "${helperAbsolutePath}" "${newLocation}"`, { stdio: 'inherit' });
+  execSync(`move "./proto_build/${protoFile.funcName}.ts" "${newLocation}"`, { stdio: 'inherit' }); // doesn't work. IDK why
 
   // generate the arguments
   const args = setupArguments(protoFile);
@@ -192,7 +202,25 @@ export interface TransactionDetails {
 }
 
 
-function convertPathToAbsolute(givenPath: string): string {
+/**
+ * Convert the given path to a relative path based on the current terminal path.
+ * 
+ * @param absolutePath - The absolute path to convert.
+ * 
+ * @returns The relative path based on the current terminal path.
+ */
+function convertToRelativePath(absolutePath: string): string {
+  return relative(process.cwd(), absolutePath);
+}
+
+/**
+ * Convert the given path to an absolute path.
+ * 
+ * @param givenPath - The path to convert.
+ * 
+ * @returns The absolute path.
+ */
+function convertToAbsolutePath(givenPath: string): string {
   if (givenPath.startsWith('.')) {
     return resolve(givenPath);
   }
