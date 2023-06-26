@@ -10,7 +10,7 @@ export const tempProtoFilePath = './build/';
  * @see funcName - the name of the function
  * @see resType - the return type of the function
  * @see protoData - the .proto file content (optional)
- * @see protoPath - The path to the protofile to generate the caller (optional)
+ * @see protoPath - The relative path to the proto file to generate the caller (optional)
  */
 export interface ProtoFile {
   argFields: FunctionArguments[];
