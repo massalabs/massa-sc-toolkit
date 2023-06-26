@@ -1,12 +1,12 @@
 {
     "compilerOptions": {
         "esModuleInterop": true,
-        "module": "commonjs",
+        "module": "es2020",
         "preserveConstEnums": true,
         "moduleResolution": "Node",
         "strict": true,
         "sourceMap": true,
-        "target": "es2022",
+        "target": "es2020",
         "outDir": "dist",
         "types": ["node"],
         "noImplicitAny": false,

@@ -1,7 +1,14 @@
 import { MassaProtoFile } from '@massalabs/massa-web3/dist/esm/interfaces/MassaProtoFile';
 import { generateAsCallers } from './as-gen';
-import { IProtoFile } from './protobuf';
-import { Client, ClientFactory, IProvider, ProviderType, SmartContractsClient, WalletClient } from '@massalabs/massa-web3';
+import { ProtoFile } from './protobuf';
+import {
+  Client,
+  ClientFactory,
+  IProvider,
+  ProviderType,
+  SmartContractsClient,
+  WalletClient,
+} from '@massalabs/massa-web3';
 import * as dotenv from 'dotenv';
 
 // Load .env file content into process.env
@@ -22,6 +29,9 @@ if (!secretKey) {
 // Create an account using the private key
 const deployerAccount = await WalletClient.getAccountFromSecretKey(secretKey);
 
+/**
+ * Displays the usage of the proto cli in terminal.
+ */
 function displayHelp() {
   console.log('Usage:');
   console.log('npx massa-proto-cli');
@@ -37,6 +47,13 @@ function displayHelp() {
   process.exit(1);
 }
 
+/**
+ * Fetching generation mode cli argument.
+ *
+ * @param args - arguments array
+ *
+ * @returns the generation mode
+ */
 function getGenMode(args: string[]): string {
   let index = args.indexOf('--gen');
   if (index >= 0 && index + 1 < args.length) {
@@ -46,6 +63,13 @@ function getGenMode(args: string[]): string {
   return '';
 }
 
+/**
+ * Fetching address cli argument.
+ *
+ * @param args - arguments array
+ *
+ * @returns the address.
+ */
 function getAddr(args: string[]): string {
   let index = args.indexOf('--addr');
   if (index >= 0 && index + 1 < args.length) {
@@ -55,6 +79,13 @@ function getAddr(args: string[]): string {
   return '';
 }
 
+/**
+ * Fetching optionnal output directory cli argument.
+ *
+ * @param args - arguments array.
+ *
+ * @returns the output directory path.
+ */
 function getDir(args: string[]): string {
   let index = args.indexOf('--out');
   if (index >= 0 && index + 1 < args.length) {
@@ -63,14 +94,23 @@ function getDir(args: string[]): string {
   return './helpers/';
 }
 
+/**
+ * Massa-Proto-Cli program entry point.
+ *
+ * @param args - arguments.
+ */
 async function run(args: string[]) {
-  let files: IProtoFile[] = [];
+  let files: ProtoFile[] = [];
   let mode = getGenMode(args);
   let address = getAddr(args);
   let out = getDir(args);
 
+  if (mode === '' || address === '') {
+    displayHelp();
+    return 1;
+  }
   const client: Client = await ClientFactory.createCustomClient(
-  [
+    [
       { url: publicApi, type: ProviderType.PUBLIC } as IProvider,
       // This IP is false but we don't need private for this script so we don't want to ask one to the user
       // but massa-web3 requires one
@@ -80,7 +120,9 @@ async function run(args: string[]) {
     deployerAccount,
   );
   // call sc client to fetch protos
-  let pFiles : MassaProtoFile[] = await client.smartContracts().getProtoFiles([address], out);
+  let pFiles: MassaProtoFile[] = await client
+    .smartContracts()
+    .getProtoFiles([address], out);
   // call proto generator with fetched files
   // TODO: @Elli610
 
