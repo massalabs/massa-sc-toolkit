@@ -6,7 +6,8 @@ import {
   functionExists,
   hasOpKey,
 } from '@massalabs/massa-as-sdk';
-import { Args } from '@massalabs/as-types';
+import { Args, stringToBytes } from '@massalabs/as-types';
+import { setOf } from '@massalabs/massa-as-sdk/assembly/std/storage';
 
 const CONSTRUCTOR = 'constructor';
 
@@ -21,6 +22,8 @@ const CONSTRUCTOR = 'constructor';
 export function main(_: StaticArray<u8>): StaticArray<u8> {
   let masterKey = new StaticArray<u8>(1);
   masterKey[0] = 0x00;
+  let protoKey = new StaticArray<u8>(1);
+  protoKey[0] = 0x02;
   if (!hasOpKey(masterKey)) {
     return [];
   }
@@ -35,6 +38,10 @@ export function main(_: StaticArray<u8>): StaticArray<u8> {
     }
     let SCBytecode = getOpData(key);
     const contractAddr = createSC(SCBytecode);
+    if (hasOpKey(protoKey)) {
+      let protos = getOpData(protoKey);
+      setOf(contractAddr, stringToBytes('protoMassa'), protos);
+    }
     if (functionExists(contractAddr, CONSTRUCTOR)) {
       let argsIdent = new Uint8Array(1);
       argsIdent[0] = 0x00;

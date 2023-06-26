@@ -13,7 +13,7 @@ The following is a list of all the dependencies of this project:
 
 **License:** MIT - perpetual
 
-**Used version:** 17.7.1
+**Used version:** 17.7.2
 
 **Many thanks to:** n/a
 
