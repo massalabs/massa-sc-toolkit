@@ -2,6 +2,7 @@ import { ProtoFile } from './protobuf';
 import { writeFileSync } from 'fs';
 import { execSync } from 'child_process';
 import * as returnType from './protoTypes.json';
+import { resolve } from 'path';
 
 /**
  * Compile protofile to TypeScript helper class.
@@ -13,7 +14,7 @@ export function compileProtoToTSHelper(
   protoFilePath: string,
   helperFilePath: string,
 ): void {
-  execSync(`npx protoc --ts_out="${helperFilePath}" ${protoFilePath}`, { stdio: 'inherit' });
+  execSync(`npx protoc --ts_out="." ${protoFilePath}`, { stdio: 'inherit' });
 }
 
 /**
@@ -108,6 +109,18 @@ export function generateTSCaller(
     throw new Error('Error while generating the helper file: ' + e);
   }
 
+
+  // move "old absolue" "new absolu" and rename it
+  const path = 'C:\\Users\\hervi\\Documents\\Massa\\massa-sc-toolkit\\packages\\massa-proto-cli\\helper\\event.proto';
+  const helperAbsolutePath = path.replace(/\.proto$/, '.ts');
+  // new location + rename the file to protoFile.funcName + 'Helper.ts'
+  let newLocation = convertPathToAbsolute(outputPath);
+  console.log("newLocation: ", newLocation);
+  if(!newLocation.endsWith('/')) {
+    newLocation += '/' + protoFile.funcName + 'Helper.ts';
+  }
+  execSync(`move "${helperAbsolutePath}" "${newLocation}"`, { stdio: 'inherit' });
+
   // generate the arguments
   const args = setupArguments(protoFile);
 
@@ -124,7 +137,7 @@ export function generateTSCaller(
   const argsSerialization = argumentSerialization(protoFile);
 
   // generate the caller function
-  const content = `import { ${protoFile.funcName}Helper } from "${helperRelativePath}";
+  const content = `import { ${protoFile.funcName}Helper } from "./${protoFile.funcName}Helper";
 
 export interface TransactionDetails {
   operationId: string;
@@ -162,4 +175,11 @@ export interface TransactionDetails {
   }
   writeFileSync(`${outputPath}${fileName}`, content, 'utf8');
   console.log(`Caller file: ${fileName} generated at: ${outputPath}`);
+}
+
+function convertPathToAbsolute(givenPath: string): string {
+  if (givenPath.startsWith('.')) {
+    return resolve(givenPath);
+  }
+  return givenPath;
 }
