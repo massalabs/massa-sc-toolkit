@@ -185,9 +185,9 @@ const pollAsyncEvents = async (
   });
 };
 
-function serializeProto(paths: string[]) : Uint8Array {
-  let protos : string = "";
-  paths.forEach(proto => {
+function serializeProto(paths: string[]): Uint8Array {
+  let protos = '';
+  paths.forEach((proto) => {
     protos += readFileSync(proto);
   });
 
@@ -249,7 +249,6 @@ async function deploySC(
   wait = false,
   maxCoins = 0n,
 ): Promise<IDeploymentInfo> {
-
   const client: Client = await ClientFactory.createCustomClient(
     [
       { url: publicApi, type: ProviderType.PUBLIC } as IProvider,
@@ -270,13 +269,12 @@ async function deploySC(
 
   // construct a new datastore
   let datastore = new Map<Uint8Array, Uint8Array>();
-  
+
   // set the number of contracts
   datastore.set(new Uint8Array([0x00]), u64ToBytes(BigInt(contracts.length)));
 
   // loop through all contracts and fill datastore
   contracts.forEach((contract, i) => {
-
     datastore.set(u64ToBytes(BigInt(i + 1)), contract.data);
     if (contract.args) {
       datastore.set(
@@ -361,7 +359,7 @@ async function deploySC(
 
   // await finalization
   await awaitOperationFinalization(client, opId);
-  
+
   return {
     opId,
     events,
