@@ -41,17 +41,18 @@ function convertTypeToAS(type: string): string {
  * @returns the multiline import statements as a string
  */
 function generateAsImports(protoData: ProtoFile): string {
-  let imports = `import { encode${protoData.funcName}Helper, ${protoData.funcName}Helper } `;
-  imports += `from './${protoData.funcName}Helper';\n`;
-
+  let responseTypeImports = "";
+  
   if (protoData.resType !== null) {
-    imports += `import { decode${protoData.funcName}RHelper, ${protoData.funcName}RHelper }`;
-    imports += `from './${protoData.funcName}RHelper';\n`;
+    responseTypeImports = `import { decode${protoData.funcName}RHelper, ${protoData.funcName}RHelper };
+    from './${protoData.funcName}RHelper';`;
   }
 
-  imports += 'import { call } from "@massalabs/massa-as-sdk";\n\n';
+  return `import { encode${protoData.funcName}Helper, ${protoData.funcName}Helper };
+  from './${protoData.funcName}Helper';
+  ${responseTypeImports}
 
-  return imports;
+  import { call } from "@massalabs/massa-as-sdk";`;
 }
 
 /**
@@ -72,27 +73,37 @@ function generateAsCall(
     args.push(`${name}: ${convertTypeToAS(type)}`),
   );
 
-  // generating caller
-  let caller = `export function ${protoData.funcName}(${
-    args.length > 0 ? args.join(', ') + ', coins: number' : 'coins: number'
-  }) : ${protoData.resType !== null ? protoData.resType : 'void'} {\n`;
-  caller += `  const result = call("${address}", "${
-    protoData.funcName
-  }", changetype<StaticArray<u8>>(encode${protoData.funcName}Helper(new ${
-    protoData.funcName
-  }Helper(${Array.from(protoData.argFields.keys()).join(', ')}))), coins);\n`;
+  // Generate function signature
+  const functionSignature = `export function ${protoData.funcName}(${
+    args.length > 0 ? args.join(', ') + ', ' : ""} coins: number): ${protoData.resType !== null ? protoData.resType : 'void'}`;
 
+  // Generate function body
+  const functionBody = `const result = call(
+    "${address}",
+    "${protoData.funcName}",
+    changetype<StaticArray<u8>>(encode${protoData.funcName}Helper(new ${protoData.funcName}Helper(${args.join(', ')}))),
+    coins);`;
+
+  let responseDecoding = "";
   if (protoData.resType !== null) {
-    caller += `  const response = decode${protoData.funcName}RHelper(`;
-    caller += `Uint8Array.wrap(changeType<ArrayBuffer>(result)));\n\n`;
-    caller += '  return response.value;\n';
-  }
-  caller += '}';
+    responseDecoding = `const response = decode${protoData.funcName}RHelper(Uint8Array.wrap(changeType<ArrayBuffer>(result)));
 
+  return response.value;`;
+
+
+  // Compose the full function
+  const fullFunction = `${functionSignature} {
+  ${functionBody}
+
+  ${responseDecoding}
+}`;
+
+  // Write to file
   writeFileSync(
-    generateAsImports(protoData) + caller,
-    path.join(outputDirectory, protoData.funcName + '.ts'),
+    path.join(outputDirectory, `${protoData.funcName}.ts`),
+    generateAsImports(protoData) + fullFunction,
   );
+}
 }
 /**
  * Creates the assembly script helper for serializing and deserializing with the given protobuf file.
@@ -100,7 +111,7 @@ function generateAsCall(
  * @param protoData - the proto file data.
  * @param outputDirectory - the directory where to generate such helpers.
  */
-function generateAsHelper(protoData: ProtoFile, outputDirectory: string) {
+function generateProtocAsHelper(protoData: ProtoFile, outputDirectory: string) {
   let protocProcess = spawnSync('protoc', [
     `--plugin=protoc-gen-as=./node_modules/.bin/as-proto-gen`,
     `--as_out=${outputDirectory}`,
@@ -128,7 +139,7 @@ export function generateAsCallers(
   address: string,
   outputDirectory: string,
 ) {
-  for (let file of protoFiles) {
+  for (const file of protoFiles) {
     generateAsHelper(file, outputDirectory);
     generateAsCall(file, address, outputDirectory);
   }
