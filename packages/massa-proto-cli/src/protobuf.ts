@@ -88,5 +88,6 @@ export async function getProtoFunction(
     funcName: funcName,
     resType: returnType,
     protoData: protoFileContent,
+    protoPath: protoFilePath,
   };
 }
