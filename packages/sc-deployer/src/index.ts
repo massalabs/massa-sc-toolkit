@@ -11,6 +11,7 @@ import {
   IEvent,
   u64ToBytes,
   u8toByte,
+  strToBytes,
   ON_MASSA_EVENT_DATA,
   ON_MASSA_EVENT_ERROR,
   EventPoller,
@@ -184,6 +185,15 @@ const pollAsyncEvents = async (
   });
 };
 
+function serializeProto(paths: string[]): Uint8Array {
+  let protos = '';
+  paths.forEach((proto) => {
+    protos += readFileSync(proto);
+  });
+
+  return strToBytes(protos);
+}
+
 /**
  * Deploys multiple smart contracts.
  *
@@ -286,6 +296,18 @@ async function deploySC(
             .serialize(),
         ),
         u64ToBytes(BigInt(contract.coins)), // scaled value to be provided here
+      );
+    }
+    let protos: Uint8Array = serializeProto(contract.protoPaths);
+    if (protos.length > 0) {
+      datastore.set(
+        new Uint8Array(
+          new Args()
+            .addU64(BigInt(i + 1))
+            .addUint8Array(u8toByte(2))
+            .serialize(),
+        ),
+        protos, // proto files linked to the contract
       );
     }
   });
