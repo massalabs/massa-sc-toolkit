@@ -135,12 +135,12 @@ export interface TransactionDetails {
  * It allows you to call the "${protoFile.funcName}" function of the 
  * "${contractAddress}" Smart Contract.
  * 
- ${documentationArgs}
+ ${documentationArgs.slice(1)}
  *
  * @returns {${protoFile.resType}} The result of the "${protoFile.funcName}" function.
  */
  export async function ${protoFile.funcName}(${args}): Promise<${protoFile.resType}> {
-  ${checkUnsignedArgs.slice(1)}
+  ${checkUnsignedArgs}
 
   ${argsSerialization}
 
