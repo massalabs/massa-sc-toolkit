@@ -33,7 +33,14 @@ export function compileProtoToTSHelper(
 
   // Compile the proto file to a ts file
   // If 'protoFilePath' is absolute, then 'npx protoc' will not work. We need to convert it to relative path
-  execSync(`npx protoc --ts_out="./proto_build" "${convertToRelativePath(protoFilePath)}"`);
+  try{
+    execSync(`npx protoc --ts_out="./proto_build" "${convertToRelativePath(protoFilePath)}"`);
+  } catch (e) {
+    throw new Error(
+      'Error while compiling the proto file: ' + e +
+      '\nIs the proto file in a sub folder of the current terminal location?'
+      );
+  }
 }
 
 /**
