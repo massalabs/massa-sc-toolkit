@@ -39,7 +39,7 @@ export function compileProtoToTSHelper(
     throw new Error(
       'Error while compiling the proto file: ' + e +
       '\nIs the proto file in a sub folder of the current terminal location?'
-      );
+    );
   }
 }
 
