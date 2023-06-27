@@ -83,8 +83,8 @@ function generateAsCall(
     "${address}",
     "${protoData.funcName}",
     changetype<StaticArray<u8>>(encode${protoData.funcName}Helper(new ${
-  protoData.funcName
-}Helper(${args.join(', ')}))),
+    protoData.funcName
+  }Helper(${args.join(', ')}))),
     coins);`;
 
   let responseDecoding = '';
