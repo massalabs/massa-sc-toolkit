@@ -150,8 +150,7 @@ export function generateTSCaller(
   const helperPath = protoFile.protoPath.replace('.proto', '.ts');
   // join "./proto_build/" and helperPath
   const startPath = join('proto_build/', helperPath);
-  console.log(helperPath.slice(0,2));
-  console.log("path: " + startPath);
+
   execSync(`move "${startPath}" "${newLocation}"`);
 
   // generate the arguments
