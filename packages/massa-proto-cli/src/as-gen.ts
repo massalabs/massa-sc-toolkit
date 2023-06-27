@@ -41,8 +41,8 @@ function convertTypeToAS(type: string): string {
  * @returns the multiline import statements as a string
  */
 function generateAsImports(protoData: ProtoFile): string {
-  let responseTypeImports = "";
-  
+  let responseTypeImports = '';
+
   if (protoData.resType !== null) {
     responseTypeImports = `import { decode${protoData.funcName}RHelper, ${protoData.funcName}RHelper };
     from './${protoData.funcName}RHelper';`;
@@ -75,35 +75,38 @@ function generateAsCall(
 
   // Generate function signature
   const functionSignature = `export function ${protoData.funcName}(${
-    args.length > 0 ? args.join(', ') + ', ' : ""} coins: number): ${protoData.resType !== null ? protoData.resType : 'void'}`;
+    args.length > 0 ? args.join(', ') + ', ' : ''
+  } coins: number): ${protoData.resType !== null ? protoData.resType : 'void'}`;
 
   // Generate function body
   const functionBody = `const result = call(
     "${address}",
     "${protoData.funcName}",
-    changetype<StaticArray<u8>>(encode${protoData.funcName}Helper(new ${protoData.funcName}Helper(${args.join(', ')}))),
+    changetype<StaticArray<u8>>(encode${protoData.funcName}Helper(new ${
+  protoData.funcName
+}Helper(${args.join(', ')}))),
     coins);`;
 
-  let responseDecoding = "";
+  let responseDecoding = '';
   if (protoData.resType !== null) {
-    responseDecoding = `const response = decode${protoData.funcName}RHelper(Uint8Array.wrap(changeType<ArrayBuffer>(result)));
+    const fName = protoData.funcName;
+    responseDecoding = `const response = decode${fName}RHelper(Uint8Array.wrap(changeType<ArrayBuffer>(result)));
 
   return response.value;`;
 
-
-  // Compose the full function
-  const fullFunction = `${functionSignature} {
+    // Compose the full function
+    const fullFunction = `${functionSignature} {
   ${functionBody}
 
   ${responseDecoding}
 }`;
 
-  // Write to file
-  writeFileSync(
-    path.join(outputDirectory, `${protoData.funcName}.ts`),
-    generateAsImports(protoData) + fullFunction,
-  );
-}
+    // Write to file
+    writeFileSync(
+      path.join(outputDirectory, `${protoData.funcName}.ts`),
+      generateAsImports(protoData) + fullFunction,
+    );
+  }
 }
 /**
  * Creates the assembly script helper for serializing and deserializing with the given protobuf file.

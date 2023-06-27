@@ -9,7 +9,7 @@ import {
   ProviderType,
   WalletClient,
 } from '@massalabs/massa-web3';
-import { Command } from "commander";
+import { Command } from 'commander';
 
 import * as dotenv from 'dotenv';
 // Load .env file content into process.env
@@ -17,10 +17,22 @@ dotenv.config();
 const program = new Command();
 
 program
-.option('-g, --gen <mode>', 'the generation mode for contracts callers (sc) or web3 app (web3)', "sc")
-.option('-a, --addr <value>', 'the public address of the contract to interact with', "")
-.option('-o, --out <path>', 'optional output directory for the callers to generate', "./helpers/")
-.parse()
+  .option(
+    '-g, --gen <mode>',
+    'the generation mode for contracts callers (sc) or web3 app (web3)',
+    'sc',
+  )
+  .option(
+    '-a, --addr <value>',
+    'the public address of the contract to interact with',
+    '',
+  )
+  .option(
+    '-o, --out <path>',
+    'optional output directory for the callers to generate',
+    './helpers/',
+  )
+  .parse();
 
 // Get the URL for a public JSON RPC API endpoint from the environment variables
 const publicApi = process.env.JSON_RPC_URL_PUBLIC;
@@ -44,9 +56,9 @@ if (!secretKey) {
 async function run() {
   const args = program.opts();
   let files: ProtoFile[] = [];
-  let mode = args["gen"];
-  let address = args["addr"];
-  let out = args["out"];
+  let mode = args['gen'];
+  let address = args['addr'];
+  let out = args['out'];
 
   if (mode === '' || address === '') {
     program.help();
