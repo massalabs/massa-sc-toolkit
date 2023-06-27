@@ -79,13 +79,14 @@ function generateAsCall(
   } coins: number): ${protoData.resType !== null ? protoData.resType : 'void'}`;
 
   // Generate function body
-  const functionBody = `const result = call(
-    "${address}",
-    "${protoData.funcName}",
-    changetype<StaticArray<u8>>(encode${protoData.funcName}Helper(new ${
+  let functionBody = '';
+  functionBody += 'const result = call(\n';
+  functionBody += `  "${address}",\n`;
+  functionBody += `  "${protoData.funcName}",\n`;
+  functionBody += `  changetype<StaticArray<u8>>(encode${
     protoData.funcName
-  }Helper(${args.join(', ')}))),
-    coins);`;
+  }Helper(new ${protoData.funcName}Helper(${args.join(', ')}))),\n`;
+  functionBody += '  coins);';
 
   let responseDecoding = '';
   if (protoData.resType !== null) {
