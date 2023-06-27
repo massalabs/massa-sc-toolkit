@@ -151,7 +151,12 @@ export function generateTSCaller(
   // join "./proto_build/" and helperPath
   const startPath = join('proto_build/', helperPath);
 
-  execSync(`move "${startPath}" "${newLocation}"`);
+  // check the os to use the correct command
+  if (process.platform === 'win32') {
+    execSync(`move "${startPath}" "${newLocation}"`);
+  } else {
+    execSync(`mv "${startPath}" "${newLocation}"`);
+  }
 
   // generate the arguments
   const args = setupArguments(protoFile);
@@ -209,8 +214,11 @@ export interface TransactionDetails {
   console.log(`Caller file: ${fileName} generated at: ${outputPath}`);
 
   // delete the proto_build folder and its content if it exists
-  if (existsSync('proto_build')) {
+  if (existsSync('proto_build') && process.platform === 'win32') {
     execSync('rmdir /s /q proto_build');
+  }
+  else if (existsSync('proto_build')) { 
+    execSync('rm -r proto_build');
   }
 }
 
