@@ -14,15 +14,18 @@ fi
 
 for packageDir in packages/*; do
   if [ -d "$packageDir" ]; then
-    echo "Navigating to ${packageDir}"
-    cd $packageDir
-
-    PACKAGE_NAME=$(cat "package.json" | jq -r '.name')
-    PUBLISH_VERSION=$(cat "package.json" | jq -r '.version')
-
-    echo "Publishing ${PACKAGE_NAME}@${PUBLISH_VERSION}"
+    PACKAGE_NAME=$(cat "$packageDir/package.json" | jq -r '.name')
+    PUBLISH_VERSION=$(cat "$packageDir/package.json" | jq -r '.version')
     
-    npm publish --access public $TAG
-    cd ../..
+    # Check if the package name is in the reference
+    if [[ "$ref" == *"$PACKAGE_NAME"* ]]; then
+      echo "Publishing ${PACKAGE_NAME}@${PUBLISH_VERSION}"
+      
+      cd $packageDir
+      npm publish --access public $TAG
+      cd ../..
+    else
+      echo "Skipping ${PACKAGE_NAME}"
+    fi
   fi
 done
