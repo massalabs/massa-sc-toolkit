@@ -118,7 +118,7 @@ function generateDocArgs(protoFile: ProtoFile): string {
  * @remarks
  * - If the @see helperFilePath is the relative path based on the .proto file path
  * - If the @see outputPath is the relative path based on the location of your terminal
- * - Don't forget to run 'npm install @protobuf-ts/plugin' in your project folder for the caller to work
+ * - Don't forget to run 'npm install protobuf-ts/plugin' in your project folder for the caller to work
  * 
  * @param outputPath - The path where the file will be generated
  * @param protoFile - The protoFile object used to generate the caller
