@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { MassaProtoFile } from '@massalabs/massa-web3/dist/esm/interfaces/MassaProtoFile';
 import { generateAsCallers } from './as-gen';
 import { ProtoFile } from './protobuf';
@@ -6,13 +7,20 @@ import {
   ClientFactory,
   IProvider,
   ProviderType,
-  SmartContractsClient,
   WalletClient,
 } from '@massalabs/massa-web3';
-import * as dotenv from 'dotenv';
+import { Command } from "commander";
 
+import * as dotenv from 'dotenv';
 // Load .env file content into process.env
 dotenv.config();
+const program = new Command();
+
+program
+.option('-g, --gen <mode>', 'the generation mode for contracts callers (sc) or web3 app (web3)', "sc")
+.option('-a, --addr <value>', 'the public address of the contract to interact with', "")
+.option('-o, --out <path>', 'optional output directory for the callers to generate', "./helpers/")
+.parse()
 
 // Get the URL for a public JSON RPC API endpoint from the environment variables
 const publicApi = process.env.JSON_RPC_URL_PUBLIC;
@@ -27,88 +35,24 @@ if (!secretKey) {
 }
 
 // Create an account using the private key
-const deployerAccount = await WalletClient.getAccountFromSecretKey(secretKey);
-
-/**
- * Displays the usage of the proto cli in terminal.
- */
-function displayHelp() {
-  console.log('Usage:');
-  console.log('npx massa-proto-cli');
-  console.log(
-    '\t\t--gen sc|web3\t- the generation mode for contracts callers (sc) or web3 app (web3)',
-  );
-  console.log(
-    '\t\t--addr contract_public_key\t- the public address of the contract to interact with',
-  );
-  console.log(
-    '\t\t[--out output_directory]\t- optional output directory for the callers to generate (default: .)',
-  );
-  process.exit(1);
-}
-
-/**
- * Fetching generation mode cli argument.
- *
- * @param args - arguments array
- *
- * @returns the generation mode
- */
-function getGenMode(args: string[]): string {
-  let index = args.indexOf('--gen');
-  if (index >= 0 && index + 1 < args.length) {
-    return args[index + 1];
-  }
-  displayHelp();
-  return '';
-}
-
-/**
- * Fetching address cli argument.
- *
- * @param args - arguments array
- *
- * @returns the address.
- */
-function getAddr(args: string[]): string {
-  let index = args.indexOf('--addr');
-  if (index >= 0 && index + 1 < args.length) {
-    return args[index + 1];
-  }
-  displayHelp();
-  return '';
-}
-
-/**
- * Fetching optionnal output directory cli argument.
- *
- * @param args - arguments array.
- *
- * @returns the output directory path.
- */
-function getDir(args: string[]): string {
-  let index = args.indexOf('--out');
-  if (index >= 0 && index + 1 < args.length) {
-    return args[index + 1];
-  }
-  return './helpers/';
-}
 
 /**
  * Massa-Proto-Cli program entry point.
  *
- * @param args - arguments.
+ * @param arguments - arguments.
  */
-async function run(args: string[]) {
+async function run() {
+  const args = program.opts();
   let files: ProtoFile[] = [];
-  let mode = getGenMode(args);
-  let address = getAddr(args);
-  let out = getDir(args);
+  let mode = args["gen"];
+  let address = args["addr"];
+  let out = args["out"];
 
   if (mode === '' || address === '') {
-    displayHelp();
+    program.help();
     return 1;
   }
+  const deployerAccount = await WalletClient.getAccountFromSecretKey(secretKey);
   const client: Client = await ClientFactory.createCustomClient(
     [
       { url: publicApi, type: ProviderType.PUBLIC } as IProvider,
@@ -132,4 +76,4 @@ async function run(args: string[]) {
   }
 }
 
-run(process.argv);
+run();

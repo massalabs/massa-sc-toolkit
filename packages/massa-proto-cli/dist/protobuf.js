@@ -1,15 +1,41 @@
-import { load } from 'protobufjs';
-import * as fs from 'fs';
-export const tempProtoFilePath = './build/';
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getProtoFunction = exports.tempProtoFilePath = void 0;
+const protobufjs_1 = require("protobufjs");
+const fs = __importStar(require("fs"));
+exports.tempProtoFilePath = './build/';
 /**
  * Retrieve all the function's data and return them as an ProtoFile
  *
  * @param protoFilePath - the path to the proto file
  * @returns The ProtoFile containing the function, its arguments name, arguments type and its return type
  */
-export async function getProtoFunction(protoFilePath) {
+async function getProtoFunction(protoFilePath) {
     // load the proto file
-    const protoContent = await load(protoFilePath);
+    const protoContent = await (0, protobufjs_1.load)(protoFilePath);
     // convert protoContent to JSON
     const protoJSON = protoContent.toJSON();
     const messageNames = Object.keys(protoJSON.nested);
@@ -53,4 +79,5 @@ export async function getProtoFunction(protoFilePath) {
         protoData: protoFileContent,
     };
 }
+exports.getProtoFunction = getProtoFunction;
 //# sourceMappingURL=protobuf.js.map

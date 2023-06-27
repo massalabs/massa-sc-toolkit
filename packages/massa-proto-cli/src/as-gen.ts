@@ -121,7 +121,7 @@ function generateProtocAsHelper(protoData: ProtoFile, outputDirectory: string) {
   ]);
 
   if (protocProcess.status !== 0) {
-    console.error(
+    throw new Error(
       `Failed to generate AS helpers code for ${protoData} with error: ${protocProcess.stderr}`,
     );
   }
@@ -140,7 +140,7 @@ export function generateAsCallers(
   outputDirectory: string,
 ) {
   for (const file of protoFiles) {
-    generateAsHelper(file, outputDirectory);
+    generateProtocAsHelper(file, outputDirectory);
     generateAsCall(file, address, outputDirectory);
   }
 }
