@@ -185,6 +185,10 @@ export interface TransactionDetails {
  * It allows you to call the "${protoFile.funcName}" function of the 
  * "${contractAddress}" Smart Contract.
  * 
+ * @remarks
+ * To work properly, you need to run 'npm install @protobuf-ts/plugin' in your project folder.
+ * Otherwise, this caller will not work.
+ * 
  ${documentationArgs.slice(1)}
  *
  * @returns {${protoFile.resType}} The result of the "${protoFile.funcName}" function.
