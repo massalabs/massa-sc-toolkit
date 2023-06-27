@@ -1,36 +1,39 @@
 import { ProtoFile } from './protobuf';
-import { writeFileSync } from 'fs';
+import { writeFileSync, renameSync, existsSync } from 'fs';
 import { execSync } from 'child_process';
 import * as returnType from './protoTypes.json';
-import { resolve, relative } from 'path';
+import { resolve, relative, join, dirname } from 'path';
 
 
 /**
  * Compile proto file to TypeScript helper class.
  *
  * @remarks
+ * - The ts helper file is generated in the folder 'proto_build' at the same location as your current terminal.
  * - If the @see protoFilePath is the relative path, it should be based on the location of your terminal
- * - If 'protoFilePath' is absolute, then 'npx protoc' will not work. We need to convert it to a close relative path. 
- * To do so, we copy the protoFile to the current directory of the terminal and then we compile.
  * 
  * @param protoFilePath - The path to the proto file.
  */
 export function compileProtoToTSHelper(
   protoFilePath: string,
-  protoFileName: string,
+  functionName: string,
 ): void {
-  // If 'protoFilePath' is absolute, then 'npx protoc' will not work. 
-  // We need to convert it to a close relative path. To do so, we copy the protoFile to 
-  // the current directory of the terminal.
+  // if needed, rename the proto file to 'functionName.proto'
+  if (!protoFilePath.endsWith(functionName + '.proto')) {
+    const directory = dirname(protoFilePath);
+    const newProtoFilePath = join(directory, functionName + '.proto');
+    renameSync(protoFilePath, newProtoFilePath);
+    protoFilePath = newProtoFilePath;
+  }
 
-  // copy the protoFile to the current directory of the terminal
-  execSync(`copy "${protoFilePath}" "./proto_build/${protoFileName}.proto"`, { stdio: 'inherit' });
+  // check if the 'proto_build' folder exists. If not, create it.
+  if (!existsSync('proto_build')) {
+    execSync('mkdir proto_build');
+  }
 
-  // compile the protoFile to a ts file // ./proto_build/${protoFileName}.proto
-  execSync(`npx protoc --ts_out="." ${convertToRelativePath(protoFilePath)}`, { stdio: 'inherit' });
-
-  // remove the protoFile from the current directory of the terminal
-  execSync(`del "./proto_build/${protoFileName}.proto"`, { stdio: 'inherit' }); // doesn't work. IDK why
+  // Compile the proto file to a ts file
+  // If 'protoFilePath' is absolute, then 'npx protoc' will not work. We need to convert it to relative path
+  execSync(`npx protoc --ts_out="./proto_build" "${convertToRelativePath(protoFilePath)}"`);
 }
 
 /**
@@ -54,7 +57,7 @@ function setupArguments(protoFile: ProtoFile): string {
 /**
  * Generates code to check if unsigned arguments of a protobuf message are negative.
  *
- * @param protoFile - The protofile object.
+ * @param protoFile - The proto file object.
  * 
  * @returns The string containing code for unsigned argument checks.
  */
@@ -143,7 +146,13 @@ export function generateTSCaller(
     newLocation += protoFile.funcName + 'Helper.ts';
   }
 
-  execSync(`move "./proto_build/${protoFile.funcName}.ts" "${newLocation}"`, { stdio: 'inherit' }); // doesn't work. IDK why
+
+  const helperPath = protoFile.protoPath.replace('.proto', '.ts');
+  // join "./proto_build/" and helperPath
+  const startPath = join('proto_build/', helperPath);
+  console.log(helperPath.slice(0,2))
+  console.log("path: " + startPath);
+  execSync(`move "${startPath}" "${newLocation}"`);
 
   // generate the arguments
   const args = setupArguments(protoFile);
@@ -199,6 +208,11 @@ export interface TransactionDetails {
   }
   writeFileSync(`${outputPath}${fileName}`, content, 'utf8');
   console.log(`Caller file: ${fileName} generated at: ${outputPath}`);
+
+  // delete the proto_build folder and its content if it exists
+  if (existsSync('proto_build')) {
+    execSync('rmdir /s /q proto_build');
+  }
 }
 
 
