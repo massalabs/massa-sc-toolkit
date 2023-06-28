@@ -38,6 +38,13 @@ export interface FunctionArguments {
 export async function getProtoFunction(protoPath: string): Promise<ProtoFile> {
   const protoContent = await load(protoPath);
   const protoJSON = protoContent.toJSON();
+
+  // protoJSON.nested shouldn't be undefined
+  if (!protoJSON.nested)
+    throw new Error(
+      'Error: nested is undefined. Please check your proto file.',
+    );
+
   const messageNames = Object.keys(protoJSON.nested);
 
   // check if the proto file contains 2 messages

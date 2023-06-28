@@ -1,8 +1,8 @@
 import { ProtoFile } from './protobuf';
-import { writeFileSync, renameSync, existsSync } from 'fs';
+import { writeFileSync, existsSync } from 'fs';
 import { execSync } from 'child_process';
 import * as returnType from './protoTypes.json';
-import { resolve, relative, join, dirname } from 'path';
+import { resolve, relative, join } from 'path';
 
 
 /**
@@ -129,6 +129,9 @@ export function generateTSCaller(
   contractAddress?: string,
 ): void {
   // generate the helper file using protoc. Throws an error if the command fails.
+
+  // protoPath is mandatory to generate the helper file
+  if(!protoFile.protoPath) throw new Error('Error: protoPath is undefined.'); 
   try {
     compileProtoToTSHelper(protoFile.protoPath);
   } catch (e) {
