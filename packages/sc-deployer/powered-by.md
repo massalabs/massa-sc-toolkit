@@ -29,7 +29,7 @@ The following is a list of all the dependencies of this project:
 
 **License:** MIT - perpetual
 
-**Used version:** 18.16.16
+**Used version:** 18.16.18
 
 **Many thanks to:** n/a
 
