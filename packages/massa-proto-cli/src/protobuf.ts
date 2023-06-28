@@ -59,8 +59,7 @@ export async function getProtoFunction(protoPath: string): Promise<ProtoFile> {
 
   const funcName = messageNames[0].replace(/Helper$/, '');
   const protoData = await fs.readFile(protoPath, 'utf8').catch((error) => {
-    console.error('Error reading the protoFile:', error);
-    return '';
+    throw new Error('Error while reading the proto file: ' + error);
   });
 
   return { argFields, funcName, resType, protoData, protoPath };

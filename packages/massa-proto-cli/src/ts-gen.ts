@@ -16,15 +16,7 @@ import { resolve, relative, join, dirname } from 'path';
  */
 export function compileProtoToTSHelper(
   protoFilePath: string,
-  functionName: string,
 ): void {
-  // if needed, rename the proto file to 'functionName.proto'
-  if (!protoFilePath.endsWith(functionName + '.proto')) {
-    const directory = dirname(protoFilePath);
-    const newProtoFilePath = join(directory, functionName + '.proto');
-    renameSync(protoFilePath, newProtoFilePath);
-    protoFilePath = newProtoFilePath;
-  }
 
   // check if the 'proto_build' folder exists. If not, create it.
   if (!existsSync('proto_build')) {
@@ -138,7 +130,7 @@ export function generateTSCaller(
 ): void {
   // generate the helper file using protoc. Throws an error if the command fails.
   try {
-    compileProtoToTSHelper(protoFile.protoPath, protoFile.funcName);
+    compileProtoToTSHelper(protoFile.protoPath);
   } catch (e) {
     throw new Error('Error while generating the helper file: ' + e);
   }
