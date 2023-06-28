@@ -91,7 +91,7 @@ async function run() {
   // call the generator
   if (mode === 'sc') {
     generateAsCallers(files, address, out);
-  } else if (mode === 'ts') {
+  } else if (mode === 'web3') {
     generateTsCallers(files, out, address);
   } else {
     throw new Error(`Unsupported mode: ${mode}`);
