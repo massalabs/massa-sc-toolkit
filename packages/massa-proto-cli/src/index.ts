@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { MassaProtoFile } from '@massalabs/massa-web3/dist/esm/interfaces/MassaProtoFile';
 import { generateAsCallers } from './as-gen';
-import { ProtoFile } from './protobuf';
+import { ProtoFile, getProtoFunction } from './protobuf';
 import {
   Client,
   ClientFactory,
@@ -76,11 +76,15 @@ async function run() {
     deployerAccount,
   );
   // call sc client to fetch protos
-  let pFiles: MassaProtoFile[] = await client
+  const mpFiles: MassaProtoFile[] = await client
     .smartContracts()
     .getProtoFiles([address], out);
-  // call proto generator with fetched files
-  // TODO: @Elli610
+
+  // call proto parser with fetched files
+  for (const mpfile of mpFiles) {
+    let protoFile = await getProtoFunction(mpfile.filePath);
+    files.push(protoFile);
+  }
 
   // call the generator
   if (mode === 'sc') {
