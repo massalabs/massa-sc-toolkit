@@ -1,7 +1,5 @@
-import { load } from 'protobufjs';
-import * as fs from 'fs';
-
-export const tempProtoFilePath = './build/';
+import { load, IType } from 'protobufjs';
+import { promises as fs } from 'fs';
 
 /**
  * Represents a function in a proto file
@@ -10,7 +8,7 @@ export const tempProtoFilePath = './build/';
  * @see funcName - the name of the function
  * @see resType - the return type of the function
  * @see protoData - the .proto file content (optional)
- * @see protoPath - The path to the protofile to generate the caller (optional)
+ * @see protoPath - The relative path to the proto file to generate the caller (optional)
  */
 export interface ProtoFile {
   argFields: FunctionArguments[];
@@ -34,59 +32,42 @@ export interface FunctionArguments {
 /**
  * Retrieve all the function's data and return them as an ProtoFile
  *
- * @param protoFilePath - the path to the proto file
+ * @param protoPath - the path to the proto file
  * @returns The ProtoFile containing the function, its arguments name, arguments type and its return type
  */
-export async function getProtoFunction(
-  protoFilePath: string,
-): Promise<ProtoFile> {
-  // load the proto file
-  const protoContent = await load(protoFilePath);
-  // convert protoContent to JSON
+export async function getProtoFunction(protoPath: string): Promise<ProtoFile> {
+  const protoContent = await load(protoPath);
   const protoJSON = protoContent.toJSON();
+
+  // protoJSON.nested shouldn't be undefined
+  if (!protoJSON.nested)
+    throw new Error(
+      'Error: nested is undefined. Please check your proto file.',
+    );
 
   const messageNames = Object.keys(protoJSON.nested);
 
   // check if the proto file contains 2 messages
-  if (messageNames.length != 2) {
+  if (messageNames.length !== 2) {
     throw new Error('Error: the protoFile should contain 2 messages.');
   }
 
   // get the Helper message
-  const helperName = protoJSON.nested[messageNames[0]];
+  const helper = protoJSON.nested[messageNames[0]] as IType;
   // get the arguments of the Helper
-  let argFields: FunctionArguments[] = [];
-  for (const arg in helperName[`fields`]) {
-    if (helperName[`fields`][arg]) {
-      const name: string = arg;
-      const type: string = helperName[`fields`][arg].type;
-      argFields.push({ name, type });
-    }
-  }
-  // get the RHelper message
-  const rHelperName = protoJSON.nested[messageNames[1]];
-  // get the return type from the RHelper
-  const keys = Object.keys(rHelperName[`fields`]);
-  let returnType = 'void';
-  if (keys.length == 1) {
-    returnType = rHelperName[`fields`][keys[0]].type;
-  }
+  const argFields: FunctionArguments[] = Object.entries(helper.fields)
+    .filter(([, value]) => value)
+    .map(([name, field]) => ({ name, type: field.type }));
+
+  const rHelper = protoJSON.nested[messageNames[1]] as IType;
+  const rHelperKeys = Object.keys(rHelper.fields);
+  const resType =
+    rHelperKeys.length === 1 ? rHelper.fields[rHelperKeys[0]].type : 'void';
 
   const funcName = messageNames[0].replace(/Helper$/, '');
-  // get the content of the .proto file
-  let protoFileContent = '';
-  fs.readFile(protoFilePath, 'utf8', (error, data) => {
-    if (error) {
-      console.error('Error reading the protoFile:', error);
-      return;
-    }
-    protoFileContent = data;
+  const protoData = await fs.readFile(protoPath, 'utf8').catch((error) => {
+    throw new Error('Error while reading the proto file: ' + error);
   });
 
-  return {
-    argFields,
-    funcName: funcName,
-    resType: returnType,
-    protoData: protoFileContent,
-  };
+  return { argFields, funcName, resType, protoData, protoPath };
 }
