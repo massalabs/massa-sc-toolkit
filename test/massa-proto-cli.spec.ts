@@ -13,13 +13,13 @@ test('test protobuf.ts: getProtoFunction', () => {
   //  'test.proto' content:
   const protoContent = `syntax = "proto3";
 
-message eventHelper {
+message testHelper {
   uint64 num = 1;
   string horse = 2;
   fixed32 blue = 3;
 }
-
-message eventRHelper {
+  
+message testRHelper {
   uint64 value = 1;
 }`;
     
