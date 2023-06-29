@@ -26,17 +26,18 @@ message eventRHelper {
     const protoPath = './proto_build/test.proto';
 
     getProtoFunction(protoPath).then((protoFile: ProtoFile) => {
-        expect(protoFile.argFields).toEqual([
+        expect(protoFile.argFields).toBe([
             { name: 'num', type: 'uint64' }, 
             { name: 'horse', type: 'string' }, 
             { name: 'blue', type: 'fixed32' }
         ]);
-        expect(protoFile.funcName).toEqual('test');
-        expect(protoFile.resType).toEqual('uint64');
-        expect(protoFile.protoData).toEqual(protoContent);
-        expect(protoFile.protoPath).toEqual(protoPath);
+        expect(protoFile.funcName).toBe('test');
+        expect(protoFile.resType).toBe('uint64');
+        expect(protoFile.protoData).toBe(protoContent);
+        expect(protoFile.protoPath).toBe(protoPath);
     });
 });
+
 
 /**
  * from a proto file, generate the ts helper file
