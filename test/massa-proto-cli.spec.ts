@@ -12,10 +12,7 @@ test('test commands', () => {
  * (uses getProtoFunction from packages\massa-proto-cli\src\protobuf.ts)
  */
 test('test protobuf.ts: getProtoFunction', () => {
-    // create the proto_build folder
-    execSync('mkdir proto_build');
-
-    // create a proto file 'test.proto' in './proto_build'
+    //  'test.proto' content:
     const protoContent = `syntax = "proto3";
 
 message eventHelper {
@@ -28,25 +25,19 @@ message eventRHelper {
     uint64 value = 1;
 }`;
     
-    // save the proto file
     const protoPath = './proto_build/test.proto';
-    writeFileSync(protoPath, protoContent);
 
     getProtoFunction(protoPath).then((protoFile: ProtoFile) => {
-        expect(protoFile.argFields).toEqual([{ name: 'num', type: 'uint64' }, { name: 'horse', type: 'string' }, { name: 'blue', type: 'fixed32' }]);
-        expect(protoFile.funcName).toEqual('event');
+        expect(protoFile.argFields).toEqual([
+            { name: 'num', type: 'uint64' }, 
+            { name: 'horse', type: 'string' }, 
+            { name: 'blue', type: 'fixed32' }
+        ]);
+        expect(protoFile.funcName).toEqual('test');
         expect(protoFile.resType).toEqual('uint64');
         expect(protoFile.protoData).toEqual(protoContent);
         expect(protoFile.protoPath).toEqual(protoPath);
     });
-
-    // remove the 'proto_build' folder
-    if (existsSync('proto_build') && process.platform === 'win32') {
-        execSync('rmdir /s /q proto_build');
-      }
-      else if (existsSync('proto_build')) { 
-        execSync('rm -r proto_build');
-      }
 });
 
 /**
