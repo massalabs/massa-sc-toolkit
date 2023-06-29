@@ -26,7 +26,7 @@ message eventRHelper {
   const protoPath = './test/proto_build/test.proto';
 
   getProtoFunction(protoPath).then((protoFile: ProtoFile) => {
-    expect(protoFile.argFields).toBe([
+    expect(protoFile.argFields).toStrictEqual([
       { name: 'num', type: 'uint64' }, 
       { name: 'horse', type: 'string' }, 
       { name: 'blue', type: 'fixed32' }
