@@ -1,5 +1,3 @@
-import { execSync } from 'child_process';
-import { writeFileSync, existsSync } from 'fs';
 import { getProtoFunction, ProtoFile } from '../packages/massa-proto-cli/src/protobuf';
 
 test('test commands', () => {
