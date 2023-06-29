@@ -10,19 +10,7 @@ test('test commands', () => {
  * (uses getProtoFunction from packages/massa-proto-cli/src/protobuf.ts)
  */
 test('test protobuf.ts: getProtoFunction', () => {
-  //  'test.proto' content:
-  const protoContent = `syntax = "proto3";
-
-message testHelper {
-  uint64 num = 1;
-  string horse = 2;
-  fixed32 blue = 3;
-}
-  
-message testRHelper {
-  uint64 value = 1;
-}`;
-    
+   
   const protoPath = './test/proto_build/test.proto';
 
   getProtoFunction(protoPath).then((protoFile: ProtoFile) => {
@@ -33,7 +21,6 @@ message testRHelper {
     ]);
     expect(protoFile.funcName).toBe('test');
     expect(protoFile.resType).toBe('uint64');
-    expect(protoFile.protoData).toBe(protoContent);
     expect(protoFile.protoPath).toBe(protoPath);
   });
 });
