@@ -25,6 +25,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const as_gen_1 = require("./as-gen");
+const protobuf_1 = require("./protobuf");
 const massa_web3_1 = require("@massalabs/massa-web3");
 const commander_1 = require("commander");
 const dotenv = __importStar(require("dotenv"));
@@ -32,9 +33,9 @@ const dotenv = __importStar(require("dotenv"));
 dotenv.config();
 const program = new commander_1.Command();
 program
-    .option('-g, --gen <mode>', 'the generation mode for contracts callers (sc) or web3 app (web3)', "sc")
-    .option('-a, --addr <value>', 'the public address of the contract to interact with', "")
-    .option('-o, --out <path>', 'optional output directory for the callers to generate', "./helpers/")
+    .option('-g, --gen <mode>', 'the generation mode for contracts callers (sc) or web3 app (web3)', 'sc')
+    .option('-a, --addr <value>', 'the public address of the contract to interact with', '')
+    .option('-o, --out <path>', 'optional output directory for the callers to generate', './helpers/')
     .parse();
 // Get the URL for a public JSON RPC API endpoint from the environment variables
 const publicApi = process.env.JSON_RPC_URL_PUBLIC;
@@ -55,9 +56,9 @@ if (!secretKey) {
 async function run() {
     const args = program.opts();
     let files = [];
-    let mode = args["gen"];
-    let address = args["addr"];
-    let out = args["out"];
+    let mode = args['gen'];
+    let address = args['addr'];
+    let out = args['out'];
     if (mode === '' || address === '') {
         program.help();
         return 1;
@@ -70,11 +71,14 @@ async function run() {
         { url: publicApi, type: massa_web3_1.ProviderType.PRIVATE },
     ], true, deployerAccount);
     // call sc client to fetch protos
-    let pFiles = await client
+    const mpFiles = await client
         .smartContracts()
         .getProtoFiles([address], out);
-    // call proto generator with fetched files
-    // TODO: @Elli610
+    // call proto parser with fetched files
+    for (const mpfile of mpFiles) {
+        let protoFile = await (0, protobuf_1.getProtoFunction)(mpfile.filePath);
+        files.push(protoFile);
+    }
     // call the generator
     if (mode === 'sc') {
         (0, as_gen_1.generateAsCallers)(files, address, out);

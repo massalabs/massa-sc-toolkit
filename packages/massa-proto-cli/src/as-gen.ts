@@ -44,15 +44,15 @@ function generateAsImports(protoData: ProtoFile): string {
   let responseTypeImports = '';
 
   if (protoData.resType !== null) {
-    responseTypeImports = `import { decode${protoData.funcName}RHelper, ${protoData.funcName}RHelper };
-    from './${protoData.funcName}RHelper';`;
+    responseTypeImports = `import { decode${protoData.funcName}RHelper }`
+    responseTypeImports += `from './${protoData.funcName}RHelper';\n`;
   }
 
-  return `import { encode${protoData.funcName}Helper, ${protoData.funcName}Helper };
-  from './${protoData.funcName}Helper';
-  ${responseTypeImports}
+  let argsImports = `import { encode${protoData.funcName}Helper, ${protoData.funcName}Helper }`;
+  argsImports += ` from './${protoData.funcName}Helper'\n;`;
 
-  import { call } from "@massalabs/massa-as-sdk";`;
+  let sdkImports = `import { call, Address } from "@massalabs/massa-as-sdk";\n`;
+  return responseTypeImports + argsImports + sdkImports + '\n';
 }
 
 /**
@@ -76,14 +76,14 @@ function generateAsCall(
   // Generate function signature
   const functionSignature = `export function ${protoData.funcName}(${
     args.length > 0 ? args.join(', ') + ', ' : ''
-  } coins: number): ${protoData.resType !== null ? protoData.resType : 'void'}`;
+  } coins: number): ${protoData.resType !== null ? convertTypeToAS(protoData.resType) : 'void'}`;
 
   // Generate function body
   let functionBody = '';
   functionBody += 'const result = call(\n';
-  functionBody += `  "${address}",\n`;
-  functionBody += `  "${protoData.funcName}",\n`;
-  functionBody += `  changetype<StaticArray<u8>>(encode${
+  functionBody += `    new Address("${address}"),\n`;
+  functionBody += `    "${protoData.funcName}",\n`;
+  functionBody += `    changetype<StaticArray<u8>>(encode${
     protoData.funcName
   }Helper(new ${protoData.funcName}Helper(${args.join(', ')}))),\n`;
   functionBody += '  coins);';
@@ -94,6 +94,7 @@ function generateAsCall(
     responseDecoding = `const response = decode${fName}RHelper(Uint8Array.wrap(changeType<ArrayBuffer>(result)));
 
   return response.value;`;
+  }
 
     // Compose the full function
     const fullFunction = `${functionSignature} {
@@ -107,7 +108,6 @@ function generateAsCall(
       path.join(outputDirectory, `${protoData.funcName}.ts`),
       generateAsImports(protoData) + fullFunction,
     );
-  }
 }
 /**
  * Creates the assembly script helper for serializing and deserializing with the given protobuf file.
@@ -120,8 +120,8 @@ function generateProtocAsHelper(protoData: ProtoFile, outputDirectory: string) {
     `--plugin=protoc-gen-as=./node_modules/.bin/as-proto-gen`,
     `--as_out=${outputDirectory}`,
     `--as_opt=gen-helper-methods`,
-    `--proto_path=./build`,
-    protoData.protoData,
+    `--proto_path=${outputDirectory}`,
+    `${outputDirectory}${protoData.funcName}.proto`
   ]);
 
   if (protocProcess.status !== 0) {
