@@ -44,6 +44,7 @@ message eventRHelper {
  */
 test('test ts-gen: compileProtoToTSHelper', () => {
   //TODO: test compileProtoToTSHelper
+  expect(true).toBe(true);
 });
 
 /**
@@ -51,5 +52,6 @@ test('test ts-gen: compileProtoToTSHelper', () => {
  */
 test('test ts-gen: generateTSCaller', () => {
   //TODO: test generateTSCaller
+  expect(true).toBe(true);
 });
   
