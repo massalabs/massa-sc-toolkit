@@ -23,7 +23,7 @@ message eventRHelper {
     uint64 value = 1;
 }`;
     
-  const protoPath = './proto_build/test.proto';
+  const protoPath = './test/proto_build/test.proto';
 
   getProtoFunction(protoPath).then((protoFile: ProtoFile) => {
     expect(protoFile.argFields).toBe([
