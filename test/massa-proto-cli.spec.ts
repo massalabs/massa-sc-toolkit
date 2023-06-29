@@ -43,7 +43,7 @@ message eventRHelper {
  * from a proto file, generate the ts helper file
  */
 test('test ts-gen: compileProtoToTSHelper', () => {
-  //TODO: test compileProtoToTSHelper
+  // TODO: test compileProtoToTSHelper
   expect(true).toBe(true);
 });
 
@@ -51,7 +51,7 @@ test('test ts-gen: compileProtoToTSHelper', () => {
  * from a proto file, generate the ts helper and caller files
  */
 test('test ts-gen: generateTSCaller', () => {
-  //TODO: test generateTSCaller
+  // TODO: test generateTSCaller
   expect(true).toBe(true);
 });
   
