@@ -1,3 +1,6 @@
+import { writeFileSync } from 'fs';
+import { getProtoFunction, ProtoFile } from '../packages/massa-proto-cli/src/protobuf';
+
 test('test commands', () => {
     // TODO: test commands
     expect(true).toBe(true);
@@ -8,7 +11,29 @@ test('test commands', () => {
  * (uses getProtoFunction from packages\massa-proto-cli\src\protobuf.ts)
  */
 test('test protobuf.ts: getProtoFunction', () => {
-    // TODO: test getProtoFunction
+    // create a proto file 'test.proto' in the current directory
+    const protoContent = `syntax = "proto3";
+
+message eventHelper {
+    uint64 num = 1;
+    string horse = 2;
+    fixed32 blue = 3;
+}
+    
+message eventRHelper {
+    uint64 value = 1;
+}`;
+    // save the proto file
+    const protoPath = './test.proto';
+    writeFileSync(protoPath, protoContent);
+
+    getProtoFunction(protoPath).then((protoFile: ProtoFile) => {
+        expect(protoFile.argFields).toEqual([{ name: 'num', type: 'uint64' }, { name: 'horse', type: 'string' }, { name: 'blue', type: 'fixed32' }]);
+        expect(protoFile.funcName).toEqual('event');
+        expect(protoFile.resType).toEqual('uint64');
+        expect(protoFile.protoData).toEqual(protoContent);
+        expect(protoFile.protoPath).toEqual(protoPath);
+    });
 });
 
 /**
