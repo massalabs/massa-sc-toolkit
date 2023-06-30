@@ -33,7 +33,8 @@ test('test ts-gen: compileProtoToTSHelper', () => {
   const horse = 'horse';
   const blue = 123;
 
-  const { testHelper } = require('./test/proto_build/testHelper.ts'); // eslint-disable-line no-var-requires
+  // eslint-disable-next-line no-var-requires
+  const { testHelper } = require('./test/proto_build/testHelper.ts');
   const serializedArgs = testHelper.toBinary({ num: num, horse: horse, blue: blue });
   
   expect(serializedArgs).toEqual(new Uint8Array([]));
