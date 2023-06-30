@@ -68,7 +68,7 @@ import { decode${protoData.funcName}RHelper } from './${protoData.funcName}RHelp
 
   // generating the content of the file
   const content =`import { call, Address } from "@massalabs/massa-as-sdk";
-import { encode${protoData.funcName}Helper, ${protoData.funcName}Helper } from './${protoData.funcName}Helper';${responseTypeImports}
+import { encode${protoData.funcName}Helper, ${protoData.funcName}Helper } from './${protoData.funcName}Helper';${responseTypeImports /** eslint-disable-next-line max-len */}
 
 export function ${protoData.funcName}(${
   args.length > 0 ? args.join(', ') + ', ' : ''
@@ -76,7 +76,7 @@ export function ${protoData.funcName}(${
   const result = call(
     new Address("${address}"),
     "${protoData.funcName}",
-    changetype<StaticArray<u8>>(encode${protoData.funcName}Helper(new ${protoData.funcName}Helper(${args.join(', ')}))),${''/** eslint-disable-next-line max-len */}
+    changetype<StaticArray<u8>>(encode${protoData.funcName}Helper(new ${protoData.funcName}Helper(${args.join(', ')}))),
     coins
   );${responseDecoding}
 }
