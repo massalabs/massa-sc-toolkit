@@ -29,11 +29,11 @@ test('test ts-gen: compileProtoToTSHelper', () => {
   expect(existsSync('proto_build/testHelper.ts')).toBe(true);
   
   // check if the ts helper file contains the expected functions
-  const num: bigint = 118712n;
-  const horse: string = 'horse';
-  const blue: number = 123;
+  const num = 118712n;
+  const horse = 'horse';
+  const blue = 123;
 
-  const { testHelper } = require('../proto_build/testHelper.ts');
+  const { testHelper } = require('./test/proto_build/testHelper.ts'); // eslint-disable-line no-var-requires
   const serializedArgs = testHelper.toBinary({ num: num, horse: horse, blue: blue });
   
   expect(serializedArgs).toEqual(new Uint8Array([]));
