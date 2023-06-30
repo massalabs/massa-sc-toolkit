@@ -6,7 +6,7 @@
     "scripts": {
         "build": "npm run build --ws --if-present",
         "prettier": "prettier **/src/**/*.ts --check && as-prettier --check **/assembly/**",
-        "prettier:fix": "prettier **/src/**/*.ts --write && as-prettier --write **/assembly/**",
+        "prettier:fix": "prettier **/src/**/*.ts --write",
         "lint": "eslint .",
         "lint:fix": "npm run lint -- --fix",
         "fmt:check": "npm run prettier && npm run lint",
