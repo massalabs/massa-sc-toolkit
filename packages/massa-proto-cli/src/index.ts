@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { MassaProtoFile } from '@massalabs/massa-web3/dist/esm/interfaces/MassaProtoFile';
 import { generateAsCallers } from './as-gen';
+import { generateTsCallers } from './ts-gen';
 import { ProtoFile, getProtoFunction } from './protobuf';
 import {
   Client,
@@ -12,6 +13,7 @@ import {
 import { Command } from 'commander';
 
 import * as dotenv from 'dotenv';
+import { generateTSCaller } from './ts-gen';
 // Load .env file content into process.env
 dotenv.config();
 const program = new Command();
@@ -89,6 +91,10 @@ async function run() {
   // call the generator
   if (mode === 'sc') {
     generateAsCallers(files, address, out);
+  } else if (mode === 'web3') {
+    generateTsCallers(files, out, address);
+  } else {
+    throw new Error(`Unsupported mode: ${mode}`);
   }
 }
 
