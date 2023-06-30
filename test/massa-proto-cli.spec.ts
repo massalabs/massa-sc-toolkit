@@ -1,3 +1,4 @@
+/* tslint:disable no-var-requires */
 import { compileProtoToTSHelper } from '../packages/massa-proto-cli/src/ts-gen';
 import { existsSync } from 'fs';
 
@@ -33,7 +34,6 @@ test('test ts-gen: compileProtoToTSHelper', () => {
   const horse = 'horse';
   const blue = 123;
 
-  // eslint-disable-next-line no-var-requires
   const { testHelper } = require('./test/proto_build/testHelper.ts');
   const serializedArgs = testHelper.toBinary({ num: num, horse: horse, blue: blue });
   
