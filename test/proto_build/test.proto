@@ -1,11 +1,11 @@
 syntax = "proto3";
 
 message testHelper {
-  uint64 num = 1;
+  uint32 num = 1;
   string horse = 2;
   fixed32 blue = 3;
 }
 
 message testRHelper {
-  uint64 value = 1;
+  uint32 value = 1;
 }

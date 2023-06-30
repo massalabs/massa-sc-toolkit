@@ -30,7 +30,7 @@ test('test ts-gen: compileProtoToTSHelper', () => {
   expect(existsSync('proto_build/testHelper.ts')).toBe(true);
   
   // check if the ts helper file contains the expected functions
-  const num = 118712n;
+  const num = -118712;
   const horse = 'horse';
   const blue = 123;
 
