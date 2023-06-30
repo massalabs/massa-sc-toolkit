@@ -22,8 +22,7 @@ const CONSTRUCTOR = 'constructor';
 export function main(_: StaticArray<u8>): StaticArray<u8> {
   let masterKey = new StaticArray<u8>(1);
   masterKey[0] = 0x00;
-  let protoKey = new StaticArray<u8>(1);
-  protoKey[0] = 0x02;
+  let protoKey = stringToBytes('protoMassa');
   if (!hasOpKey(masterKey)) {
     return [];
   }

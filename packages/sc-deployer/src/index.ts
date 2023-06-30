@@ -300,15 +300,7 @@ async function deploySC(
     }
     let protos: Uint8Array = serializeProto(contract.protoPaths);
     if (protos.length > 0) {
-      datastore.set(
-        new Uint8Array(
-          new Args()
-            .addU64(BigInt(i + 1))
-            .addUint8Array(u8toByte(2))
-            .serialize(),
-        ),
-        protos, // proto files linked to the contract
-      );
+      datastore.set(strToBytes('protoMassa'), protos);
     }
   });
 
