@@ -67,8 +67,9 @@ import { decode${protoData.funcName}RHelper } from './${protoData.funcName}RHelp
   };
 
   // generating the content of the file
-  const content =`import { call, Address } from "@massalabs/massa-as-sdk";
-import { encode${protoData.funcName}Helper, ${protoData.funcName}Helper } from './${protoData.funcName}Helper';${responseTypeImports /** eslint-disable-next-line max-len */}
+  // eslint-disable-next-line max-len
+  const content =`import { encode${protoData.funcName}Helper, ${protoData.funcName}Helper } from './${protoData.funcName}Helper';${responseTypeImports}
+import { call, Address } from "@massalabs/massa-as-sdk";
 
 export function ${protoData.funcName}(${
   args.length > 0 ? args.join(', ') + ', ' : ''
