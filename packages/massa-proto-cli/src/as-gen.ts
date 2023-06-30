@@ -4,6 +4,27 @@ import path from 'path';
 import { ProtoFile } from './protobuf';
 import * as asProtoTypes from './asProtoTypes.json';
 
+/**
+ * Generates code to check if unsigned arguments of a protobuf message are negative.
+ *
+ * @param protoFile - The proto file object.
+ * 
+ * @returns The string containing code for unsigned argument checks.
+ */
+function generateUnsignedArgCheckCode(protoFile: ProtoFile): string {
+  const unsignedPBTypes = new Set(['uint32', 'uint64', 'fixed32', 'fixed64']);
+
+  const checks = protoFile.argFields
+    .filter((arg) => unsignedPBTypes.has(arg.type))
+    /* eslint-disable max-len */
+    .map((arg) => `\tif (${arg.name} < 0) throw new Error("Invalid argument: ${arg.name} cannot be negative according to protobuf file.");`);
+
+  if (checks.length > 0) {
+    return '\n\t// Verify that the given arguments are valid\n' + checks.join('\n') + '\n';
+  }
+
+  return '';
+}
 
 /**
  * Creates a contract function caller with the given proto file and address.
@@ -30,7 +51,6 @@ export function generateAsCall(
     args.push(`${name}: ${asProtoTypes[type]}`),
   );
 
-
   let responseDecoding = '';
   let responseTypeImports = '';
   if (protoData.resType !== null) {
@@ -45,6 +65,9 @@ import { decode${protoData.funcName}RHelper } from './${protoData.funcName}RHelp
   return response.value;`;
   };
 
+  // verify that the given arguments are valid
+  const checkUnsignedArgs = generateUnsignedArgCheckCode(protoData);
+
   // generating the content of the file
   // eslint-disable-next-line max-len
   const content =`import { encode${protoData.funcName}Helper, ${protoData.funcName}Helper } from './${protoData.funcName}Helper';${responseTypeImports}
@@ -53,6 +76,7 @@ import { call, Address } from "@massalabs/massa-as-sdk";
 export function ${protoData.funcName}(${
   args.length > 0 ? args.join(', ') + ', ' : ''
 } coins: number): ${protoData.resType !== null ? asProtoTypes[protoData.resType] : 'void'} {
+  ${checkUnsignedArgs}
   const result = call(
     new Address("${address}"),
     "${protoData.funcName}",
