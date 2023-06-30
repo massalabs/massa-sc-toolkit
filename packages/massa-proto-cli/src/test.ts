@@ -17,36 +17,63 @@ function isIAccount(object: any): object is IAccount {
   );
 }
 
-class BlockchainCaller {
-  private account: IAccount | SmartContractsClient;
+/** The following global variable and the next class should be in a dedicated file. */
+let callSC: (address: string, funcName: string, binArguments: Uint8Array, maxCoin: bigint) => Promise<ITransactionDetails>;
 
-  constructor(account: IAccount | SmartContractsClient) {
-    this.account = account;
+/**
+ * A class to call the blockchain.
+ */
+export class BlockchainCaller {
+  /**
+   * Constructor for the BlockchainCaller class.
+   *
+   * @param {Function} caller - The function to call the blockchain.
+   */
+  constructor(
+    caller: (
+      address: string,
+      funcName: string,
+      binArguments: Uint8Array,
+      maxCoin: bigint
+    ) => Promise<ITransactionDetails>
+  ) {
+    if (!caller) {
+      throw new Error('A caller function must be provided');
+    }
+    callSC = caller;
   }
 
-  async callback(
+  /**
+   * Calls a smart contract on the blockchain with the provided parameters.
+   *
+   * @param {string} address - The blockchain address to call.
+   * @param {string} funcName - The name of the function to call.
+   * @param {Uint8Array} binArguments - The binary arguments for the function call.
+   * @param {bigint} maxCoin - The maximum coin value.
+   *
+   * @return {Promise<string>} - A promise that resolves to a string.
+   */
+  static async call(
     address: string,
     funcName: string,
     binArguments: Uint8Array,
-    maxCoin: bigint,
-  ): outputData {
-    if (isIAccount(this.account)) {
-      // call the Smart Contrat
-      const txDetails: ITransactionDetails = await this.account.callSC(
-        address,
-        funcName,
-        binArguments,
-        maxCoin,
-      );
-
-      // Retrieve the events and outPuts from the operation ID
-      const outputData: outputData = await getOutput(txDetails.operationId);
-      return outputData;
-    } else if (this.account instanceof SmartContractsClient) {
-      // TODO
-    } else {
-      throw new Error('Invalid provider.');
+    maxCoin: bigint
+  ): Promise<string> {
+    if (!callSC) {
+      throw new Error('callSC is not defined. You must create an instance of BlockchainCaller before using the static call method.');
     }
+
+    const txDetails: ITransactionDetails = await callSC(
+      address,
+      funcName,
+      binArguments,
+      maxCoin
+    );
+
+    //TODO extract response from smart-contract-events if any
+
+    //otherwise return an empty string
+    return '';
   }
 }
 
