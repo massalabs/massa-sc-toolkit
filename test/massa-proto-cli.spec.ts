@@ -34,6 +34,7 @@ test('test ts-gen: compileProtoToTSHelper', () => {
   const horse = 'horse';
   const blue = 123;
 
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { testHelper } = require('./test/proto_build/testHelper.ts');
   const serializedArgs = testHelper.toBinary({ num: num, horse: horse, blue: blue });
   
