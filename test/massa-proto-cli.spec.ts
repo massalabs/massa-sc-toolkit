@@ -26,16 +26,17 @@ test('test ts-gen: compileProtoToTSHelper', () => {
   compileProtoToTSHelper(protoFilePath);
 
   // check if the ts helper file exists
-  expect(existsSync('proto_build/test_pb.d.ts')).toBe(true);
+  expect(existsSync('proto_build/testHelper.ts')).toBe(true);
   
   // check if the ts helper file contains the expected functions
   const num: bigint = 118712n;
   const horse: string = 'horse';
   const blue: number = 123;
 
-  // const serializesArgs: Uint8Array = [];
+  const { testHelper } = require('../proto_build/testHelper.ts');
+  const serializedArgs = testHelper.toBinary({ num: num, horse: horse, blue: blue });
   
-
+  expect(serializedArgs).toEqual(new Uint8Array([]));
 });
 
 /**
