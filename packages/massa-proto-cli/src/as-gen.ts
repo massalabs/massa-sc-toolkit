@@ -76,7 +76,7 @@ export function ${protoData.funcName}(${
   const result = call(
     new Address("${address}"),
     "${protoData.funcName}",
-    changetype<StaticArray<u8>>(encode${protoData.funcName}Helper(new ${protoData.funcName}Helper(${args.join(', ')}))),
+    changetype<StaticArray<u8>>(encode${protoData.funcName}Helper(new ${protoData.funcName}Helper(${args.join(', ')}))),${''/** eslint-disable-next-line max-len */}
     coins
   );${responseDecoding}
 }
