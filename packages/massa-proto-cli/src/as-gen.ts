@@ -64,7 +64,7 @@ export function ${protoData.funcName}(${
 
   // Save the content to a ts file
   writeFileSync(
-    path.join(outputDirectory, `${protoData.funcName}.ts`),
+    path.join(outputDirectory, `${protoData.funcName}Caller.ts`),
     content,
   );
 }
