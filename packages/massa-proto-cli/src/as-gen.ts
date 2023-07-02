@@ -135,7 +135,7 @@ function generateProtocAsHelper(protoData: ProtoFile, outputDirectory: string) {
  * Creates assembly script sc callers with the given protobuf files.
  *
  * @param protoFiles - the array of proto files data
- * @param address - the address of the contract where the proto files are comming from
+ * @param address - the address of the contract where the proto files are coming from
  * @param outputDirectory - the output directory where to generates the callers
  */
 export function generateAsCallers(

@@ -278,3 +278,22 @@ function convertToAbsolutePath(givenPath: string): string {
   }
   return givenPath;
 }
+
+/**
+ * Creates types script smart contract callers with the given protobuf files.
+ *
+ * @param protoFiles - the array of proto files objects
+ * @param address - the address of the contract where the proto files are coming from (optional)
+ * @param outputDirectory - the output directory where to generates the callers
+ */
+export function generateTsCallers(
+  protoFiles: ProtoFile[],
+  outputDirectory: string,
+  address?: string | undefined,
+) {
+  for (const file of protoFiles) {
+    if(!file.protoPath) throw new Error('Error: protoPath is undefined.');
+    // generate the helper and the caller inside the same folder
+    generateTSCaller(outputDirectory, file, address);
+  }
+}
