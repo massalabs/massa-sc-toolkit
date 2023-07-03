@@ -228,7 +228,7 @@ export class BlockchainCaller {
 
   // Send the operation to the blockchain and retrieve its outputs
   return await callSC(
-    'Paste your contract address here',
+    '${contractAddress}',
     'sum',
     serializedArgs,
     coins,
