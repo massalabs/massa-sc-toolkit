@@ -1,7 +1,7 @@
 import { ProtoFile } from './protobuf';
 import { writeFileSync, existsSync } from 'fs';
 import { execSync } from 'child_process';
-import * as returnType from './protoTypes.json';
+import * as returnType from './tsProtoTypes.json';
 import { resolve, relative, join } from 'path';
 
 
