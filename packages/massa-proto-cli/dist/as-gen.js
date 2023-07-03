@@ -44,7 +44,7 @@ function convertTypeToAS(type) {
  * @returns the multiline import statements as a string
  */
 function generateAsImports(protoData) {
-    let responseTypeImports = "";
+    let responseTypeImports = '';
     if (protoData.resType !== null) {
         responseTypeImports = `import { decode${protoData.funcName}RHelper, ${protoData.funcName}RHelper };
     from './${protoData.funcName}RHelper';`;
@@ -67,16 +67,18 @@ function generateAsCall(protoData, address, outputDirectory) {
     let args = [];
     protoData.argFields.forEach(({ name, type }) => args.push(`${name}: ${convertTypeToAS(type)}`));
     // Generate function signature
-    const functionSignature = `export function ${protoData.funcName}(${args.length > 0 ? args.join(', ') + ', ' : ""} coins: number): ${protoData.resType !== null ? protoData.resType : 'void'}`;
+    const functionSignature = `export function ${protoData.funcName}(${args.length > 0 ? args.join(', ') + ', ' : ''} coins: number): ${protoData.resType !== null ? protoData.resType : 'void'}`;
     // Generate function body
-    const functionBody = `const result = call(
-    "${address}",
-    "${protoData.funcName}",
-    changetype<StaticArray<u8>>(encode${protoData.funcName}Helper(new ${protoData.funcName}Helper(${args.join(', ')}))),
-    coins);`;
-    let responseDecoding = "";
+    let functionBody = '';
+    functionBody += 'const result = call(\n';
+    functionBody += `  "${address}",\n`;
+    functionBody += `  "${protoData.funcName}",\n`;
+    functionBody += `  changetype<StaticArray<u8>>(encode${protoData.funcName}Helper(new ${protoData.funcName}Helper(${args.join(', ')}))),\n`;
+    functionBody += '  coins);';
+    let responseDecoding = '';
     if (protoData.resType !== null) {
-        responseDecoding = `const response = decode${protoData.funcName}RHelper(Uint8Array.wrap(changeType<ArrayBuffer>(result)));
+        const fName = protoData.funcName;
+        responseDecoding = `const response = decode${fName}RHelper(Uint8Array.wrap(changeType<ArrayBuffer>(result)));
 
   return response.value;`;
         // Compose the full function
@@ -111,7 +113,7 @@ function generateProtocAsHelper(protoData, outputDirectory) {
  * Creates assembly script sc callers with the given protobuf files.
  *
  * @param protoFiles - the array of proto files data
- * @param address - the address of the contract where the proto files are comming from
+ * @param address - the address of the contract where the proto files are coming from
  * @param outputDirectory - the output directory where to generates the callers
  */
 function generateAsCallers(protoFiles, address, outputDirectory) {

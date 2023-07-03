@@ -14,6 +14,7 @@ import {
   strToBytes,
   ON_MASSA_EVENT_DATA,
   ON_MASSA_EVENT_ERROR,
+  MASSA_PROTOFILE_KEY,
   EventPoller,
   IEventFilter,
   INodeStatus,
@@ -300,7 +301,7 @@ async function deploySC(
     }
     let protos: Uint8Array = serializeProto(contract.protoPaths);
     if (protos.length > 0) {
-      datastore.set(strToBytes('protoMassa'), protos);
+      datastore.set(strToBytes(MASSA_PROTOFILE_KEY), protos);
     }
   });
 

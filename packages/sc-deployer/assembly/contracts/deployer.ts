@@ -10,6 +10,7 @@ import { Args, stringToBytes } from '@massalabs/as-types';
 import { setOf } from '@massalabs/massa-as-sdk/assembly/std/storage';
 
 const CONSTRUCTOR = 'constructor';
+const PROTO_KEY = 'protoMassa';
 
 /**
  * This function deploys and calls the constructor function of the deployed smart contract.
@@ -22,7 +23,7 @@ const CONSTRUCTOR = 'constructor';
 export function main(_: StaticArray<u8>): StaticArray<u8> {
   let masterKey = new StaticArray<u8>(1);
   masterKey[0] = 0x00;
-  let protoKey = stringToBytes('protoMassa');
+  let protoKey = stringToBytes(PROTO_KEY);
   if (!hasOpKey(masterKey)) {
     return [];
   }
