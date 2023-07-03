@@ -1,2 +1,3 @@
 //this file contains code generation that breaks prettier
 packages/massa-proto-cli/src/ts-gen.ts
+packages/massa-proto-cli/src/as-gen.ts

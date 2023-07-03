@@ -3,13 +3,7 @@ import { MassaProtoFile } from '@massalabs/massa-web3/dist/esm/interfaces/MassaP
 import { generateAsCallers } from './as-gen';
 import { generateTsCallers } from './ts-gen';
 import { ProtoFile, getProtoFunction } from './protobuf';
-import {
-  Client,
-  ClientFactory,
-  IProvider,
-  ProviderType,
-  WalletClient,
-} from '@massalabs/massa-web3';
+import { SmartContractsClient } from '@massalabs/massa-web3';
 import { Command } from 'commander';
 
 import * as dotenv from 'dotenv';
@@ -42,12 +36,6 @@ if (!publicApi) {
   throw new Error('Missing JSON_RPC_URL_PUBLIC in .env file');
 }
 
-// Get the secret key for the wallet to be used for the deployment from the environment variables
-const secretKey = process.env.WALLET_SECRET_KEY;
-if (!secretKey) {
-  throw new Error('Missing WALLET_SECRET_KEY in .env file');
-}
-
 // Create an account using the private key
 
 /**
@@ -66,21 +54,13 @@ async function run() {
     program.help();
     return 1;
   }
-  const deployerAccount = await WalletClient.getAccountFromSecretKey(secretKey);
-  const client: Client = await ClientFactory.createCustomClient(
-    [
-      { url: publicApi, type: ProviderType.PUBLIC } as IProvider,
-      // This IP is false but we don't need private for this script so we don't want to ask one to the user
-      // but massa-web3 requires one
-      { url: publicApi, type: ProviderType.PRIVATE } as IProvider,
-    ],
-    true,
-    deployerAccount,
-  );
+
   // call sc client to fetch protos
-  const mpFiles: MassaProtoFile[] = await client
-    .smartContracts()
-    .getProtoFiles([address], out);
+  const mpFiles: MassaProtoFile[] = await SmartContractsClient.getProtoFiles(
+    [address],
+    out,
+    publicApi,
+  );
 
   // call proto parser with fetched files
   for (const mpfile of mpFiles) {
