@@ -229,7 +229,7 @@ export class BlockchainCaller {
   // Send the operation to the blockchain and retrieve its outputs
   return await callSC(
     '${contractAddress}',
-    'sum',
+    '${protoFile.funcName}',
     serializedArgs,
     coins,
   );
