@@ -30,6 +30,7 @@
     "dependencies": {
         "@massalabs/wallet-provider": "^0.0.1",
         "jest-environment-jsdom": "^29.5.0",
+        "path": "^0.12.7",
         "re": "^0.1.4",
         "regex": "^0.1.1"
     },
