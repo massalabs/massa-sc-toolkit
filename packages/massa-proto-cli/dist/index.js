@@ -25,6 +25,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const as_gen_1 = require("./as-gen");
+const ts_gen_1 = require("./ts-gen");
 const protobuf_1 = require("./protobuf");
 const massa_web3_1 = require("@massalabs/massa-web3");
 const commander_1 = require("commander");
@@ -82,6 +83,12 @@ async function run() {
     // call the generator
     if (mode === 'sc') {
         (0, as_gen_1.generateAsCallers)(files, address, out);
+    }
+    else if (mode === 'web3') {
+        (0, ts_gen_1.generateTsCallers)(files, out, address);
+    }
+    else {
+        throw new Error(`Unsupported mode: ${mode}`);
     }
 }
 run();

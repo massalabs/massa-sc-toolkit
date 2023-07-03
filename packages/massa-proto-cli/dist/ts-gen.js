@@ -23,10 +23,10 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateTSCaller = exports.compileProtoToTSHelper = void 0;
+exports.generateTsCallers = exports.generateTSCaller = exports.compileProtoToTSHelper = void 0;
 const fs_1 = require("fs");
 const child_process_1 = require("child_process");
-const returnType = __importStar(require("./protoTypes.json"));
+const returnType = __importStar(require("./tsProtoTypes.json"));
 const path_1 = require("path");
 /**
  * Compile proto file to TypeScript helper class.
@@ -247,4 +247,20 @@ function convertToAbsolutePath(givenPath) {
     }
     return givenPath;
 }
+/**
+ * Creates types script smart contract callers with the given protobuf files.
+ *
+ * @param protoFiles - the array of proto files objects
+ * @param address - the address of the contract where the proto files are coming from (optional)
+ * @param outputDirectory - the output directory where to generates the callers
+ */
+function generateTsCallers(protoFiles, outputDirectory, address) {
+    for (const file of protoFiles) {
+        if (!file.protoPath)
+            throw new Error('Error: protoPath is undefined.');
+        // generate the helper and the caller inside the same folder
+        generateTSCaller(outputDirectory, file, address);
+    }
+}
+exports.generateTsCallers = generateTsCallers;
 //# sourceMappingURL=ts-gen.js.map
