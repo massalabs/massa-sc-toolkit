@@ -68,4 +68,4 @@ import { Args } from '@massalabs/massa-web3';
 
 We welcome contributions from the community!
 
-If you would like to contribute to Massa-as-sdk, please read the [CONTRIBUTING](https://github.com/massalabs/massa-sc-toolkit/blob/main/packages/sc-deployer/CONTRIBUTING.md) file.
+If you would like to contribute to Massa-sc-deployer, please read the [CONTRIBUTING](https://github.com/massalabs/massa-sc-toolkit/blob/main/packages/sc-deployer/CONTRIBUTING.md) file.
