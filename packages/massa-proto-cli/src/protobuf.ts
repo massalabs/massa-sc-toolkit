@@ -57,7 +57,7 @@ export async function getProtoFunction(protoPath: string): Promise<ProtoFile> {
   // get the arguments of the Helper
   const argFields: FunctionArguments[] = Object.entries(helper.fields)
     .filter(([, value]) => value)
-    .map(([name, field]) => ({ name, type: field.type }));
+    .map(([name, field]) => ({ name, type: field['type'] }));
 
   const rHelper = protoJSON.nested[messageNames[1]] as IType;
   const rHelperKeys = Object.keys(rHelper.fields);
