@@ -87,7 +87,6 @@ exports.generateAsCall = generateAsCall;
  * @param outputDirectory - the directory where to generate such helpers.
  */
 function generateProtocAsHelper(protoData, outputDirectory) {
-    console.log('outputDirectory', outputDirectory);
     let protocProcess = (0, child_process_1.spawnSync)('protoc', [
         `--plugin=protoc-gen-as=./node_modules/.bin/as-proto-gen`,
         `--as_out=${outputDirectory}`,

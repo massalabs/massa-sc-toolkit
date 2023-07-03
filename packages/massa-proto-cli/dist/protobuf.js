@@ -25,7 +25,10 @@ async function getProtoFunction(protoPath) {
     // get the arguments of the Helper
     const argFields = Object.entries(helper.fields)
         .filter(([, value]) => value)
-        .map(([name, field]) => ({ name, type: field.type }));
+        .map(([name, field]) => ({
+        name,
+        type: field.type,
+    }));
     const rHelper = protoJSON.nested[messageNames[1]];
     const rHelperKeys = Object.keys(rHelper.fields);
     const resType = rHelperKeys.length === 1 ? rHelper.fields[rHelperKeys[0]].type : 'void';

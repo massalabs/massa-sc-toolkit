@@ -43,11 +43,6 @@ const publicApi = process.env.JSON_RPC_URL_PUBLIC;
 if (!publicApi) {
     throw new Error('Missing JSON_RPC_URL_PUBLIC in .env file');
 }
-// Get the secret key for the wallet to be used for the deployment from the environment variables
-const secretKey = process.env.WALLET_SECRET_KEY;
-if (!secretKey) {
-    throw new Error('Missing WALLET_SECRET_KEY in .env file');
-}
 // Create an account using the private key
 /**
  * Massa-Proto-Cli program entry point.
@@ -64,17 +59,8 @@ async function run() {
         program.help();
         return 1;
     }
-    const deployerAccount = await massa_web3_1.WalletClient.getAccountFromSecretKey(secretKey);
-    const client = await massa_web3_1.ClientFactory.createCustomClient([
-        { url: publicApi, type: massa_web3_1.ProviderType.PUBLIC },
-        // This IP is false but we don't need private for this script so we don't want to ask one to the user
-        // but massa-web3 requires one
-        { url: publicApi, type: massa_web3_1.ProviderType.PRIVATE },
-    ], true, deployerAccount);
     // call sc client to fetch protos
-    const mpFiles = await client
-        .smartContracts()
-        .getProtoFiles([address], out);
+    const mpFiles = await massa_web3_1.SmartContractsClient.getProtoFiles([address], out, publicApi);
     // call proto parser with fetched files
     for (const mpfile of mpFiles) {
         let protoFile = await (0, protobuf_1.getProtoFunction)(mpfile.filePath);
