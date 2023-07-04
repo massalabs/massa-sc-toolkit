@@ -15,13 +15,18 @@ To update the nightly version: `npm update @massalabs/massa-proto-cli`.
 
 
 ### Use the CLI
-In your node project, you can run the following commands:
+First, create a `.env` file in your node project which contains the following variables:
+```env
+JSON_RPC_URL_PUBLIC="your_node_url"
+```
+
+Then, you can run the following command:	
  `npx massa-proto --help`
  or
  `npx massa-proto --addr="the contract address" --gen="mode" --out="outputDirectory"`
 
 - `--addr` must be followed by a contract address for which you want to generate your callers.
-- `--gen` must be followed by the desired generation mode: sc or web3. (`sc` for contract to contract caller and `web3` for typeScript to contract generation)
+- `--gen` must be followed by the desired generation mode: `sc` or `web3`. (`sc` for contract to contract caller and `web3` for typeScript to contract generation)
 - `--out` must be followed by the path to the folder in which the callers will be generated
 
 
