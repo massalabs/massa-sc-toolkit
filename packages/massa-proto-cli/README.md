@@ -20,14 +20,14 @@ In your node project, you can run the following commands:
  or
  `npx massa-proto --addr=['your array of addresses'] --gen="mode" --out="outputDirectory"`
 
-- `--addr` must be followed by an array of contract addresses for which you want to generate your callers.
-- `--gen` must be followed by the desired generation mode: sc or web3. (sc for assembly script and web3 for typeScript generation)
+- `--addr` must be followed by a contract address for which you want to generate your callers.
+- `--gen` must be followed by the desired generation mode: sc or web3. (`sc` for contract to contract caller and `web3` for typeScript to contract generation)
 - `--out` must be followed by the path to the folder in which the callers will be generated
 
 
 ### What you need to know
 1. Two files are generated for each function: `[functionName]Helper.ts` and `[functionName]Caller.ts`. You only need to use the Caller. ( The Helper's job is to serialize and deserialize the arguments and it is used by the Caller)
-2. If you are generating Type Script ('web3' mode), you will need to define a callSC method using massa-web3 or wallet-provider depending on what you are using in your project ( It is explaned in the documentation of the generated caller )
+2. If you are generating Type Script to contract callers (`web3` mode), you will need to define a callSC method using massa-web3 or wallet-provider depending on what you are using in your project ( It is explained in the documentation of the generated caller )
 3. A generic documentation is generated for the caller. You can complete it by describing the purpose of the arguments you are using
 
 ### Use the generated callers
@@ -43,7 +43,7 @@ message sumRHelper {
   int64 value = 1;
 }
 ```
-
+#### Type Script to contract caller
 A Smart-Contract caller function for 'sum' looks like:  
 ```typescript
 /**
@@ -78,8 +78,14 @@ You can use the caller like this:
 ```typescript
 import { sum } from "./sumCaller.ts"
 
-// here we suppose that you have already setup your callSC method in the caller using massa-web3 or the wallet-provider
+// Here we suppose that you have already setup your callSC method in the caller using massa-web3 or the wallet-provider
 console.log("a + b = ", sum(a, b));
+```
+
+#### Smart Contract to contract caller
+A Smart-Contract caller function for 'sum' looks like:  
+```typescript
+
 ```
 
 ## Contribute
