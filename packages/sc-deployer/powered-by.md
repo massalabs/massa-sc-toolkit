@@ -21,7 +21,7 @@ The following is a list of all the dependencies of this project:
 
 **License:** (MIT AND Apache-2.0) - perpetual
 
-**Used version:** 1.19.2-dev.20230704083307
+**Used version:** 1.19.2-dev.20230704134830
 
 **Many thanks to:** [Massa Labs](info@massa.net)
 
