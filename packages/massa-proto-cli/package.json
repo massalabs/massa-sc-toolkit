@@ -9,7 +9,7 @@
   "dependencies": {
     "@massalabs/as-types": "^1.0.0",
     "@massalabs/massa-as-sdk": "^2.1.0",
-    "@massalabs/massa-web3": "^1.19.2-dev.20230704083307",
+    "@massalabs/massa-web3": "^1.19.2-dev.20230704134830",
     "@protobuf-ts/plugin": "^2.9.0",
     "@protobuf-ts/protoc": "^2.9.0",
     "@types/node": "^18.6.0",
