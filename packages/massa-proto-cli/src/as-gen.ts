@@ -39,7 +39,7 @@ import { decode${protoData.funcName}RHelper } from './${protoData.funcName}RHelp
     responseDecoding = `
 
   // Convert the result to the expected response type
-  const response = decode${protoData.funcName}RHelper(Uint8Array.wrap(changeType<ArrayBuffer>(result)));
+  const response = decode${protoData.funcName}RHelper(Uint8Array.wrap(changetype<ArrayBuffer>(result)));
 
   return response.value;`;
   };
@@ -48,15 +48,18 @@ import { decode${protoData.funcName}RHelper } from './${protoData.funcName}RHelp
   // eslint-disable-next-line max-len
   const content =`import { encode${protoData.funcName}Helper, ${protoData.funcName}Helper } from './${protoData.funcName}Helper';${responseTypeImports}
 import { call, Address } from "@massalabs/massa-as-sdk";
+import { Args } from '@massalabs/as-types';
 
 export function ${protoData.funcName}(${
   args.length > 0 ? args.join(', ') + ', ' : ''
-} coins: number): ${protoData.resType !== null ? asProtoTypes[protoData.resType] : 'void'} {
+} coins: u64): ${protoData.resType !== null ? asProtoTypes[protoData.resType] : 'void'} {
 
   const result = call(
     new Address("${address}"),
     "${protoData.funcName}",
-    changetype<StaticArray<u8>>(encode${protoData.funcName}Helper(new ${protoData.funcName}Helper(${args.join(', ')}))),
+    new Args(changetype<StaticArray<u8>>(encode${protoData.funcName}Helper(new ${protoData.funcName}Helper(
+      ${protoData.argFields.map(({name, type}) => name).join(',\n')}
+    )))),
     coins
   );${responseDecoding}
 }
