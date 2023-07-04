@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "A cli for easy work with smart contract proto files",
   "main": "dist/index.js",
-  "author": "0xSwapFeeder",
+  "author": "0xSwapFeeder & Elli610",
   "license": "MIT",
   "type": "commonjs",
   "dependencies": {
