@@ -18,7 +18,7 @@ To update the nightly version: `npm update @massalabs/massa-proto-cli`.
 In your node project, you can run the following commands:
  `npx massa-proto --help`
  or
- `npx massa-proto --addr=['your array of addresses'] --gen="mode" --out="outputDirectory"`
+ `npx massa-proto --addr="the contract address" --gen="mode" --out="outputDirectory"`
 
 - `--addr` must be followed by a contract address for which you want to generate your callers.
 - `--gen` must be followed by the desired generation mode: sc or web3. (`sc` for contract to contract caller and `web3` for typeScript to contract generation)
