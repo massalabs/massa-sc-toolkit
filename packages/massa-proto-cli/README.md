@@ -7,15 +7,14 @@ The generated functions can be used in your smart contracts as well as in your p
 ## Usage
 
 ### Install
-To get the stable version: `npm i @massalabs/massa-proto-cli`.
+To get the stable version: `npm i @massalabs/massa-proto-cli @massalabs/massa-web3@1.19.2-dev.20230704134830`.
 
-To get the nightly version: `npm i @massalabs/massa-proto-cli`.
+To get the nightly version: `npm i @massalabs/massa-proto-cli @massalabs/massa-web3@1.19.2-dev.20230704134830`.
 
 To update the nightly version: `npm update @massalabs/massa-proto-cli`.
 
-Install also: `npm i as-proto as-proto-gen @massalabs/massa-as-sdk @massalabs/as-types @massalabs/as-transformer` for AS smart contract caller generation.
-Or install: `npm i @protobuf-ts/plugin @massalabs/massa-web3` for TS web3 caller generation.
-
+Install: `npm i as-proto as-proto-gen @massalabs/massa-as-sdk @massalabs/as-types @massalabs/as-transformer` for AS smart contract caller generation.
+Install: `npm i @protobuf-ts/plugin` for TS web3 caller generation.
 
 ### Use the CLI
 First, create a `.env` file in your node project which contains the following variables:
@@ -32,7 +31,7 @@ or your own node.
 Then, you can run the following command:	
  `npx massa-proto --help`
  or
- `npx massa-proto --addr="the contract address" --gen="mode" --out="outputDirectory"`
+ `npx massa-proto --addr=the_contract_address --gen=mode --out=outputDirectory`
 
 - `--addr` must be followed by a contract address for which you want to generate your callers.
 - `--gen` must be followed by the desired generation mode: `sc` or `web3`. (`sc` for contract to contract caller and `web3` for typeScript to contract generation)
