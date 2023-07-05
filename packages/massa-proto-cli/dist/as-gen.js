@@ -72,7 +72,9 @@ export function ${protoData.funcName}(${args.length > 0 ? args.join(', ') + ', '
   const result = call(
     new Address("${address}"),
     "${protoData.funcName}",
-    new Args(changetype<StaticArray<u8>>(encode${protoData.funcName}Helper(new ${protoData.funcName}Helper(${protoData.argFields.map(({ name, type }) => name).join(', ')})))),
+    new Args(changetype<StaticArray<u8>>(encode${protoData.funcName}Helper(new ${protoData.funcName}Helper(
+      ${protoData.argFields.map(({ name, type }) => name).join(',\n')}
+    )))),
     coins
   );${responseDecoding}
 }

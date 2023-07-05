@@ -32,20 +32,16 @@ const path_1 = require("path");
  * Compile proto file to TypeScript helper class.
  *
  * @remarks
- * - The ts helper file is generated in the folder 'proto_build' at the same location as your current terminal.
+ * - The ts helper file is generated in the folder 'helpers' at the same location as your current terminal.
  * - If the @see protoFilePath is the relative path, it should be based on the location of your terminal
  *
  * @param protoFilePath - The path to the proto file.
  */
 function compileProtoToTSHelper(protoFilePath) {
-    // check if the 'proto_build' folder exists. If not, create it.
-    if (!(0, fs_1.existsSync)('proto_build')) {
-        (0, child_process_1.execSync)('mkdir proto_build');
-    }
     // Compile the proto file to a ts file
     // If 'protoFilePath' is absolute, then 'npx protoc' will not work. We need to convert it to relative path
     try {
-        (0, child_process_1.execSync)(`npx protoc --ts_out="./proto_build" "${convertToRelativePath(protoFilePath)}"`);
+        (0, child_process_1.execSync)(`npx protoc --ts_out="./helpers" --proto_path helpers "${convertToRelativePath(protoFilePath)}"`);
     }
     catch (e) {
         throw new Error('Error while compiling the proto file: ' + e +
@@ -153,14 +149,14 @@ function generateTSCaller(outputPath, protoFile, contractAddress) {
         newLocation += protoFile.funcName + 'Helper.ts';
     }
     const helperPath = protoFile.protoPath.replace('.proto', '.ts');
-    // join "./proto_build/" and helperPath
-    const startPath = (0, path_1.join)('proto_build/', helperPath);
+    // join "./helpers/" and helperPath
+    const startPath = (0, path_1.join)(helperPath);
     // check the os to use the correct command
     if (process.platform === 'win32') {
-        (0, child_process_1.execSync)(`move "${startPath}" "${newLocation}"`);
+        (0, child_process_1.execSync)(`move "${helperPath}" "${newLocation}"`);
     }
     else {
-        (0, child_process_1.execSync)(`mv "${startPath}" "${newLocation}"`);
+        (0, child_process_1.execSync)(`mv "${helperPath}" "${newLocation}"`);
     }
     // generate the arguments
     const args = setupArguments(protoFile);
@@ -241,13 +237,6 @@ export class BlockchainCaller {
     }
     (0, fs_1.writeFileSync)(`${outputPath}${fileName}`, content, 'utf8');
     console.log(`Caller file: ${fileName} generated at: ${outputPath}`);
-    // delete the proto_build folder and its content if it exists
-    if ((0, fs_1.existsSync)('proto_build') && process.platform === 'win32') {
-        (0, child_process_1.execSync)('rmdir /s /q proto_build');
-    }
-    else if ((0, fs_1.existsSync)('proto_build')) {
-        (0, child_process_1.execSync)('rm -r proto_build');
-    }
 }
 exports.generateTSCaller = generateTSCaller;
 /**

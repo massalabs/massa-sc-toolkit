@@ -9,7 +9,7 @@ import { resolve, relative, join } from 'path';
  * Compile proto file to TypeScript helper class.
  *
  * @remarks
- * - The ts helper file is generated in the folder 'proto_build' at the same location as your current terminal.
+ * - The ts helper file is generated in the folder 'helpers' at the same location as your current terminal.
  * - If the @see protoFilePath is the relative path, it should be based on the location of your terminal
  * 
  * @param protoFilePath - The path to the proto file.
@@ -18,15 +18,10 @@ export function compileProtoToTSHelper(
   protoFilePath: string,
 ): void {
 
-  // check if the 'proto_build' folder exists. If not, create it.
-  if (!existsSync('proto_build')) {
-    execSync('mkdir proto_build');
-  }
-
   // Compile the proto file to a ts file
   // If 'protoFilePath' is absolute, then 'npx protoc' will not work. We need to convert it to relative path
   try{
-    execSync(`npx protoc --ts_out="./proto_build" "${convertToRelativePath(protoFilePath)}"`);
+    execSync(`npx protoc --ts_out="./helpers" --proto_path helpers "${convertToRelativePath(protoFilePath)}"`);
   } catch (e) {
     throw new Error(
       'Error while compiling the proto file: ' + e +
@@ -150,14 +145,14 @@ export function generateTSCaller(
 
 
   const helperPath = protoFile.protoPath.replace('.proto', '.ts');
-  // join "./proto_build/" and helperPath
-  const startPath = join('proto_build/', helperPath);
+  // join "./helpers/" and helperPath
+  const startPath = join(helperPath);
 
   // check the os to use the correct command
   if (process.platform === 'win32') {
-    execSync(`move "${startPath}" "${newLocation}"`);
+    execSync(`move "${helperPath}" "${newLocation}"`);
   } else {
-    execSync(`mv "${startPath}" "${newLocation}"`);
+    execSync(`mv "${helperPath}" "${newLocation}"`);
   }
 
   // generate the arguments
@@ -244,14 +239,6 @@ export class BlockchainCaller {
   }
   writeFileSync(`${outputPath}${fileName}`, content, 'utf8');
   console.log(`Caller file: ${fileName} generated at: ${outputPath}`);
-
-  // delete the proto_build folder and its content if it exists
-  if (existsSync('proto_build') && process.platform === 'win32') {
-    execSync('rmdir /s /q proto_build');
-  }
-  else if (existsSync('proto_build')) { 
-    execSync('rm -r proto_build');
-  }
 }
 
 
