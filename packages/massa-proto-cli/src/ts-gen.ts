@@ -148,7 +148,7 @@ export function generateTSCaller(
   // join "./helpers/" and helperPath
   const startPath = join(helperPath);
 
-  // check the os to use the correct command
+  // check the os to use the correct command to rename the helper file
   if (process.platform === 'win32') {
     execSync(`move "${helperPath}" "${newLocation}"`);
   } else {
@@ -217,7 +217,7 @@ export class BlockchainCaller {
  *
  * @returns {${protoFile.resType}} The result of the "${protoFile.funcName}" function.
  */
- export async function ${protoFile.funcName}(${args}): Promise<${returnType[protoFile.resType]}> {
+ export async function ${protoFile.funcName}(${args}): Promise<TransactionDetails> {
   ${checkUnsignedArgs}
 
   ${argsSerialization}
