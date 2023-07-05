@@ -13,12 +13,21 @@ To get the nightly version: `npm i @massalabs/massa-proto-cli`.
 
 To update the nightly version: `npm update @massalabs/massa-proto-cli`.
 
+Install also: `npm i as-proto as-proto-gen @massalabs/massa-as-sdk @massalabs/as-types @massalabs/as-transformer` for AS smart contract caller generation.
+Or install: `npm i @protobuf-ts/plugin @massalabs/massa-web3` for TS web3 caller generation.
+
 
 ### Use the CLI
 First, create a `.env` file in your node project which contains the following variables:
 ```env
-JSON_RPC_URL_PUBLIC="your_node_url"
+JSON_RPC_URL_PUBLIC=your_node_url
 ```
+You can use either the buildnet:
+`https://buildnet.massa.net/api/v2:33035`
+or the testnet:
+`https://testnet.massa.net/api/v2:33035`
+or your own node.
+
 
 Then, you can run the following command:	
  `npx massa-proto --help`
@@ -36,7 +45,7 @@ Then, you can run the following command:
 3. A generic documentation is generated for the caller. You can complete it by describing the purpose of the arguments you are using
 
 ### Use the generated callers
-We consider a smart contract function: `sum(a: I64, b: I64): I64`
+We consider a smart contract function: `sum(a: i64, b: i64): i64`
 Its corresponding protofile is:
 ```protobuf
 syntax = "proto3";
@@ -88,9 +97,37 @@ console.log("a + b = ", sum(a, b));
 ```
 
 #### Smart Contract to contract caller
+/!\ Make sure to set the --out argument to a directory inside "/assembly/contracts/"!
+/!\ In the package.json file, on the "build" script add the "-r" option after the compiler command!
+These are due to the fact that current smart contract compiler doesn't support local imports unless you build with "npx massa-as-compile -r" which allows
+mirroring of the directories in the build files.
+
 A Smart-Contract caller function for 'sum' looks like:  
 ```typescript
+export function sum(a: i64, b: i64,  coins: u64): u64 {
 
+  const result = call(
+    new Address("AS12r62avFS7NwXhSCLNjszUBUL7a5RMCmM9XicgdAd5bPRsP4fTF"),
+    "sum",
+    new Args(changetype<StaticArray<u8>>(encodeeventHelper(new eventHelper(
+      a, b
+    )))),
+    coins
+  );
+
+  // Convert the result to the expected response type
+  const response = decodeeventRHelper(Uint8Array.wrap(changetype<ArrayBuffer>(result)));
+
+  return response.value;
+}
+```
+
+You can use the caller like this:
+```typescript
+import { sum } from "./sumCaller.ts"
+
+// Here we suppose that you have already setup your callSC method in the caller using massa-web3 or the wallet-provider
+console.log("a + b = ", sum(a, b));
 ```
 
 ## Contribute
