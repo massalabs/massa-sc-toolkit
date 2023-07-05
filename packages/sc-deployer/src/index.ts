@@ -15,6 +15,7 @@ import {
   ON_MASSA_EVENT_DATA,
   ON_MASSA_EVENT_ERROR,
   MASSA_PROTOFILE_KEY,
+  PROTO_FILE_SEPARATOR,
   EventPoller,
   IEventFilter,
   INodeStatus,
@@ -187,12 +188,12 @@ const pollAsyncEvents = async (
 };
 
 function serializeProto(paths: string[]): Uint8Array {
-  let protos = '';
+  let protos: string[] = [];
   paths.forEach((proto) => {
-    protos += readFileSync(proto);
+    protos.push(readFileSync(proto).toString());
   });
 
-  return strToBytes(protos);
+  return strToBytes(protos.join(PROTO_FILE_SEPARATOR));
 }
 
 /**
