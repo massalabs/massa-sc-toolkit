@@ -17,9 +17,11 @@
     "child_process": "^1.0.2",
     "commander": "^11.0.0",
     "google-protobuf": "^3.21.2",
-    "protobufjs": "^7.2.4"
+    "protobufjs": "^7.2.4",
+    "ts-jest": "^29.1.1"
   },
   "devDependencies": {
+    "@types/jest": "^29.5.2",
     "typescript": "^4.4.4"
   },
   "files": [
@@ -30,7 +32,8 @@
     "prebuild": "rimraf dist",
     "build": "tsc && npm run chmod",
     "chmod": "chmod u+x ./dist/index.js",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "test": "jest"
   },
   "bin": {
     "massa-proto": "dist/index.js"

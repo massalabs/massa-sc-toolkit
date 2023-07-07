@@ -58,7 +58,7 @@ export function ${protoData.funcName}(${
     new Address("${address}"),
     "${protoData.funcName}",
     new Args(changetype<StaticArray<u8>>(encode${protoData.funcName}Helper(new ${protoData.funcName}Helper(
-      ${protoData.argFields.map(({name, type}) => name).join(',\n')}
+      ${protoData.argFields.map(({name, type}) => name).join(',\n\t\t')}
     )))),
     coins
   );${responseDecoding}
