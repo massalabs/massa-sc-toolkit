@@ -1,2 +1,5 @@
 build/
 dist/
+massa-proto-cli/funcCaller.ts
+massa-proto-cli/funcHelper.ts
+massa-proto-cli/funcRHelper.ts
