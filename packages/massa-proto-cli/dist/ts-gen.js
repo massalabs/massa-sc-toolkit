@@ -213,7 +213,7 @@ let callSC: (address: string, funcName: string, binArguments: Uint8Array, maxCoi
  * 
  ${documentationArgs.slice(1)}
  *
- * @returns {${returnType[protoFile.resType]}} The result of the "${protoFile.funcName}" function.
+ * @returns {IEvent[]} A promise that resolves to an array of events generated during the execution of ${protoFile.funcName}.
  */
  export async function ${protoFile.funcName}(${args}): Promise<IEvent[]> {
   ${checkUnsignedArgs}
@@ -228,7 +228,7 @@ let callSC: (address: string, funcName: string, binArguments: Uint8Array, maxCoi
         '${protoFile.funcName}',
         serializedArgs,
         coins,
-      )
+      ) as TransactionDetails
     )
   );
 }
@@ -305,7 +305,7 @@ const pollAsyncEvents = async (
 
   // set the events filter
   const eventsFilter = {
-    start: (nodeStatusInfo as INodeStatus).last_slot,
+    start: { period: nodeStatus.last_slot.period - 2, thread: nodeStatus.last_slot.thread } as ISlot, // last slot - 2 to avoid missing events
     end: null,
     original_caller_address: null,
     original_operation_id: opId,
