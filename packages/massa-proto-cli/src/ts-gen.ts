@@ -306,7 +306,7 @@ const pollAsyncEvents = async (
 
   // set the events filter
   const eventsFilter = {
-    start: (nodeStatusInfo as INodeStatus).last_slot,
+    start: { period: nodeStatus.last_slot.period - 2, thread: nodeStatus.last_slot.thread } as ISlot, // last slot - 2 to avoid missing events
     end: null,
     original_caller_address: null,
     original_operation_id: opId,
