@@ -214,7 +214,7 @@ let callSC: (address: string, funcName: string, binArguments: Uint8Array, maxCoi
  * 
  ${documentationArgs.slice(1)}
  *
- * @returns {${returnType[protoFile.resType]}} The result of the "${protoFile.funcName}" function.
+ * @returns {IEvent[]} A promise that resolves to an array of events generated during the execution of ${protoFile.funcName}.
  */
  export async function ${protoFile.funcName}(${args}): Promise<IEvent[]> {
   ${checkUnsignedArgs}
