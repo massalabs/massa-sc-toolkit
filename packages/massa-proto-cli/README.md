@@ -6,25 +6,36 @@ These generated functions can be seamlessly integrated within your smart contrac
 ## Getting Started
 
 ### Prerequisites
+<!-- You should add that people should be familirized with:
+
+- massa smart contract dev and deployment
+- Protobuf transformer -->
+To use Massa-Proto-CLI, you should be familiar with:
+- [Massa smart contract development and deployment](https://docs.massa.net/en/latest/web3-dev/smart-contracts.html)
+- [Protobuf transformer](https://protobuf.dev/)
+
 Ensure you have npm installed on your machine to run the necessary commands.
 
-For AssemblyScript (AS) smart contract caller generation, run:
+### Installation
+
+To install Massa-Proto-CLI, run:
+
+```bash
+npm i -g @massalabs/massa-proto-cli
+```
+Then: 
+
+- For AssemblyScript (AS) smart contract caller generation, run:
 
 ```bash
 npm i as-proto as-proto-gen @massalabs/massa-as-sdk @massalabs/as-types @massalabs/as-transformer
 ```
 
-For TypeScript (TS) web3 caller generation, run:
+- For TypeScript (TS) web3 caller generation, run:
 
 ```bash
 npm i @protobuf-ts/plugin
 ```
-
-
-### Installation
-TODO
-
-## Usage
 
 ### Setup
 Firstly, create a .env file in your node project with the following variables:
@@ -60,8 +71,18 @@ The generated callers for TypeScript and AssemblyScript offer a simple interface
 
 This is demonstrated through the example of a simple smart contract having only one function:
 
-```typescript
-sum(a: i64, b: i64): i64
+```protobuf
+syntax = "proto3";
+
+message sumHelper {
+  int64 a = 1;
+  int64 b = 2;
+}
+
+message sumRHelper {
+  int64 value = 1;
+}
+
 ```
 
 #### TypeScript
