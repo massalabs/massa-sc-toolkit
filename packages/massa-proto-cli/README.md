@@ -1,29 +1,28 @@
 # Massa-Proto-CLI
 
-Massa-Proto-CLI is a tool designed to generate callable functions for smart contract methods in TypeScript and AssemblyScript.
-These generated functions can be seamlessly integrated within your smart contracts from TypeScript or AssemblyScript projects.
+Massa-Proto-CLI is a powerful tool that automates the generation of callable functions for smart contract methods in TypeScript and AssemblyScript. These generated functions can be seamlessly integrated into your smart contracts from TypeScript or AssemblyScript projects, saving you time and effort.
 
 ## Getting Started
 
 ### Prerequisites
-<!-- You should add that people should be familirized with:
+Before using Massa-Proto-CLI, make sure you meet the following prerequisites:
 
-- massa smart contract dev and deployment
-- Protobuf transformer -->
-To use Massa-Proto-CLI, you should be familiar with:
-- [Massa smart contract development and deployment](https://docs.massa.net/en/latest/web3-dev/smart-contracts.html)
-- [Protobuf transformer](https://protobuf.dev/)
+- Familiarity with Massa smart contract development and deployment. You can refer to the [Massa smart contract documentation](https://docs.massa.net/en/latest/web3-dev/smart-contracts.html) for guidance.
 
-Ensure you have npm installed on your machine to run the necessary commands.
+- Understanding of the [Protobuf transformer](https://protobuf.dev/).
+
+
+Additionally, ensure that you have npm installed on your machine to run the necessary commands.
 
 ### Installation
 
-To install Massa-Proto-CLI, run:
+To install Massa-Proto-CLI, open your terminal and run the following command:
 
 ```bash
 npm i -g @massalabs/massa-proto-cli
 ```
-Then: 
+
+Depending on whether you're using AssemblyScript (AS) or TypeScript (TS) for smart contract caller generation, you'll need to install the corresponding dependencies:
 
 - For AssemblyScript (AS) smart contract caller generation, run:
 
@@ -38,38 +37,38 @@ npm i @protobuf-ts/plugin
 ```
 
 ### Setup
-Firstly, create a .env file in your node project with the following variables:
+After installation, create a .env file in your node project with the following variable:
 
 ```toml
 JSON_RPC_URL_PUBLIC=your_node_url
 ```
-You can use either of the following:
+
+You can use one of the following URLs:
 
 - Buildnet: `https://buildnet.massa.net/api/v2:33035`
 - Testnet: `https://testnet.massa.net/api/v2:33035`
-- Your own node
+- Your own custom node URL
 
 ### Running the CLI
-To see the list of available commands, use:
+To view the list of available commands, use the following command:
 
 ```bash
 npx massa-proto --help
 ```
 
-To generate callers, use:
+To generate callers, use the following command:
 
 ```bash
 npx massa-proto --addr=the_contract_address --gen=mode --out=outputDirectory
 ```
 
-- `--addr` should be followed by the contract address you wish to generate your callers for.
-- `--gen` should be followed by the generation mode: `sc` for contract-to-contract callers and `web3` for TypeScript to contract generation.
-- `--out` should be followed by the path to the directory in which the callers will be generated.
+- `--addr` should be followed by the contract address for which you want to generate callers.
+- `--gen` should be followed by the generation mode: sc for contract-to-contract callers and web3 for TypeScript to contract generation.
+- `--out` should be followed by the path to the directory where the callers will be generated.
 
 ### Utilizing Generated Callers
-The generated callers for TypeScript and AssemblyScript offer a simple interface for interacting with your smart contract methods.
-
-This is demonstrated through the example of a simple smart contract having only one function:
+The generated callers for TypeScript and AssemblyScript provide a simple interface for interacting with your smart contract methods. 
+Let's consider an example with a simple smart contract containing only one function:
 
 ```protobuf
 syntax = "proto3";
@@ -86,7 +85,7 @@ message sumRHelper {
 ```
 
 #### TypeScript
-To use the generated caller, import the function and call it as shown below:
+To use the generated caller in TypeScript, import the function and call it as shown below:
 
 ```typescript
 import { sum } from "./sumCaller.ts"
@@ -97,7 +96,7 @@ console.log("a + b = ", await sum(a, b, coins));
 
 #### AssemblyScript
 
-To use the generated caller, import the function and call it as shown below:
+To use the generated caller in AssemblyScript, import the function and call it as shown below:
 
 ```assemblyscript
 import { sum } from "./sumCaller.ts"
@@ -108,9 +107,5 @@ export function main(_: StaticArray<u8>): void {
 }
 ```
 
-Note:
-- Make sure to set the --out argument to a directory inside `/assembly/contracts/`
-- In the package.json file, add the "-r" option after the compiler command for the "build" script 
-
 ## Contributing
-Contributions are always welcome! If you would like to contribute to Massa-Proto-cli, please read our [Contributing Guidelines](https://github.com/massalabs/massa-sc-toolkit/blob/main/CONTRIBUTING.md).
+Contributions to Massa-Proto-CLI are always welcome! If you would like to contribute, please read our [Contributing Guidelines](https://github.com/massalabs/massa-sc-toolkit/blob/main/CONTRIBUTING.md)for more information.
