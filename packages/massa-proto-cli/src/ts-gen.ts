@@ -225,7 +225,7 @@ export interface OperationOutputs {
 }
 
 const MASSA_EXEC_ERROR = 'massa_execution_error';
-const OUTPUTS_PREFIX = 'Result:';
+const OUTPUTS_PREFIX = 'Result: ';
 
 /** The following global variable and the next class should be in a dedicated file. */
 let callSC: (address: string, funcName: string, binArguments: Uint8Array, maxCoin: bigint) => Promise<TransactionDetails>;
