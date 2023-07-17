@@ -121,7 +121,7 @@ function generateDocArgs(protoFile: ProtoFile): string {
 export function generateTSCaller(
   outputPath: string,
   protoFile: ProtoFile,
-  providerUrl: string = 'https://test.massa.net/api/v2',
+  providerUrl: string,
   contractAddress?: string,
 ): void {
   // generate the helper file using protoc. Throws an error if the command fails.
@@ -510,7 +510,7 @@ function convertToAbsolutePath(givenPath: string): string {
 export function generateTsCallers(
   protoFiles: ProtoFile[],
   outputDirectory: string,
-  providerUrl: string = 'https://test.massa.net/api/v2',
+  providerUrl: string,
   address?: string | undefined,
 ) {
   for (const file of protoFiles) {
