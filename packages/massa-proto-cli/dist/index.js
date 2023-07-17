@@ -71,7 +71,7 @@ async function run() {
         (0, as_gen_1.generateAsCallers)(files, address, out);
     }
     else if (mode === 'web3') {
-        (0, ts_gen_1.generateTsCallers)(files, out, address);
+        (0, ts_gen_1.generateTsCallers)(files, out, publicApi, address);
     }
     else {
         throw new Error(`Unsupported mode: ${mode}`);

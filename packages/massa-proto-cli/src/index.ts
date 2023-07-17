@@ -79,7 +79,7 @@ async function run() {
   if (mode === 'sc') {
     generateAsCallers(files, address, out);
   } else if (mode === 'web3') {
-    generateTsCallers(files, out, address);
+    generateTsCallers(files, out, publicApi, address);
   } else {
     throw new Error(`Unsupported mode: ${mode}`);
   }

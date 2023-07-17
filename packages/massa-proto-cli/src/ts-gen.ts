@@ -1,5 +1,5 @@
 import { ProtoFile } from './protobuf';
-import { writeFileSync, existsSync } from 'fs';
+import { writeFileSync } from 'fs';
 import { execSync } from 'child_process';
 import * as returnType from './tsProtoTypes.json';
 import { resolve, relative, join } from 'path';
@@ -121,6 +121,7 @@ function generateDocArgs(protoFile: ProtoFile): string {
 export function generateTSCaller(
   outputPath: string,
   protoFile: ProtoFile,
+  providerUrl: string = 'https://test.massa.net/api/v2',
   contractAddress?: string,
 ): void {
   // generate the helper file using protoc. Throws an error if the command fails.
@@ -150,9 +151,9 @@ export function generateTSCaller(
 
   // check the os to use the correct command to rename the helper file
   if (process.platform === 'win32') {
-    execSync(`move "${helperPath}" "${newLocation}"`);
+    execSync(`move "${startPath}" "${newLocation}"`);
   } else {
-    execSync(`mv "${helperPath}" "${newLocation}"`);
+    execSync(`mv "${startPath}" "${newLocation}"`);
   }
 
   // generate the arguments
@@ -186,18 +187,45 @@ import {
   time, 
 } from "@massalabs/massa-web3";
 
+/**
+ * This interface represents the details of the transaction.
+ * 
+ * @see operationId - The operationId of the Smart Contract call
+ */
 export interface TransactionDetails {
   operationId: string;
 }
 
-export interface IEventPollerResult {
+/**
+ * This interface represents the result of the event poller.
+ * 
+ * @see isError - A boolean indicating wether the Smart Contract call has failed or not
+ * @see eventPoller - The eventPoller object
+ * @see events - The events emitted by the Smart Contract call
+ */
+export interface EventPollerResult {
   isError: boolean;
   eventPoller: EventPoller;
   events: IEvent[];
 }
 
-const MASSA_EXEC_ERROR = 'massa_execution_error';
+/**
+ * This interface is used to represents the outputs of the SC call.
+ * 
+ * @see outputs - The outputs of the SC call (optional)
+ * @see events - The events emitted by the SC call (optional)
+ * @see isError - A boolean indicating wether the SC call has failed or not
+ * @see error - The error message (optional)
+ */
+export interface OperationOutputs {
+  outputs?: any;
+  events?: IEvent[];
+  isError: boolean;
+  error?: any;
+}
 
+const MASSA_EXEC_ERROR = 'massa_execution_error';
+const OUTPUTS_PREFIX = 'Result:';
 
 /** The following global variable and the next class should be in a dedicated file. */
 let callSC: (address: string, funcName: string, binArguments: Uint8Array, maxCoin: bigint) => Promise<TransactionDetails>;
@@ -214,24 +242,109 @@ let callSC: (address: string, funcName: string, binArguments: Uint8Array, maxCoi
  * 
  ${documentationArgs.slice(1)}
  *
- * @returns {IEvent[]} A promise that resolves to an array of events generated during the execution of ${protoFile.funcName}.
+ * @returns {Promise<OperationOutputs>} A promise that resolves to an object which contains the outputs and events from the call to ${protoFile.funcName}.
  */
- export async function ${protoFile.funcName}(${args}): Promise<IEvent[]> {
+ export async function ${protoFile.funcName}(${args}): Promise<OperationOutputs> {
   ${checkUnsignedArgs}
 
   ${argsSerialization}
 
   // Send the operation to the blockchain and retrieve its outputs
   return (
-    await getEvents(
+    await extractOutputsAndEvents(
+      '${contractAddress}',
+      '${protoFile.funcName}',
+      serializedArgs,
+      coins,
+      '${returnType[protoFile.resType]}',
+    )
+  );
+}
+
+async function extractOutputsAndEvents(
+  contractAddress: string, 
+  functionName: string, 
+  args: Uint8Array, 
+  coins: bigint, 
+  returnType: string
+  ): Promise<OperationOutputs> {
+
+  let events: IEvent[] = [];
+
+  // try to call the Smart Contract
+  try{
+    events = await getEvents(
       await callSC(
-        '${contractAddress}',
-        '${protoFile.funcName}',
-        serializedArgs,
+        contractAddress,
+        functionName,
+        args,
         coins,
       ) as TransactionDetails
     )
-  );
+  }
+  catch (err) { // if the call fails, return the error
+    return {
+      events: events,
+      isError: true,
+      error: err,
+    } as OperationOutputs;
+  }
+
+  // if the call is successful, retrieve the outputs from the events
+  let rawOutput: string | null = null;
+  for (let event of events) {
+    if (event.data.slice(0, OUTPUTS_PREFIX.length) == OUTPUTS_PREFIX) {
+      rawOutput = event.data.slice(OUTPUTS_PREFIX.length);
+      // remove the event from the list
+      events.splice(events.indexOf(event), 1);
+      break;
+    }
+  }
+
+  // check the output and return the result
+  if (rawOutput === null && returnType !== 'void') {
+    return {
+      events: events,
+      isError: true,
+      error: 'No outputs found. Expected type: ' + returnType,
+    } as OperationOutputs;
+  }
+  else if(rawOutput === null && returnType === 'void') {
+    return {
+      events: events,
+      isError: false,
+    } as OperationOutputs;
+  }
+  else if(rawOutput !== null && returnType !== 'void') {
+    // try to deserialize the outputs
+    let output: Uint8Array = new Uint8Array(0);
+    let deserializedOutput = null; 
+    try{
+      output = rawOutput.slice(1,-1).split(',').map(
+        (s) => parseInt(s)
+      ) as unknown as Uint8Array;
+      deserializedOutput = eventHelper.fromBinary(output);
+    }
+    catch (err) {
+      return {
+        events: events,
+        isError: true,
+        error: 'Error while deserializing the outputs: ' + err,
+      } as OperationOutputs;
+    }
+    return {
+      outputs: output,
+      events: events,
+      isError: false,
+    } as OperationOutputs;
+  }
+  else{
+    return {
+      events: events,
+      isError: true,
+      error: 'Unexpected error',
+    } as OperationOutputs;
+  } 
 }
 
 /**
@@ -240,18 +353,18 @@ let callSC: (address: string, funcName: string, binArguments: Uint8Array, maxCoi
  * 
  * @param {TransactionDetails} txDetails - An object containing the operationId of SC call.
  * 
- * @returns {Promise<IEventPollerResult>} An object containing the eventPoller and the events.
+ * @returns {Promise<EventPollerResult>} An object containing the eventPoller and the events.
  */
 async function getEvents(txDetails: TransactionDetails): Promise<IEvent[]>{
   const opId = txDetails.operationId;
 
   // setup the providers
   const providerPub: IProvider = {
-    url: 'https://buildnet.massa.net/api/v2',
+    url: '${providerUrl}',
     type: ProviderType.PUBLIC,
   };
   const providerPriv: IProvider = {
-    url: 'https://buildnet.massa.net/api/v2',
+    url: '${providerUrl}',
     type: ProviderType.PRIVATE,
   }; // we don't need it here but a private provider is required by the BaseClient object
 
@@ -264,8 +377,8 @@ async function getEvents(txDetails: TransactionDetails): Promise<IEvent[]>{
   const client = new Client(clientConfig);
 
   // async poll events in the background for the given opId
-  const { isError, eventPoller, events }: IEventPollerResult =
-    await time.withTimeoutRejection<IEventPollerResult>(
+  const { isError, eventPoller, events }: EventPollerResult =
+    await time.withTimeoutRejection<EventPollerResult>(
       pollAsyncEvents(client, opId),
       20000,
     );
@@ -276,7 +389,7 @@ async function getEvents(txDetails: TransactionDetails): Promise<IEvent[]>{
   // if errors, don't await finalization
   if (isError) {
     throw new Error(
-      'Massa Deployment Error: ' + JSON.stringify(events, null, 4),
+      'Massa Operation Error: ' + JSON.stringify(events, null, 4),
     );
   }
 
@@ -291,13 +404,14 @@ async function getEvents(txDetails: TransactionDetails): Promise<IEvent[]>{
  *
  * @throws in case of a timeout or massa execution error
  *
- * @returns A promise that resolves to an 'IEventPollerResult' which contains the results or an error
+ * @returns A promise that resolves to an 'EventPollerResult' which contains the results or an error
  *
  */
 const pollAsyncEvents = async (
   web3Client: Client,
   opId: string,
-): Promise<IEventPollerResult> => {
+): Promise<EventPollerResult> => {
+  console.log('Operation Id: ', opId);
   console.log('Polling for events...');
   // determine the last slot
   let nodeStatusInfo: INodeStatus | null | undefined = await web3Client
@@ -330,7 +444,7 @@ const pollAsyncEvents = async (
           isError: true,
           eventPoller,
           events: errorEvents,
-        } as IEventPollerResult);
+        } as EventPollerResult);
       }
 
       if (events.length > 0) {
@@ -338,7 +452,7 @@ const pollAsyncEvents = async (
           isError: false,
           eventPoller,
           events,
-        } as IEventPollerResult);
+        } as EventPollerResult);
       } else {
         console.log('No events have been emitted');
       }
@@ -396,11 +510,12 @@ function convertToAbsolutePath(givenPath: string): string {
 export function generateTsCallers(
   protoFiles: ProtoFile[],
   outputDirectory: string,
+  providerUrl: string = 'https://test.massa.net/api/v2',
   address?: string | undefined,
 ) {
   for (const file of protoFiles) {
     if(!file.protoPath) throw new Error('Error: protoPath is undefined.');
     // generate the helper and the caller inside the same folder
-    generateTSCaller(outputDirectory, file, address);
+    generateTSCaller(outputDirectory, file, providerUrl, address);
   }
 }
