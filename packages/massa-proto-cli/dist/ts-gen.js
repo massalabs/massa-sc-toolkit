@@ -128,7 +128,7 @@ function generateDocArgs(protoFile) {
  * @param protoFile - The protoFile object used to generate the caller
  * @param contractAddress - The address of the Smart Contract to interact with (optional)
  */
-function generateTSCaller(outputPath, protoFile, providerUrl = 'https://test.massa.net/api/v2', contractAddress) {
+function generateTSCaller(outputPath, protoFile, providerUrl, contractAddress) {
     // generate the helper file using protoc. Throws an error if the command fails.
     // protoPath is mandatory to generate the helper file
     if (!protoFile.protoPath)
@@ -212,18 +212,16 @@ export interface EventPollerResult {
  * 
  * @see outputs - The outputs of the SC call (optional)
  * @see events - The events emitted by the SC call (optional)
- * @see isError - A boolean indicating wether the SC call has failed or not
  * @see error - The error message (optional)
  */
 export interface OperationOutputs {
   outputs?: any;
-  events?: IEvent[];
-  isError: boolean;
-  error?: any;
+  events: IEvent[];
+  error: any;
 }
 
 const MASSA_EXEC_ERROR = 'massa_execution_error';
-const OUTPUTS_PREFIX = 'Result:';
+const OUTPUTS_PREFIX = 'Result: ';
 
 /** The following global variable and the next class should be in a dedicated file. */
 let callSC: (address: string, funcName: string, binArguments: Uint8Array, maxCoin: bigint) => Promise<TransactionDetails>;
@@ -283,7 +281,6 @@ async function extractOutputsAndEvents(
   catch (err) { // if the call fails, return the error
     return {
       events: events,
-      isError: true,
       error: err,
     } as OperationOutputs;
   }
@@ -303,17 +300,15 @@ async function extractOutputsAndEvents(
   if (rawOutput === null && returnType !== 'void') {
     return {
       events: events,
-      isError: true,
       error: 'No outputs found. Expected type: ' + returnType,
     } as OperationOutputs;
   }
-  else if(rawOutput === null && returnType === 'void') {
+  if(rawOutput === null && returnType === 'void') {
     return {
       events: events,
-      isError: false,
     } as OperationOutputs;
   }
-  else if(rawOutput !== null && returnType !== 'void') {
+  if(rawOutput !== null && returnType !== 'void') {
     // try to deserialize the outputs
     let output: Uint8Array = new Uint8Array(0);
     let deserializedOutput = null; 
@@ -326,23 +321,18 @@ async function extractOutputsAndEvents(
     catch (err) {
       return {
         events: events,
-        isError: true,
         error: 'Error while deserializing the outputs: ' + err,
       } as OperationOutputs;
     }
     return {
       outputs: output,
       events: events,
-      isError: false,
     } as OperationOutputs;
   }
-  else{
-    return {
-      events: events,
-      isError: true,
-      error: 'Unexpected error',
-    } as OperationOutputs;
-  } 
+  return {
+    events: events,
+    error: 'Unexpected error',
+  } as OperationOutputs; 
 }
 
 /**
@@ -501,7 +491,7 @@ function convertToAbsolutePath(givenPath) {
  * @param address - the address of the contract where the proto files are coming from (optional)
  * @param outputDirectory - the output directory where to generates the callers
  */
-function generateTsCallers(protoFiles, outputDirectory, providerUrl = 'https://test.massa.net/api/v2', address) {
+function generateTsCallers(protoFiles, outputDirectory, providerUrl, address) {
     for (const file of protoFiles) {
         if (!file.protoPath)
             throw new Error('Error: protoPath is undefined.');

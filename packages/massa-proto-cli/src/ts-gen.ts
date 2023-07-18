@@ -214,14 +214,12 @@ export interface EventPollerResult {
  * 
  * @see outputs - The outputs of the SC call (optional)
  * @see events - The events emitted by the SC call (optional)
- * @see isError - A boolean indicating wether the SC call has failed or not
  * @see error - The error message (optional)
  */
 export interface OperationOutputs {
   outputs?: any;
-  events?: IEvent[];
-  isError: boolean;
-  error?: any;
+  events: IEvent[];
+  error: any;
 }
 
 const MASSA_EXEC_ERROR = 'massa_execution_error';
@@ -285,7 +283,6 @@ async function extractOutputsAndEvents(
   catch (err) { // if the call fails, return the error
     return {
       events: events,
-      isError: true,
       error: err,
     } as OperationOutputs;
   }
@@ -305,17 +302,15 @@ async function extractOutputsAndEvents(
   if (rawOutput === null && returnType !== 'void') {
     return {
       events: events,
-      isError: true,
       error: 'No outputs found. Expected type: ' + returnType,
     } as OperationOutputs;
   }
-  else if(rawOutput === null && returnType === 'void') {
+  if(rawOutput === null && returnType === 'void') {
     return {
       events: events,
-      isError: false,
     } as OperationOutputs;
   }
-  else if(rawOutput !== null && returnType !== 'void') {
+  if(rawOutput !== null && returnType !== 'void') {
     // try to deserialize the outputs
     let output: Uint8Array = new Uint8Array(0);
     let deserializedOutput = null; 
@@ -328,23 +323,18 @@ async function extractOutputsAndEvents(
     catch (err) {
       return {
         events: events,
-        isError: true,
         error: 'Error while deserializing the outputs: ' + err,
       } as OperationOutputs;
     }
     return {
       outputs: output,
       events: events,
-      isError: false,
     } as OperationOutputs;
   }
-  else{
-    return {
-      events: events,
-      isError: true,
-      error: 'Unexpected error',
-    } as OperationOutputs;
-  } 
+  return {
+    events: events,
+    error: 'Unexpected error',
+  } as OperationOutputs; 
 }
 
 /**
