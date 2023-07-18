@@ -54,12 +54,10 @@ async function run() {
     program.help();
     return 1;
   }
-  if (out === '') {
-    out = './helpers/';
-    // execute 'mkdir helpers' if the folder doesn't exist yet
-    if (!existsSync(out)) {
-      mkdirSync(out);
-    }
+
+  // execute 'mkdir helpers' if the folder doesn't exist yet
+  if (!existsSync(out)) {
+    mkdirSync(out);
   }
 
   // call sc client to fetch protos
@@ -79,7 +77,7 @@ async function run() {
   if (mode === 'sc') {
     generateAsCallers(files, address, out);
   } else if (mode === 'web3') {
-    generateTsCallers(files, out, address);
+    generateTsCallers(files, out, publicApi, address);
   } else {
     throw new Error(`Unsupported mode: ${mode}`);
   }

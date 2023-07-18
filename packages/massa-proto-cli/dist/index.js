@@ -30,6 +30,7 @@ const protobuf_1 = require("./protobuf");
 const massa_web3_1 = require("@massalabs/massa-web3");
 const commander_1 = require("commander");
 const dotenv = __importStar(require("dotenv"));
+const fs_1 = require("fs");
 // Load .env file content into process.env
 dotenv.config();
 const program = new commander_1.Command();
@@ -59,6 +60,10 @@ async function run() {
         program.help();
         return 1;
     }
+    // execute 'mkdir helpers' if the folder doesn't exist yet
+    if (!(0, fs_1.existsSync)(out)) {
+        (0, fs_1.mkdirSync)(out);
+    }
     // call sc client to fetch protos
     const mpFiles = await massa_web3_1.SmartContractsClient.getProtoFiles([address], out, publicApi);
     // call proto parser with fetched files
@@ -71,7 +76,7 @@ async function run() {
         (0, as_gen_1.generateAsCallers)(files, address, out);
     }
     else if (mode === 'web3') {
-        (0, ts_gen_1.generateTsCallers)(files, out, address);
+        (0, ts_gen_1.generateTsCallers)(files, out, publicApi, address);
     }
     else {
         throw new Error(`Unsupported mode: ${mode}`);
