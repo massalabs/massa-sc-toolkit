@@ -7,7 +7,7 @@ import { SmartContractsClient } from '@massalabs/massa-web3';
 import { Command } from 'commander';
 
 import * as dotenv from 'dotenv';
-import { generateTSCaller } from './ts-gen';
+import { existsSync, mkdirSync } from 'fs';
 // Load .env file content into process.env
 dotenv.config();
 const program = new Command();
@@ -53,6 +53,13 @@ async function run() {
   if (mode === '' || address === '') {
     program.help();
     return 1;
+  }
+  if (out === '') {
+    out = './helpers/';
+    // execute 'mkdir helpers' if the folder doesn't exist yet
+    if (!existsSync(out)) {
+      mkdirSync(out);
+    }
   }
 
   // call sc client to fetch protos
