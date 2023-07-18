@@ -30,6 +30,7 @@ const protobuf_1 = require("./protobuf");
 const massa_web3_1 = require("@massalabs/massa-web3");
 const commander_1 = require("commander");
 const dotenv = __importStar(require("dotenv"));
+const fs_1 = require("fs");
 // Load .env file content into process.env
 dotenv.config();
 const program = new commander_1.Command();
@@ -58,6 +59,10 @@ async function run() {
     if (mode === '' || address === '') {
         program.help();
         return 1;
+    }
+    // execute 'mkdir helpers' if the folder doesn't exist yet
+    if (!(0, fs_1.existsSync)(out)) {
+        (0, fs_1.mkdirSync)(out);
     }
     // call sc client to fetch protos
     const mpFiles = await massa_web3_1.SmartContractsClient.getProtoFiles([address], out, publicApi);

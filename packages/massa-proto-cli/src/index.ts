@@ -54,12 +54,10 @@ async function run() {
     program.help();
     return 1;
   }
-  if (out === '') {
-    out = './helpers/';
-    // execute 'mkdir helpers' if the folder doesn't exist yet
-    if (!existsSync(out)) {
-      mkdirSync(out);
-    }
+
+  // execute 'mkdir helpers' if the folder doesn't exist yet
+  if (!existsSync(out)) {
+    mkdirSync(out);
   }
 
   // call sc client to fetch protos
