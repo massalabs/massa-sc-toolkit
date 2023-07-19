@@ -318,7 +318,7 @@ async function extractOutputsAndEvents(
       output = rawOutput.slice(1,-1).split(',').map(
         (s) => parseInt(s)
       ) as unknown as Uint8Array;
-      deserializedOutput = eventHelper.fromBinary(output);
+      deserializedOutput = ${protoFile.funcName}Helper.fromBinary(output);
     }
     catch (err) {
       return {
