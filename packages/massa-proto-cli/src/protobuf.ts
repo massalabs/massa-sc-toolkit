@@ -41,6 +41,7 @@ export interface FunctionArguments {
  * Retrieve all the function's data and return them as an ProtoFile
  *
  * @param protoPath - the path to the proto file
+ *
  * @returns The ProtoFile containing the function, its arguments name, arguments type and its return type
  */
 export async function getProtoFunction(protoPath: string): Promise<ProtoFile> {
