@@ -1,9 +1,8 @@
 #!/usr/bin/env node
-import { MassaProtoFile } from '@massalabs/massa-web3/dist/esm/interfaces/MassaProtoFile';
+import { MassaProtoFile } from './MassaProtoFile';
 import { generateAsCallers } from './as-gen';
 import { generateTsCallers } from './ts-gen';
-import { ProtoFile, getProtoFunction } from './protobuf';
-import { SmartContractsClient } from '@massalabs/massa-web3';
+import { ProtoFile, getProtoFiles, getProtoFunction } from './protobuf';
 import { Command } from 'commander';
 
 import * as dotenv from 'dotenv';
@@ -61,7 +60,7 @@ async function run() {
   }
 
   // call sc client to fetch protos
-  const mpFiles: MassaProtoFile[] = await SmartContractsClient.getProtoFiles(
+  const mpFiles: MassaProtoFile[] = await getProtoFiles(
     [address],
     out,
     publicApi,

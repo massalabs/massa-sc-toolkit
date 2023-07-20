@@ -46,13 +46,13 @@ async function getProtoFunction(protoPath) {
 }
 exports.getProtoFunction = getProtoFunction;
 /**
-   * Get the proto file of the contracts from the Massa Blockchain.
-   *
-   * @param contractAddresses - An array of contract addresses (as strings)
-   *
-   * @returns A promise that resolves to the array of IProtoFiles corresponding
-   * to the proto file associated with each contract or the values are null if the file is unavailable.
-   */
+ * Get the proto file of the contracts from the Massa Blockchain.
+ *
+ * @param contractAddresses - An array of contract addresses (as strings)
+ *
+ * @returns A promise that resolves to the array of IProtoFiles corresponding
+ * to the proto file associated with each contract or the values are null if the file is unavailable.
+ */
 async function getProtoFiles(contractAddresses, outputDirectory, providerUrl) {
     // prepare request body
     const requestProtoFiles = [];
