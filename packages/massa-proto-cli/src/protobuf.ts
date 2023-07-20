@@ -1,5 +1,10 @@
+import { MASSA_PROTOFILE_KEY, PROTO_FILE_SEPARATOR, strToBytes } from '@massalabs/massa-web3';
+import { bytesArrayToString } from './utils/bytesArrayToString';
+import { promises as fs, writeFileSync } from 'fs';
+import { MassaProtoFile } from './MassaProtoFile';
 import { load, IType } from 'protobufjs';
-import { promises as fs } from 'fs';
+import path from 'path';
+
 
 /**
  * Represents a function in a proto file
@@ -73,3 +78,87 @@ export async function getProtoFunction(protoPath: string): Promise<ProtoFile> {
 
   return { argFields, funcName, resType, protoData, protoPath };
 }
+
+/**
+   * Get the proto file of the contracts from the Massa Blockchain.
+   *
+   * @param contractAddresses - An array of contract addresses (as strings)
+   *
+   * @returns A promise that resolves to the array of IProtoFiles corresponding
+   * to the proto file associated with each contract or the values are null if the file is unavailable.
+   */
+export async function getProtoFiles(
+  contractAddresses: string[],
+  outputDirectory: string,
+  providerUrl: string,
+): Promise<MassaProtoFile[]> {
+  // prepare request body
+  const requestProtoFiles: object[] = [];
+  for (let address of contractAddresses) {
+    requestProtoFiles.push({
+      address: address,
+      key: Array.from(strToBytes(MASSA_PROTOFILE_KEY)),
+    });
+  }
+  const body = {
+    jsonrpc: '2.0',
+    method: 'get_datastore_entries',
+    params: [requestProtoFiles],
+    id: 1,
+  };
+
+  // send request
+  let response = null;
+  try {
+    response = await fetch(providerUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+    // parse response
+    const json = await response.json();
+    let protoFiles: MassaProtoFile[] = [];
+
+    // for each contract, get the proto files
+    for (let contract of json.result) {
+      if (!contract.final_value) {
+        throw new Error('No proto file found');
+      }
+
+      const retrievedProtoFiles = bytesArrayToString(contract.final_value); // converting the Uint8Array to string
+      // splitting all the proto functions to make separate proto file for each functions
+      const protos = retrievedProtoFiles.split(PROTO_FILE_SEPARATOR);
+
+      // for proto file, save it and get the function name
+      for (let protoContent of protos) {
+        // remove all the text before the first appearance of the 'syntax' keyword
+        const proto = protoContent.substring(protoContent.indexOf('syntax'));
+
+        // get the function name from the proto file
+        const functionName = proto
+          .substring(proto.indexOf('message '), proto.indexOf('Helper'))
+          .replace('message ', '')
+          .trim();
+        // save the proto file
+        const filepath = path.join(outputDirectory, functionName + '.proto');
+        writeFileSync(filepath, proto);
+        const extractedProto: MassaProtoFile = {
+          data: proto,
+          filePath: filepath,
+          protoFuncName: functionName,
+        };
+        protoFiles.push(extractedProto);
+      }
+    }
+    return protoFiles;
+  } catch (ex) {
+    const msg = `Failed to retrieve the proto files.`;
+    console.error(msg, ex);
+    throw ex;
+  }
+}
+
+
+
