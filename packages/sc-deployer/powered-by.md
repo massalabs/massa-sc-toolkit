@@ -5,7 +5,7 @@ The following is a list of all the dependencies of this project:
 
 **License:** ISC - perpetual
 
-**Used version:** 1.0.0
+**Used version:** 1.0.1
 
 **Many thanks to:** 
 
@@ -21,7 +21,7 @@ The following is a list of all the dependencies of this project:
 
 **License:** (MIT AND Apache-2.0) - perpetual
 
-**Used version:** 1.19.0
+**Used version:** 1.21.0
 
 **Many thanks to:** [Massa Labs](info@massa.net)
 
@@ -29,7 +29,7 @@ The following is a list of all the dependencies of this project:
 
 **License:** MIT - perpetual
 
-**Used version:** 18.16.16
+**Used version:** 18.16.19
 
 **Many thanks to:** n/a
 

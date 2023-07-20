@@ -6,11 +6,18 @@ import fse from 'fs-extra';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
+/**
+ * Used to get the current directory name
+ */
 const __filename = fileURLToPath(import.meta.url);
+
+/**
+ * Used to get the current directory path
+ */
 const __dirname = dirname(__filename);
 
 /**
- * Initialize a smart-contract project
+ * Initializes a new project in the given directory.
  *
  * @param {string} directory name of the target directory
  */
