@@ -1,10 +1,13 @@
-import { MASSA_PROTOFILE_KEY, PROTO_FILE_SEPARATOR, strToBytes } from '@massalabs/massa-web3';
+import {
+  MASSA_PROTOFILE_KEY,
+  PROTO_FILE_SEPARATOR,
+  strToBytes,
+} from '@massalabs/massa-web3';
 import { bytesArrayToString } from './utils/bytesArrayToString';
 import { promises as fs, writeFileSync } from 'fs';
 import { MassaProtoFile } from './MassaProtoFile';
 import { load, IType } from 'protobufjs';
 import path from 'path';
-
 
 /**
  * Represents a function in a proto file
@@ -80,13 +83,13 @@ export async function getProtoFunction(protoPath: string): Promise<ProtoFile> {
 }
 
 /**
-   * Get the proto file of the contracts from the Massa Blockchain.
-   *
-   * @param contractAddresses - An array of contract addresses (as strings)
-   *
-   * @returns A promise that resolves to the array of IProtoFiles corresponding
-   * to the proto file associated with each contract or the values are null if the file is unavailable.
-   */
+ * Get the proto file of the contracts from the Massa Blockchain.
+ *
+ * @param contractAddresses - An array of contract addresses (as strings)
+ *
+ * @returns A promise that resolves to the array of IProtoFiles corresponding
+ * to the proto file associated with each contract or the values are null if the file is unavailable.
+ */
 export async function getProtoFiles(
   contractAddresses: string[],
   outputDirectory: string,
@@ -159,6 +162,3 @@ export async function getProtoFiles(
     throw ex;
   }
 }
-
-
-
