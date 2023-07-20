@@ -1,8 +1,14 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getProtoFunction = void 0;
-const protobufjs_1 = require("protobufjs");
+exports.getProtoFiles = exports.getProtoFunction = void 0;
+const massa_web3_1 = require("@massalabs/massa-web3");
+const bytesArrayToString_1 = require("./utils/bytesArrayToString");
 const fs_1 = require("fs");
+const protobufjs_1 = require("protobufjs");
+const path_1 = __importDefault(require("path"));
 /**
  * Retrieve all the function's data and return them as an ProtoFile
  *
@@ -39,4 +45,77 @@ async function getProtoFunction(protoPath) {
     return { argFields, funcName, resType, protoData, protoPath };
 }
 exports.getProtoFunction = getProtoFunction;
+/**
+ * Get the proto file of the contracts from the Massa Blockchain.
+ *
+ * @param contractAddresses - An array of contract addresses (as strings)
+ *
+ * @returns A promise that resolves to the array of IProtoFiles corresponding
+ * to the proto file associated with each contract or the values are null if the file is unavailable.
+ */
+async function getProtoFiles(contractAddresses, outputDirectory, providerUrl) {
+    // prepare request body
+    const requestProtoFiles = [];
+    for (let address of contractAddresses) {
+        requestProtoFiles.push({
+            address: address,
+            key: Array.from((0, massa_web3_1.strToBytes)(massa_web3_1.MASSA_PROTOFILE_KEY)),
+        });
+    }
+    const body = {
+        jsonrpc: '2.0',
+        method: 'get_datastore_entries',
+        params: [requestProtoFiles],
+        id: 1,
+    };
+    // send request
+    let response = null;
+    try {
+        response = await fetch(providerUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(body),
+        });
+        // parse response
+        const json = await response.json();
+        let protoFiles = [];
+        // for each contract, get the proto files
+        for (let contract of json.result) {
+            if (!contract.final_value) {
+                throw new Error('No proto file found');
+            }
+            const retrievedProtoFiles = (0, bytesArrayToString_1.bytesArrayToString)(contract.final_value); // converting the Uint8Array to string
+            // splitting all the proto functions to make separate proto file for each functions
+            const protos = retrievedProtoFiles.split(massa_web3_1.PROTO_FILE_SEPARATOR);
+            // for proto file, save it and get the function name
+            for (let protoContent of protos) {
+                // remove all the text before the first appearance of the 'syntax' keyword
+                const proto = protoContent.substring(protoContent.indexOf('syntax'));
+                // get the function name from the proto file
+                const functionName = proto
+                    .substring(proto.indexOf('message '), proto.indexOf('Helper'))
+                    .replace('message ', '')
+                    .trim();
+                // save the proto file
+                const filepath = path_1.default.join(outputDirectory, functionName + '.proto');
+                (0, fs_1.writeFileSync)(filepath, proto);
+                const extractedProto = {
+                    data: proto,
+                    filePath: filepath,
+                    protoFuncName: functionName,
+                };
+                protoFiles.push(extractedProto);
+            }
+        }
+        return protoFiles;
+    }
+    catch (ex) {
+        const msg = `Failed to retrieve the proto files.`;
+        console.error(msg, ex);
+        throw ex;
+    }
+}
+exports.getProtoFiles = getProtoFiles;
 //# sourceMappingURL=protobuf.js.map
