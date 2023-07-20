@@ -28,6 +28,9 @@
         "packages/*"
     ],
     "dependencies": {
+        "@massalabs/as-transformer": "^0.2.1",
+        "@massalabs/as-types": "^1.0.1",
+        "@massalabs/massa-as-sdk": "^2.3.0",
         "@massalabs/massa-web3": "^2.0.0",
         "@massalabs/wallet-provider": "^0.0.1",
         "jest-environment-jsdom": "^29.5.0",
