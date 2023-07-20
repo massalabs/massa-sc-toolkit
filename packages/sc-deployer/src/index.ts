@@ -300,8 +300,9 @@ async function deploySC(
         u64ToBytes(BigInt(contract.coins)), // scaled value to be provided here
       );
     }
-    let protos: Uint8Array = serializeProto(contract.protoPaths);
-    if (protos.length > 0) {
+
+    if (contract.protoPaths?.length) {
+      const protos = serializeProto(contract.protoPaths);
       datastore.set(strToBytes(MASSA_PROTOFILE_KEY), protos);
     }
   });
