@@ -6,7 +6,7 @@ on:
 
 jobs:
   test:
-    uses: ./.github/workflows/node.js.yml
+    uses: ./.github/workflows/tests.yml
 
   publish-npm:
     needs: test
