@@ -27,7 +27,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const as_gen_1 = require("./as-gen");
 const ts_gen_1 = require("./ts-gen");
 const protobuf_1 = require("./protobuf");
-const massa_web3_1 = require("@massalabs/massa-web3");
 const commander_1 = require("commander");
 const dotenv = __importStar(require("dotenv"));
 const fs_1 = require("fs");
@@ -65,7 +64,7 @@ async function run() {
         (0, fs_1.mkdirSync)(out);
     }
     // call sc client to fetch protos
-    const mpFiles = await massa_web3_1.SmartContractsClient.getProtoFiles([address], out, publicApi);
+    const mpFiles = await (0, protobuf_1.getProtoFiles)([address], out, publicApi);
     // call proto parser with fetched files
     for (const mpfile of mpFiles) {
         let protoFile = await (0, protobuf_1.getProtoFunction)(mpfile.filePath);
