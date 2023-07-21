@@ -1,6 +1,6 @@
 {
   "name": "@massalabs/sc-project-initializer",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "",
   "main": "src/cli.js",
   "type": "module",
