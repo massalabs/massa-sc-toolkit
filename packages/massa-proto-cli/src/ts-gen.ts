@@ -254,7 +254,7 @@ export interface OperationOutputs {
 }
 
 const MASSA_EXEC_ERROR = 'massa_execution_error';
-const OUTPUTS_PREFIX = 'Result: ';
+const OUTPUTS_PREFIX = 'Result${protoFile.funcName}: ';
 
 
 /**
