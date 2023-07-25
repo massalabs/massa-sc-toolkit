@@ -64,7 +64,7 @@ function setupArguments(protoFile) {
         if (!returnType[arg.type])
             throw new Error(`Unsupported type: ${arg.type}`);
         return `${content}${arg.name}: ${returnType[arg.type]}, `;
-    }, '') + 'coins: bigint';
+    }, '').slice(0, -2);
 }
 /**
  * Generates code to check if unsigned arguments of a protobuf message are negative.
@@ -78,7 +78,7 @@ function generateUnsignedArgCheckCode(protoFile) {
     const checks = protoFile.argFields
         .filter((arg) => unsignedPBTypes.has(arg.type))
         /* eslint-disable max-len */
-        .map((arg) => `\tif (${arg.name} < 0) throw new Error("Invalid argument: ${arg.name} cannot be negative according to protobuf file.");`);
+        .map((arg) => `\t\tif (${arg.name} < 0) throw new Error("Invalid argument: ${arg.name} cannot be negative according to protobuf file.");`);
     if (checks.length > 0) {
         return '// Verify that the given arguments are valid\n' + checks.join('\n');
     }
@@ -95,12 +95,12 @@ function generateUnsignedArgCheckCode(protoFile) {
 function argumentSerialization(protoFile) {
     const args = protoFile.argFields
         .map((arg) => `${arg.name}: ${arg.name}`)
-        .join(',\n    ');
+        .join(',\n      ');
     if (protoFile.argFields.length > 0) {
         return `// Serialize the arguments
-  const serializedArgs = ${protoFile.funcName}Helper.toBinary({
-    ${args}
-  });`;
+    const serializedArgs = ${protoFile.funcName}Helper.toBinary({
+      ${args}
+    });`;
     }
     return '';
 }
@@ -113,8 +113,35 @@ function argumentSerialization(protoFile) {
  */
 function generateDocArgs(protoFile) {
     return protoFile.argFields
-        .map((arg) => ` * @param {${returnType[arg.type]}} ${arg.name} - `)
+        .map((arg) => `   * @param {${returnType[arg.type]}} ${arg.name} - `)
         .join('\n');
+}
+/**
+ * Generate the TypeScript code for the ts caller function, depending of the chosen mode
+ */
+function callSCConstructor(mode) {
+    if (mode == 'web3') {
+        return `{ operationId: 
+        await account.callSmartContract(
+          {
+            fee: 1n,
+            maxGas: 10000000n,
+            coins: coins,
+            targetAddress: contractAddress,
+            functionName: functionName,
+            parameter: Array.from(args),
+          } as ICallData,
+        )
+      }`;
+    }
+    if (mode == 'wallet') {
+        return `await account.callSC(
+        contractAddress,
+        functionName,
+        args,
+        coins,
+      )`;
+    }
 }
 /**
  * Generate a TypeScript file to allow the user to easily call a function of a Smart Contract
@@ -128,7 +155,10 @@ function generateDocArgs(protoFile) {
  * @param protoFile - The protoFile object used to generate the caller
  * @param contractAddress - The address of the Smart Contract to interact with (optional)
  */
-function generateTSCaller(outputPath, protoFile, providerUrl, contractAddress) {
+function generateTSCaller(outputPath, protoFile, contractAddress, mode) {
+    // check the mode
+    if (mode != 'web3' && mode != 'wallet')
+        throw new Error('Error: mode must be either "web3" or "wallet".');
     // generate the helper file using protoc. Throws an error if the command fails.
     // protoPath is mandatory to generate the helper file
     if (!protoFile.protoPath)
@@ -161,9 +191,6 @@ function generateTSCaller(outputPath, protoFile, providerUrl, contractAddress) {
     // generate the arguments
     const args = setupArguments(protoFile);
     // generate the documentation
-    if (!contractAddress) {
-        contractAddress = 'Paste your contract address here';
-    }
     const documentationArgs = generateDocArgs(protoFile);
     // verify that the given arguments are valid
     const checkUnsignedArgs = generateUnsignedArgCheckCode(protoFile);
@@ -182,9 +209,13 @@ import {
   ON_MASSA_EVENT_ERROR, 
   IEvent, 
   INodeStatus,
-  time, 
+  time,${mode == 'web3' ? `\n  SmartContractsClient,
+  ICallData,
+  PublicApiClient,
+  IAccount,
+  WalletClient,` : ''}
 } from "@massalabs/massa-web3";
-
+${mode == 'wallet' ? 'import { IAccount, providers } from "@massalabs/wallet-provider";\n' : ''}
 /**
  * This interface represents the details of the transaction.
  * 
@@ -212,49 +243,114 @@ export interface EventPollerResult {
  * 
  * @see outputs - The outputs of the SC call (optional)
  * @see events - The events emitted by the SC call (optional)
- * @see error - The error message (optional)
  */
 export interface OperationOutputs {
   outputs?: any;
   events: IEvent[];
-  error: any;
 }
 
 const MASSA_EXEC_ERROR = 'massa_execution_error';
-const OUTPUTS_PREFIX = 'Result: ';
+const OUTPUTS_PREFIX = 'Result${protoFile.funcName}: ';
 
-/** The following global variable and the next class should be in a dedicated file. */
-let callSC: (address: string, funcName: string, binArguments: Uint8Array, maxCoin: bigint) => Promise<TransactionDetails>;
+export class ${protoFile.funcName[0].toUpperCase() + protoFile.funcName.slice(1)}BlockchainCaller {
+  private nodeRPC: string;
 
+  public account: ${mode == 'web3' ? 'SmartContractsClient' : 'IAccount'};
+  public coins: bigint;
+  
 
-/**
- * This method have been generated by the Massa Proto CLI.
- * It allows you to call the "${protoFile.funcName}" function of the 
- * "${contractAddress}" Smart Contract.
- * 
- * @remarks
- * To work properly, you need to run 'npm install @protobuf-ts/plugin' in your project folder.
- * Otherwise, this caller will not work.
- * 
- ${documentationArgs.slice(1)}
- *
- * @returns {Promise<OperationOutputs>} A promise that resolves to an object which contains the outputs and events from the call to ${protoFile.funcName}.
- */
- export async function ${protoFile.funcName}(${args}): Promise<OperationOutputs> {
-  ${checkUnsignedArgs}
+  constructor(account: ${mode == 'web3' ? 'SmartContractsClient' : 'IAccount'}, coins: bigint, nodeRPC: string) {
+    this.nodeRPC = nodeRPC;
+    this.account = account;
+    this.coins = coins;
+  }
 
-  ${argsSerialization}
+  /**
+   * This method have been generated by the Massa Proto CLI.
+   * It allows you to instantiate a new ${protoFile.funcName[0].toUpperCase() + protoFile.funcName.slice(1)}BlockchainCaller object with the default values.
+   * 
+   * @param envPath - The path to the .env file (default: './'), relative to the terminal location
+   * @returns {Promise<${protoFile.funcName[0].toUpperCase() + protoFile.funcName.slice(1)}BlockchainCaller>} A promise that resolves to a new ${protoFile.funcName[0].toUpperCase() + protoFile.funcName.slice(1)}BlockchainCaller object
+   */
+  static async newDefault(${mode == 'web3' ? "envPath = './'" : 'providerName: string, accountIndex: string'}): Promise<${protoFile.funcName[0].toUpperCase() + protoFile.funcName.slice(1)}BlockchainCaller> {
+    ${mode == 'web3' ? `// check if the environment variables are set
+    if (!process.env.NODE_RPC) {
+      throw new Error('NODE_RPC environment variable is not set');
+    }
+    if (!process.env.ACCOUNT_SECRET_KEY) {
+      throw new Error('ACCOUNT_SECRET_KEY environment variable is not set');
+    }
+    const providerPub = {
+      url: process.env.NODE_RPC,
+      type: ProviderType.PUBLIC,
+    };
+    const providerPriv = {
+      url: process.env.NODE_RPC,
+      type: ProviderType.PRIVATE,
+    };
+    const clientConfig = {
+      providers: [providerPub, providerPriv],
+      periodOffset: null,
+    };
+    const publicApiClient = new PublicApiClient(clientConfig);
+    const walletClient = new WalletClient(clientConfig, publicApiClient);
+    const account: IAccount = await WalletClient.getAccountFromSecretKey(process.env.ACCOUNT_SECRET_KEY);
+    walletClient.setBaseAccount(account);
+    const SC_Client = new SmartContractsClient(
+      clientConfig,
+      publicApiClient,
+      walletClient,
+    );` : `// get the available providers
+    const provider = await providers();
+    // chose the provider
+    const providerToUse = provider.find((p) => String(p.name) === providerName);
+    if (!providerToUse) {
+      throw new Error("Provider '" + providerName + "'not found");
+    }`}
+    return new ${protoFile.funcName[0].toUpperCase() + protoFile.funcName.slice(1)}BlockchainCaller(${mode == 'web3' ? 'SC_Client' : 'await providerToUse.accounts()[accountIndex]'}, 0n, ${mode == 'web3' ? 'process.env.NODE_RPC' : 'providerToUse.getNodesUrls[0]'});
+  }
 
-  // Send the operation to the blockchain and retrieve its outputs
-  return (
-    await extractOutputsAndEvents(
-      '${contractAddress}',
-      '${protoFile.funcName}',
-      serializedArgs,
-      coins,
-      '${returnType[protoFile.resType]}',
-    )
-  );
+  /**
+   * This method have been generated by the Massa Proto CLI.
+   * It allows you to call the "${protoFile.funcName}" function of the 
+   * "${contractAddress}" Smart Contract.
+   * 
+   * @remarks
+   * To work properly, you need to run 'npm install @protobuf-ts/plugin' in your project folder.
+   * Otherwise, this caller will not work.
+   * 
+   ${documentationArgs.slice(3)}
+   *
+   * @param {bigint} coins - The amount of Massa coins to send to the block creator
+   * 
+   * @returns {Promise<OperationOutputs>} A promise that resolves to an object which contains the outputs and events from the call to ${protoFile.funcName}.
+   */
+  async ${protoFile.funcName}(${args}): Promise<OperationOutputs> {
+    ${checkUnsignedArgs}
+
+    ${argsSerialization}
+
+    // Send the operation to the blockchain and retrieve its outputs
+    return (
+      await extractOutputsAndEvents(
+        '${contractAddress}',
+        '${protoFile.funcName}',
+        serializedArgs,
+        this.coins,
+        '${returnType[protoFile.resType]}',
+        this.account,
+        this.nodeRPC,
+      )
+    );
+  }
+
+  /**
+   * This method have been generated by the Massa Proto CLI.
+   * It allows you to update the amount of Massa coins to send to the block creator when calling the Smart Contract.
+   */
+  editCoins(coins: bigint) {
+    this.coins = coins;
+  }
 }
 
 async function extractOutputsAndEvents(
@@ -262,7 +358,9 @@ async function extractOutputsAndEvents(
   functionName: string, 
   args: Uint8Array, 
   coins: bigint, 
-  returnType: string
+  returnType: string,
+  account: ${mode == 'web3' ? 'SmartContractsClient' : 'IAccount'},
+  nodeUrl: string,
   ): Promise<OperationOutputs> {
 
   let events: IEvent[] = [];
@@ -270,18 +368,13 @@ async function extractOutputsAndEvents(
   // try to call the Smart Contract
   try{
     events = await getEvents(
-      await callSC(
-        contractAddress,
-        functionName,
-        args,
-        coins,
-      ) as TransactionDetails
+      ${callSCConstructor(mode)},
+      nodeUrl,
     )
   }
-  catch (err) { // if the call fails, return the error
+  catch (err) { 
     return {
       events: events,
-      error: err,
     } as OperationOutputs;
   }
 
@@ -300,7 +393,6 @@ async function extractOutputsAndEvents(
   if (rawOutput === null && returnType !== 'void') {
     return {
       events: events,
-      error: 'No outputs found. Expected type: ' + returnType,
     } as OperationOutputs;
   }
   if(rawOutput === null && returnType === 'void') {
@@ -321,7 +413,6 @@ async function extractOutputsAndEvents(
     catch (err) {
       return {
         events: events,
-        error: 'Error while deserializing the outputs: ' + err,
       } as OperationOutputs;
     }
     return {
@@ -331,7 +422,6 @@ async function extractOutputsAndEvents(
   }
   return {
     events: events,
-    error: 'Unexpected error',
   } as OperationOutputs; 
 }
 
@@ -340,19 +430,20 @@ async function extractOutputsAndEvents(
  * It sets up all the objects needed to poll the events generated by the "${protoFile.funcName}" function.
  * 
  * @param {TransactionDetails} txDetails - An object containing the operationId of SC call.
+ * @param {string} nodeUrl - The url of the node to connect to.
  * 
  * @returns {Promise<EventPollerResult>} An object containing the eventPoller and the events.
  */
-async function getEvents(txDetails: TransactionDetails): Promise<IEvent[]>{
+async function getEvents(txDetails: TransactionDetails, nodeUrl: string): Promise<IEvent[]>{
   const opId = txDetails.operationId;
 
   // setup the providers
   const providerPub: IProvider = {
-    url: '${providerUrl}',
+    url: nodeUrl,
     type: ProviderType.PUBLIC,
   };
   const providerPriv: IProvider = {
-    url: '${providerUrl}',
+    url: nodeUrl,
     type: ProviderType.PRIVATE,
   }; // we don't need it here but a private provider is required by the BaseClient object
 
@@ -392,7 +483,7 @@ async function getEvents(txDetails: TransactionDetails): Promise<IEvent[]>{
  *
  * @throws in case of a timeout or massa execution error
  *
- * @returns A promise that resolves to an 'EventPollerResult' which contains the results or an error
+ * @returns A promise that resolves to an 'EventPollerResult'
  *
  */
 const pollAsyncEvents = async (
@@ -491,12 +582,12 @@ function convertToAbsolutePath(givenPath) {
  * @param address - the address of the contract where the proto files are coming from (optional)
  * @param outputDirectory - the output directory where to generates the callers
  */
-function generateTsCallers(protoFiles, outputDirectory, providerUrl, address) {
+function generateTsCallers(protoFiles, outputDirectory, providerUrl, address, mode) {
     for (const file of protoFiles) {
         if (!file.protoPath)
             throw new Error('Error: protoPath is undefined.');
         // generate the helper and the caller inside the same folder
-        generateTSCaller(outputDirectory, file, providerUrl, address);
+        generateTSCaller(outputDirectory, file, address, mode);
     }
 }
 exports.generateTsCallers = generateTsCallers;

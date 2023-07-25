@@ -75,8 +75,8 @@ async function run() {
   // call the generator
   if (mode === 'sc') {
     generateAsCallers(files, address, out);
-  } else if (mode === 'web3') {
-    generateTsCallers(files, out, publicApi, address);
+  } else if (mode === 'web3' || mode === 'wallet') {
+    generateTsCallers(files, out, publicApi, address, mode);
   } else {
     throw new Error(`Unsupported mode: ${mode}`);
   }
