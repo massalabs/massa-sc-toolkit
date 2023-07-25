@@ -78,7 +78,7 @@ function generateUnsignedArgCheckCode(protoFile) {
     const checks = protoFile.argFields
         .filter((arg) => unsignedPBTypes.has(arg.type))
         /* eslint-disable max-len */
-        .map((arg) => `\tif (${arg.name} < 0) throw new Error("Invalid argument: ${arg.name} cannot be negative according to protobuf file.");`);
+        .map((arg) => `\t\tif (${arg.name} < 0) throw new Error("Invalid argument: ${arg.name} cannot be negative according to protobuf file.");`);
     if (checks.length > 0) {
         return '// Verify that the given arguments are valid\n' + checks.join('\n');
     }
@@ -95,12 +95,12 @@ function generateUnsignedArgCheckCode(protoFile) {
 function argumentSerialization(protoFile) {
     const args = protoFile.argFields
         .map((arg) => `${arg.name}: ${arg.name}`)
-        .join(',\n    ');
+        .join(',\n      ');
     if (protoFile.argFields.length > 0) {
         return `// Serialize the arguments
-  const serializedArgs = ${protoFile.funcName}Helper.toBinary({
-    ${args}
-  });`;
+    const serializedArgs = ${protoFile.funcName}Helper.toBinary({
+      ${args}
+    });`;
     }
     return '';
 }
@@ -215,7 +215,7 @@ import {
   IAccount,
   WalletClient,` : ''}
 } from "@massalabs/massa-web3";
-${mode == 'wallet' ? 'import { IAccount } from "@massalabs/wallet-provider";\n' : ''}
+${mode == 'wallet' ? 'import { IAccount, providers } from "@massalabs/wallet-provider";\n' : ''}
 /**
  * This interface represents the details of the transaction.
  * 
@@ -252,10 +252,10 @@ export interface OperationOutputs {
 const MASSA_EXEC_ERROR = 'massa_execution_error';
 const OUTPUTS_PREFIX = 'Result${protoFile.funcName}: ';
 
-class SumBlockchainCaller {
+export class SumBlockchainCaller {
   private nodeRPC: string;
 
-  public account: SmartContractsClient
+  public account: ${mode == 'web3' ? 'SmartContractsClient' : 'IAccount'};
   public coins: bigint;
   
 
@@ -272,12 +272,12 @@ class SumBlockchainCaller {
    * @param envPath - The path to the .env file (default: './'), relative to the terminal location
    * @returns {Promise<SumBlockchainCaller>} A promise that resolves to a new SumBlockchainCaller object
    */
-  static async newDefault(envPath = './'): Promise<SumBlockchainCaller> {
-    // check if the environment variables are set
+  static async newDefault(${mode == 'web3' ? "envPath = './'" : 'providerName: string, accountIndex: string'}): Promise<SumBlockchainCaller> {
+    ${mode == 'web3' ? `// check if the environment variables are set
     if (!process.env.NODE_RPC) {
       throw new Error('NODE_RPC environment variable is not set');
     }
-    ${mode == 'web3' ? `if (!process.env.ACCOUNT_SECRET_KEY) {
+    if (!process.env.ACCOUNT_SECRET_KEY) {
       throw new Error('ACCOUNT_SECRET_KEY environment variable is not set');
     }
     const providerPub = {
@@ -300,8 +300,14 @@ class SumBlockchainCaller {
       clientConfig,
       publicApiClient,
       walletClient,
-    );` : ''}
-    return new SumBlockchainCaller(SC_Client, 0n, process.env.NODE_RPC);
+    );` : `// get the available providers
+    const provider = await providers();
+    // chose the provider
+    const providerToUse = provider.find((p) => String(p.name) === providerName);
+    if (!providerToUse) {
+      throw new Error("Provider '" + providerName + "'not found");
+    }`}
+    return new SumBlockchainCaller(${mode == 'web3' ? 'SC_Client' : 'await providerToUse.accounts()[accountIndex]'}, 0n, ${mode == 'web3' ? 'process.env.NODE_RPC' : 'providerToUse.getNodesUrls[0]'});
   }
 
   /**
