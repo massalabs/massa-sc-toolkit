@@ -1,5 +1,5 @@
 // The entry file of your WebAssembly module.
-import { callerHasWriteAccess, generateEvent } from '@massalabs/massa-as-sdk';
+import { Context, generateEvent } from '@massalabs/massa-as-sdk';
 import { Args, stringToBytes } from '@massalabs/as-types';
 
 /**
@@ -10,7 +10,7 @@ import { Args, stringToBytes } from '@massalabs/as-types';
 export function constructor(binaryArgs: StaticArray<u8>): StaticArray<u8> {
   // This line is important. It ensures that this function can't be called in the future.
   // If you remove this check, someone could call your constructor function and reset your smart contract.
-  if (!callerHasWriteAccess()) {
+  if (!Context.isDeployingContract()) {
     return [];
   }
   const argsDeser = new Args(binaryArgs);
