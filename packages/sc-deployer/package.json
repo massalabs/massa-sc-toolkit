@@ -1,6 +1,6 @@
 {
   "name": "@massalabs/massa-sc-deployer",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -15,7 +15,7 @@
     "@massalabs/as-types": "^1.0.1",
     "@massalabs/massa-as-sdk": "^2.4.0",
     "@massalabs/massa-sc-compiler": "^0.1.0",
-    "@massalabs/massa-web3": "^2.1.0",
+    "@massalabs/massa-web3": "^1.22.0",
     "@types/node": "^18.11.10",
     "assemblyscript": "^0.25.2",
     "rimraf": "^5.0.1",
