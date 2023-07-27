@@ -13,15 +13,23 @@ The following is a list of all the dependencies of this project:
 
 **License:** (MIT AND Apache-2.0) - perpetual
 
-**Used version:** 2.3.0
+**Used version:** 2.4.0
 
 **Many thanks to:** [Massa Labs](info@massa.net)
+
+## [@massalabs/massa-sc-compiler](https://registry.npmjs.org/@massalabs/massa-sc-compiler/-/massa-sc-compiler-0.1.0.tgz)
+
+**License:** ISC - perpetual
+
+**Used version:** 0.1.0
+
+**Many thanks to:** 
 
 ## [@massalabs/massa-web3](git+https://github.com/massalabs/massa-web3.git)
 
 **License:** (MIT AND Apache-2.0) - perpetual
 
-**Used version:** 2.0.0
+**Used version:** 2.1.0
 
 **Many thanks to:** [Massa Labs](info@massa.net)
 
@@ -40,4 +48,20 @@ The following is a list of all the dependencies of this project:
 **Used version:** 0.25.2
 
 **Many thanks to:** [Daniel Wirtz](dcode+assemblyscript@dcode.io)
+
+## [rimraf](git://github.com/isaacs/rimraf.git)
+
+**License:** ISC - perpetual
+
+**Used version:** 5.0.1
+
+**Many thanks to:** [Isaac Z. Schlueter](i@izs.me> (http://blog.izs.me/)
+
+## [typescript](git+https://github.com/Microsoft/TypeScript.git)
+
+**License:** Apache-2.0 - perpetual
+
+**Used version:** 5.1.6
+
+**Many thanks to:** Microsoft Corp.
 
