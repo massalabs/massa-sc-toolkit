@@ -20,7 +20,7 @@ import {
   IEventFilter,
   INodeStatus,
   toMAS,
-  utils
+  utils,
 } from '@massalabs/massa-web3';
 import { readFileSync } from 'fs';
 import path from 'path';
@@ -311,17 +311,15 @@ async function deploySC(
 
   maxCoins = maxCoins ? maxCoins : totalEstimatedCost;
 
-  const opId = await client.smartContracts().deploySmartContract(
-    {
-      contractDataBinary: readFileSync(
-        path.join(__dirname, '..', 'build', '/deployer.wasm'),
-      ),
-      datastore,
-      fee,
-      maxGas,
-      maxCoins,
-    } as IContractData,
-  );
+  const opId = await client.smartContracts().deploySmartContract({
+    contractDataBinary: readFileSync(
+      path.join(__dirname, '..', 'build', '/deployer.wasm'),
+    ),
+    datastore,
+    fee,
+    maxGas,
+    maxCoins,
+  } as IContractData);
 
   console.log(`Operation successfully submitted with id: ${opId}`);
 
