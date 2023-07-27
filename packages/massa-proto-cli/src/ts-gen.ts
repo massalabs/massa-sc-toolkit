@@ -414,38 +414,32 @@ export async function extractOutputsAndEvents(
 
   // check the output and return the result
   if (rawOutput === null && returnType !== 'void') {
-    return {
-      events: events,
-    } as OperationOutputs;
+    const detectedEventsData = events.map((e) => e.data); 
+    throw new Error(
+      'Output expected but not found. Events detected:\\n' + '[ ' + detectedEventsData.join(' ]\\n[ ') + ' ]',
+    );
   }
   if(rawOutput === null && returnType === 'void') {
-    return {
-      events: events,
-    } as OperationOutputs;
+    return;
   }
   if(rawOutput !== null && returnType !== 'void') {
+    let output: Uint8Array = new Uint8Array(Buffer.from(rawOutput, 'base64'));
     // try to deserialize the outputs
-    let output: Uint8Array = new Uint8Array(0);
-    let deserializedOutput = null; 
+    let deserializedOutput: ${returnType[protoFile.resType]};
     try{
-      output = rawOutput.slice(1,-1).split(',').map(
-        (s) => parseInt(s)
-      ) as unknown as Uint8Array;
-      deserializedOutput = ${protoFile.funcName}Helper.fromBinary(output);
+      deserializedOutput = ${protoFile.funcName}RHelper.fromBinary(output).value;
     }
     catch (err) {
-      return {
-        events: events,
-      } as OperationOutputs;
+      throw new Error(
+        'Deserialization Error: ' + err + 'Raw Output: ' + rawOutput,
+      );
     }
     return {
-      outputs: output,
+      outputs: deserializedOutput,
       events: events,
     } as OperationOutputs;
   }
-  return {
-    events: events,
-  } as OperationOutputs; 
+  throw new Error('${protoFile.funcName}Caller: Unexpected error'); 
 }
 
 /**
@@ -638,7 +632,6 @@ function convertToAbsolutePath(givenPath: string): string {
 export function generateTsCallers(
   protoFiles: ProtoFile[],
   outputDirectory: string,
-  providerUrl: string,
   address: string,
   mode: string,
 ) {
