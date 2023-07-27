@@ -20,11 +20,11 @@ import {
   IEventFilter,
   INodeStatus,
   toMAS,
+  utils
 } from '@massalabs/massa-web3';
 import { readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { time } from '@massalabs/massa-web3';
 import { IDeploymentInfo, IEventPollerResult, ISCData } from './interfaces';
 import {
   calculateCoinsSent,
@@ -321,8 +321,6 @@ async function deploySC(
       maxGas,
       maxCoins,
     } as IContractData,
-
-    account,
   );
 
   console.log(`Operation successfully submitted with id: ${opId}`);
@@ -337,7 +335,7 @@ async function deploySC(
 
   // async poll events in the background for the given opId
   const { isError, eventPoller, events }: IEventPollerResult =
-    await time.withTimeoutRejection<IEventPollerResult>(
+    await utils.time.withTimeoutRejection<IEventPollerResult>(
       pollAsyncEvents(client, opId),
       20000,
     );
