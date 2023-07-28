@@ -582,7 +582,7 @@ import {
 } from "@massalabs/massa-web3";
 ${mode == 'wallet' ? 'import { IAccount, providers } from "@massalabs/wallet-provider";\n' : ''}
 
-`
+`;
     // save the helper file
     writeFileSync(
       `${outputPath}${protoFile.funcName}Helper.ts`,
