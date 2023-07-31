@@ -64,7 +64,7 @@ function generateUnsignedArgCheckCode(protoFile: ProtoFile): string {
     .map((arg) => `\t\tif (${arg.name} < 0) throw new Error("Invalid argument: ${arg.name} cannot be negative according to protobuf file.");`);
 
   if (checks.length > 0) {
-    return '// Verify that the given arguments are valid\n' + checks.join('\n');
+    return '// Verify that the given arguments are valid\n' + checks.join('\n') + '\n\n';
   }
 
   return '';
@@ -87,7 +87,7 @@ function argumentSerialization(protoFile: ProtoFile): string {
     return `// Serialize the arguments
     const serializedArgs = ${protoFile.funcName}Helper.toBinary({
       ${args}
-    });`;
+    });\n`;
   }
  
   return '';
@@ -200,7 +200,6 @@ export function generateTSCaller(
 
   // generate the caller function body
   const argsSerialization = argumentSerialization(protoFile);
-
   // generate the caller function
   const content = `import { 
   ${protoFile.funcName}Helper,
@@ -303,11 +302,8 @@ export class ${protoFile.funcName[0].toUpperCase() + protoFile.funcName.slice(1)
    * 
    * @returns {Promise<OperationOutputs>} A promise that resolves to an object which contains the outputs and events from the call to ${protoFile.funcName}.
    */
-  async ${protoFile.funcName}(${args}, fee?: bigint, maxGas?:bigint): Promise<OperationOutputs> {
-    ${checkUnsignedArgs}
-
-    ${argsSerialization}
-
+  async ${protoFile.funcName}(${protoFile.argFields.length > 0? `${args}, ` : ''}fee?: bigint, maxGas?:bigint): Promise<OperationOutputs> {
+    ${checkUnsignedArgs}${argsSerialization}
     // Send the operation to the blockchain and retrieve its outputs
     if(!fee) fee = this.fee;
     if(!maxGas) maxGas = this.maxGas;
@@ -315,7 +311,7 @@ export class ${protoFile.funcName[0].toUpperCase() + protoFile.funcName.slice(1)
       await extractOutputsAndEvents(
         '${contractAddress}',
         '${protoFile.funcName}',
-        serializedArgs,
+        ${protoFile.argFields.length > 0? 'serializedArgs' : 'new Uint8Array()'},
         this.coins,
         '${returnType[protoFile.resType]}',
         this.account,
