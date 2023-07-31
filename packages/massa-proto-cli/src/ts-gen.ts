@@ -280,7 +280,7 @@ export class ${protoFile.funcName[0].toUpperCase() + protoFile.funcName.slice(1)
     );`: `// get the available providers
     const provider = await providers();
     // chose the provider
-    const providerToUse = provider.find((p) => String(p.name) === providerName);
+    const providerToUse = provider.find((p) => String(p.name()) === providerName);
     if (!providerToUse) {
       throw new Error("Provider '" + providerName + "'not found");
     }`}
