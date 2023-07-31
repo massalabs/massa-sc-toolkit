@@ -3,7 +3,6 @@ import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { execSync } from 'child_process';
 import * as returnType from './tsProtoTypes.json';
 import { resolve, relative, join } from 'path';
-import { SmartContractsClient } from '@massalabs/massa-web3';
 
 
 /**
@@ -210,7 +209,8 @@ import {
   SmartContractsClient,  
   PublicApiClient,
   IAccount,
-  WalletClient,` : ''}
+  WalletClient,
+  Web3Account,` : ''}
 } from "@massalabs/massa-web3";
 ${mode == 'wallet' ? 'import { IAccount, providers } from "@massalabs/wallet-provider";\n' : ''}
 
@@ -260,18 +260,14 @@ export class ${protoFile.funcName[0].toUpperCase() + protoFile.funcName.slice(1)
       url: process.env.NODE_RPC,
       type: ProviderType.PUBLIC,
     };
-    const providerPriv = {
-      url: process.env.NODE_RPC,
-      type: ProviderType.PRIVATE,
-    };
     const clientConfig = {
-      providers: [providerPub, providerPriv],
+      providers: [providerPub],
       periodOffset: null,
     };
     const publicApiClient = new PublicApiClient(clientConfig);
-    const walletClient = new WalletClient(clientConfig, publicApiClient);
-    const account: IAccount = await WalletClient.getAccountFromSecretKey(process.env.ACCOUNT_SECRET_KEY);
-    walletClient.setBaseAccount(account);
+    const iaccount: IAccount = await WalletClient.getAccountFromSecretKey(process.env.ACCOUNT_SECRET_KEY);
+    const account = new Web3Account(iaccount, publicApiClient);
+    const walletClient = new WalletClient(clientConfig, publicApiClient, account);
     const SC_Client = new SmartContractsClient(
       clientConfig,
       publicApiClient,
@@ -422,7 +418,9 @@ export async function extractOutputsAndEvents(
     );
   }
   if(rawOutput === null && returnType === 'void') {
-    return;
+    return{
+      events: events,
+    };
   }
   if(rawOutput !== null && returnType !== 'void') {
     let output: Uint8Array = new Uint8Array(Buffer.from(rawOutput, 'base64'));
@@ -461,14 +459,10 @@ async function getEvents(txDetails: TransactionDetails, nodeUrl: string): Promis
     url: nodeUrl,
     type: ProviderType.PUBLIC,
   };
-  const providerPriv: IProvider = {
-    url: nodeUrl,
-    type: ProviderType.PRIVATE,
-  }; // we don't need it here but a private provider is required by the BaseClient object
 
   // setup the client config
   const clientConfig: IClientConfig = {
-    providers: [providerPub, providerPriv],
+    providers: [providerPub],
     periodOffset: null,
   };
   // setup the client
@@ -476,7 +470,7 @@ async function getEvents(txDetails: TransactionDetails, nodeUrl: string): Promis
 
   // async poll events in the background for the given opId
   const { isError, eventPoller, events }: EventPollerResult =
-    await time.withTimeoutRejection<EventPollerResult>(
+    await withTimeoutRejection<EventPollerResult>(
       pollAsyncEvents(client, opId),
       20000,
     );
@@ -578,9 +572,9 @@ import {
   ON_MASSA_EVENT_DATA,
   ON_MASSA_EVENT_ERROR, 
   IEvent, 
-  INodeStatus,
-  time,${mode == 'web3' ? `SmartContractsClient,
-  ICallData,\n` : ''}
+  INodeStatus,${mode == 'web3' ? `\n  SmartContractsClient,
+  ICallData,
+  withTimeoutRejection,\n` : ''}
 } from "@massalabs/massa-web3";
 ${mode == 'wallet' ? 'import { IAccount, providers } from "@massalabs/wallet-provider";\n' : ''}
 
