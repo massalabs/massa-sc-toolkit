@@ -124,8 +124,8 @@ function callSCConstructor(mode) {
         return `{ operationId: 
         await account.callSmartContract(
           {
-            fee: 1n,
-            maxGas: 10000000n,
+            fee: fee,
+            maxGas: maxGas,
             coins: coins,
             targetAddress: contractAddress,
             functionName: functionName,
@@ -140,6 +140,8 @@ function callSCConstructor(mode) {
         functionName,
         args,
         coins,
+        fee,
+        maxGas,
       )`;
     }
 }
@@ -228,12 +230,16 @@ export class ${protoFile.funcName[0].toUpperCase() + protoFile.funcName.slice(1)
 
   public account: ${mode == 'web3' ? 'SmartContractsClient' : 'IAccount'};
   public coins: bigint;
+  public fee: bigint = 0n;
+  public maxGas: bigint = BigInt(4_294_967_295); // = max block gas limit
   
 
-  constructor(account: ${mode == 'web3' ? 'SmartContractsClient' : 'IAccount'}, coins: bigint, nodeRPC: string) {
+  constructor(account: ${mode == 'web3' ? 'SmartContractsClient' : 'IAccount'}, coins: bigint, nodeRPC: string, fee?: bigint, maxGas?: bigint) {
     this.nodeRPC = nodeRPC;
     this.account = account;
     this.coins = coins;
+    if(fee) this.fee = fee;
+    if(maxGas) this.maxGas = maxGas;
   }
 
   /**
@@ -294,12 +300,14 @@ export class ${protoFile.funcName[0].toUpperCase() + protoFile.funcName.slice(1)
    * 
    * @returns {Promise<OperationOutputs>} A promise that resolves to an object which contains the outputs and events from the call to ${protoFile.funcName}.
    */
-  async ${protoFile.funcName}(${args}): Promise<OperationOutputs> {
+  async ${protoFile.funcName}(${args}, fee?: bigint, maxGas?:bigint): Promise<OperationOutputs> {
     ${checkUnsignedArgs}
 
     ${argsSerialization}
 
     // Send the operation to the blockchain and retrieve its outputs
+    if(!fee) fee = this.fee;
+    if(!maxGas) maxGas = this.maxGas;
     return (
       await extractOutputsAndEvents(
         '${contractAddress}',
@@ -309,6 +317,8 @@ export class ${protoFile.funcName[0].toUpperCase() + protoFile.funcName.slice(1)
         '${returnType[protoFile.resType]}',
         this.account,
         this.nodeRPC,
+        fee,
+        maxGas,
       )
     );
   }
@@ -377,7 +387,9 @@ export async function extractOutputsAndEvents(
   returnType: string,
   account: ${mode == 'web3' ? 'SmartContractsClient' : 'IAccount'},
   nodeUrl: string,
-  ): Promise<OperationOutputs> {
+  fee = 0n,
+  maxGas = BigInt(4_294_967_295), // = max block gas limit
+): Promise<OperationOutputs> {
 
   let events: IEvent[] = [];
 
@@ -567,9 +579,9 @@ import {
   ON_MASSA_EVENT_DATA,
   ON_MASSA_EVENT_ERROR, 
   IEvent, 
-  INodeStatus,${mode == 'web3' ? `\n  SmartContractsClient,
-  ICallData,
-  withTimeoutRejection,\n` : ''}
+  INodeStatus,
+  withTimeoutRejection,${mode == 'web3' ? `\n  SmartContractsClient,
+  ICallData,\n` : ''}
 } from "@massalabs/massa-web3";
 ${mode == 'wallet' ? 'import { IAccount, providers } from "@massalabs/wallet-provider";\n' : ''}
 
