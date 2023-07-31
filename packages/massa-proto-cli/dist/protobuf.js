@@ -16,7 +16,7 @@ const path_1 = __importDefault(require("path"));
  *
  * @returns The ProtoFile containing the function, its arguments name, arguments type and its return type
  */
-async function getProtoFunction(protoPath) {
+async function getProtoFunction(protoPath, customTypes) {
     const protoContent = await (0, protobufjs_1.load)(protoPath);
     const protoJSON = protoContent.toJSON();
     // protoJSON.nested shouldn't be undefined
@@ -32,10 +32,13 @@ async function getProtoFunction(protoPath) {
     // get the arguments of the Helper
     const argFields = Object.entries(helper.fields)
         .filter(([, value]) => value)
-        .map(([name, field]) => ({
-        name,
-        type: field.type,
-    }));
+        .map(([name, field]) => {
+        return {
+            name,
+            type: field.type,
+            ctype: (field.options.custom_type !== undefined) ? customTypes.find((type) => type.name === name) : undefined,
+        };
+    });
     const rHelper = protoJSON.nested[messageNames[1]];
     const rHelperKeys = Object.keys(rHelper.fields);
     const resType = rHelperKeys.length === 1 ? rHelper.fields[rHelperKeys[0]].type : 'void';

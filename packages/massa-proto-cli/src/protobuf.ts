@@ -3,6 +3,7 @@ import {
   PROTO_FILE_SEPARATOR,
   strToBytes,
 } from '@massalabs/massa-web3';
+import { MassaCustomType } from '@massalabs/as-transformer/dist';
 import { bytesArrayToString } from './utils/bytesArrayToString';
 import { promises as fs, writeFileSync } from 'fs';
 import { MassaProtoFile } from './MassaProtoFile';
@@ -35,6 +36,7 @@ export interface ProtoFile {
 export interface FunctionArguments {
   name: string;
   type: string;
+  ctype?: MassaCustomType;
 }
 
 /**
@@ -44,7 +46,10 @@ export interface FunctionArguments {
  *
  * @returns The ProtoFile containing the function, its arguments name, arguments type and its return type
  */
-export async function getProtoFunction(protoPath: string): Promise<ProtoFile> {
+export async function getProtoFunction(
+  protoPath: string,
+  customTypes: MassaCustomType[],
+): Promise<ProtoFile> {
   const protoContent = await load(protoPath);
   const protoJSON = protoContent.toJSON();
 
@@ -66,10 +71,16 @@ export async function getProtoFunction(protoPath: string): Promise<ProtoFile> {
   // get the arguments of the Helper
   const argFields: FunctionArguments[] = Object.entries(helper.fields)
     .filter(([, value]) => value)
-    .map(([name, field]) => ({
-      name,
-      type: (field as { type: string; id: number }).type,
-    }));
+    .map(([name, field]) => {
+      return {
+        name,
+        type: (field as { type: string; id: number }).type,
+        ctype:
+          field.options.custom_type !== undefined
+            ? customTypes.find((type) => type.name === name)
+            : undefined,
+      };
+    });
   const rHelper = protoJSON.nested[messageNames[1]] as IType;
   const rHelperKeys = Object.keys(rHelper.fields);
   const resType =
@@ -134,7 +145,6 @@ export async function getProtoFiles(
       const retrievedProtoFiles = bytesArrayToString(contract.final_value); // converting the Uint8Array to string
       // splitting all the proto functions to make separate proto file for each functions
       const protos = retrievedProtoFiles.split(PROTO_FILE_SEPARATOR);
-
       // for proto file, save it and get the function name
       for (let protoContent of protos) {
         // remove all the text before the first appearance of the 'syntax' keyword

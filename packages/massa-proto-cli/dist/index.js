@@ -28,6 +28,7 @@ const as_gen_1 = require("./as-gen");
 const ts_gen_1 = require("./ts-gen");
 const protobuf_1 = require("./protobuf");
 const commander_1 = require("commander");
+const dist_1 = require("@massalabs/as-transformer/dist");
 const dotenv = __importStar(require("dotenv"));
 const fs_1 = require("fs");
 // Load .env file content into process.env
@@ -66,8 +67,9 @@ async function run() {
     // call sc client to fetch protos
     const mpFiles = await (0, protobuf_1.getProtoFiles)([address], out, publicApi);
     // call proto parser with fetched files
+    const customTypes = (0, dist_1.fetchCustomTypes)();
     for (const mpfile of mpFiles) {
-        let protoFile = await (0, protobuf_1.getProtoFunction)(mpfile.filePath);
+        let protoFile = await (0, protobuf_1.getProtoFunction)(mpfile.filePath, customTypes);
         files.push(protoFile);
     }
     // call the generator

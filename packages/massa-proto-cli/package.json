@@ -7,6 +7,7 @@
   "license": "MIT",
   "type": "commonjs",
   "dependencies": {
+    "@massalabs/as-transformer": "^0.2.2-dev.20230731125944",
     "@massalabs/as-types": "^1.0.0",
     "@massalabs/massa-as-sdk": "^2.1.0",
     "@massalabs/massa-web3": "^1.19.2-dev.20230704134830",
