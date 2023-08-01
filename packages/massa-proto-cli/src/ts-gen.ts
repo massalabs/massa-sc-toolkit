@@ -230,7 +230,7 @@ import {
   INodeStatus,
   withTimeoutRejection,
 } from "@massalabs/massa-web3";
-${mode == 'wallet' ? 'import { IAccount, providers } from "@massalabs/wallet-provider";\n' : ''}
+${mode == 'wallet' ? 'import { IAccount } from "@massalabs/wallet-provider";\n' : ''}
 export const MASSA_EXEC_ERROR = 'massa_execution_error';
 
 /**
