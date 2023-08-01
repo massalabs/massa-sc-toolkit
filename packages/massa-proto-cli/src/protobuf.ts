@@ -57,8 +57,8 @@ export async function getProtoFunction(protoPath: string): Promise<ProtoFile> {
   const messageNames = Object.keys(protoJSON.nested);
 
   // check if the proto file contains 2 messages
-  if (messageNames.length !== 2) {
-    throw new Error('Error: the protoFile should contain 2 messages.');
+  if (messageNames.length > 2) {
+    throw new Error('Error: the protoFile should contain maximum 2 messages.');
   }
 
   // get the Helper message
@@ -71,9 +71,17 @@ export async function getProtoFunction(protoPath: string): Promise<ProtoFile> {
       type: (field as { type: string; id: number }).type,
     }));
   const rHelper = protoJSON.nested[messageNames[1]] as IType;
-  const rHelperKeys = Object.keys(rHelper.fields);
-  const resType =
-    rHelperKeys.length === 1 ? rHelper.fields[rHelperKeys[0]].type : 'void';
+  let resType: string;
+  // if the rHelper.fields exists, get the return type
+  try {
+    const rHelperKeys = Object.keys(rHelper.fields);
+    resType =
+      rHelperKeys.length === 1 ? rHelper.fields[rHelperKeys[0]].type : 'void';
+  }
+  catch (e){
+    resType = 'void';
+  }
+
 
   const funcName = messageNames[0].replace(/Helper$/, '');
   const protoData = await fs.readFile(protoPath, 'utf8').catch((error) => {

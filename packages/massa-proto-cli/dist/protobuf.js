@@ -24,8 +24,8 @@ async function getProtoFunction(protoPath) {
         throw new Error('Error: nested is undefined. Please check your proto file.');
     const messageNames = Object.keys(protoJSON.nested);
     // check if the proto file contains 2 messages
-    if (messageNames.length !== 2) {
-        throw new Error('Error: the protoFile should contain 2 messages.');
+    if (messageNames.length > 2) {
+        throw new Error('Error: the protoFile should contain maximum 2 messages.');
     }
     // get the Helper message
     const helper = protoJSON.nested[messageNames[0]];
@@ -37,8 +37,16 @@ async function getProtoFunction(protoPath) {
         type: field.type,
     }));
     const rHelper = protoJSON.nested[messageNames[1]];
-    const rHelperKeys = Object.keys(rHelper.fields);
-    const resType = rHelperKeys.length === 1 ? rHelper.fields[rHelperKeys[0]].type : 'void';
+    let resType;
+    // if the rHelper.fields exists, get the return type
+    try {
+        const rHelperKeys = Object.keys(rHelper.fields);
+        resType =
+            rHelperKeys.length === 1 ? rHelper.fields[rHelperKeys[0]].type : 'void';
+    }
+    catch (e) {
+        resType = 'void';
+    }
     const funcName = messageNames[0].replace(/Helper$/, '');
     const protoData = await fs_1.promises.readFile(protoPath, 'utf8').catch((error) => {
         throw new Error('Error while reading the proto file: ' + error);
