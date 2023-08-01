@@ -71,23 +71,18 @@ export async function getProtoFunction(
   // get the arguments of the Helper
   const argFields: FunctionArguments[] = Object.entries(helper.fields)
     .filter(([, value]) => value)
-    .map(([name, field]) => {
-      return {
-        name,
-        type: (field as { type: string; id: number }).type,
-        ctype:
-          field.options.custom_type !== undefined
-            ? customTypes.find((type) => type.name === (field as { type: string; id: number }).type)
-            : undefined,
-      };
-    });
+    .map(([name, field]) => (
+    {
+      name,
+      type: (field as { type: string; id: number }).type + ((field as { rule: string, type: string; id: number }).rule? ((field as { rule: string, type: string; id: number }).rule == 'repeated'? '[]': '') : ''),
+    }));
   const rHelper = protoJSON.nested[messageNames[1]] as IType;
   let resType: string;
   // if the rHelper.fields exists, get the return type
   try {
     const rHelperKeys = Object.keys(rHelper.fields);
     resType =
-      rHelperKeys.length === 1 ? rHelper.fields[rHelperKeys[0]].type : 'void';
+      rHelperKeys.length === 1 ? rHelper.fields[rHelperKeys[0]].type + (rHelper.fields[rHelperKeys[0]].rule? '[]' : '') : 'void';
   } catch (e) {
     resType = 'void';
   }

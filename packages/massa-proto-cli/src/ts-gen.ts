@@ -468,7 +468,7 @@ export async function ${protoFile.funcName}ExtractOutputsAndEvents(
   if(rawOutput !== null && returnType !== 'void') {
     ${protoFile.resType == 'void'? '' : `let output: Uint8Array = new Uint8Array(Buffer.from(rawOutput, 'base64'));
     // try to deserialize the outputs
-    let deserializedOutput: ${returnType[protoFile.resType]};
+    let deserializedOutput: ${returnType[protoFile.resType]? returnType[protoFile.resType] : 'Unknown_type'};
     try{
       deserializedOutput = ${protoFile.funcName}RHelper.fromBinary(output).value;
     }
