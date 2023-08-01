@@ -313,7 +313,7 @@ export class ${protoFile.funcName[0].toUpperCase() + protoFile.funcName.slice(1)
         '${protoFile.funcName}',
         ${protoFile.argFields.length > 0? 'serializedArgs' : 'new Uint8Array()'},
         this.coins,
-        '${returnType[protoFile.resType]}',
+        '${protoFile.resType == 'void'? 'void' : returnType[protoFile.resType]}',
         this.account,
         this.nodeRPC,
         fee,
@@ -431,7 +431,7 @@ export async function extractOutputsAndEvents(
     };
   }
   if(rawOutput !== null && returnType !== 'void') {
-    let output: Uint8Array = new Uint8Array(Buffer.from(rawOutput, 'base64'));
+    ${protoFile.resType == 'void'? '' : `let output: Uint8Array = new Uint8Array(Buffer.from(rawOutput, 'base64'));
     // try to deserialize the outputs
     let deserializedOutput: ${returnType[protoFile.resType]};
     try{
@@ -442,8 +442,8 @@ export async function extractOutputsAndEvents(
         'Deserialization Error: ' + err + 'Raw Output: ' + rawOutput,
       );
     }
-    return {
-      outputs: deserializedOutput,
+    `}
+    return {${protoFile.resType == 'void'? '' : `\n      outputs: deserializedOutput,`}
       events: events,
     } as OperationOutputs;
   }
