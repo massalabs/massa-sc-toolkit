@@ -504,7 +504,7 @@ function generateCommonCallerFile(protoFiles: ProtoFile[], outputPath: string, m
   // import the ${protoFile.funcName}ExtractOutputsAndEvents functions
   let imports = '';
   for(let protoFile of protoFiles){
-    imports += `import { ${protoFile.funcName}ExtractOutputsAndEvents, ${protoFile.funcName}Helper } from "./${protoFile.funcName}Helper";\n`;
+    imports += `import { ${protoFile.funcName}ExtractOutputsAndEvents${protoFile.argFields.length > 0 ? `, ${protoFile.funcName}Helper` : ''} } from "./${protoFile.funcName}Helper";\n`;
   }
   return `
 ${imports.slice(0, -1)}
