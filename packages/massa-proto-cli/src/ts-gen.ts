@@ -378,10 +378,10 @@ const pollAsyncEvents = async (
 /**
  * generate a personalized extractOutputsAndEvents function for each proto file
  * 
- * @param protoFile 
- * @param mode 
- * @param outputPath 
- * @param contractName 
+ * @param protoFile - The protoFile object
+ * @param mode - The generation mode 
+ * @param outputPath - The path where the file will be generated
+ * @param contractName - The name of the contract
  */
 function generatePollerFunction(protoFile: ProtoFile, mode: string, outputPath: string, contractName: string){
   // add some functions and interfaces to the helper file
@@ -496,7 +496,7 @@ export async function ${protoFile.funcName}ExtractOutputsAndEvents(
         + helperFile,
       'utf8'
     );
-    console.log(`Helper file: ${protoFile.funcName}Helper.ts updated at: ${outputPath}`)
+    console.log(`Helper file: ${protoFile.funcName}Helper.ts updated at: ${outputPath}`);
   }
 }
 
@@ -643,7 +643,7 @@ export function generateTsCallers(
     } catch (e) {
       throw new Error('Error while generating the helper file: ' + e);
     }
-      // Get the new location for the helper file (it should be in the same folder as the caller file)
+    // Get the new location for the helper file (it should be in the same folder as the caller file)
     let newLocation = convertToAbsolutePath(outputDirectory);
 
     // New location and renaming = absolute_outputPath + protoFile.funcName + 'Helper.ts'
