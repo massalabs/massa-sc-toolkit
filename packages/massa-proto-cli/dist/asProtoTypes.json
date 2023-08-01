@@ -12,5 +12,6 @@
     "sfixed64": "i64",
     "bool": "bool",
     "string": "string",
-    "bytes": "ArrayBuffer"
+    "bytes": "ArrayBuffer",
+    "void": "void"
 }
