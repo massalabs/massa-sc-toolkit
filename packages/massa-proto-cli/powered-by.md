@@ -89,6 +89,22 @@ The following is a list of all the dependencies of this project:
 
 **Many thanks to:** [Daniel Wirtz](dcode+protobufjs@dcode.io)
 
+## [ts-jest](git+https://github.com/kulshekhar/ts-jest.git)
+
+**License:** MIT - perpetual
+
+**Used version:** 29.1.1
+
+**Many thanks to:** [Kulshekhar Kabra](kulshekhar@users.noreply.github.com> (https://github.com/kulshekhar)
+
+## [@types/jest](https://github.com/DefinitelyTyped/DefinitelyTyped.git)
+
+**License:** MIT - perpetual
+
+**Used version:** 29.5.3
+
+**Many thanks to:** n/a
+
 ## [typescript](git+https://github.com/Microsoft/TypeScript.git)
 
 **License:** Apache-2.0 - perpetual
