@@ -88,11 +88,9 @@ export async function getProtoFunction(
     const rHelperKeys = Object.keys(rHelper.fields);
     resType =
       rHelperKeys.length === 1 ? rHelper.fields[rHelperKeys[0]].type : 'void';
-  }
-  catch (e){
+  } catch (e) {
     resType = 'void';
   }
-
 
   const funcName = messageNames[0].replace(/Helper$/, '');
   const protoData = await fs.readFile(protoPath, 'utf8').catch((error) => {
