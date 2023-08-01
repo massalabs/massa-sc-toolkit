@@ -12,5 +12,6 @@
     "sfixed64": "bigint",
     "bool": "boolean",
     "string": "string",
-    "bytes": "Uint8Array"
+    "bytes": "Uint8Array",
+    "void": "void"
 }
