@@ -34,7 +34,13 @@ async function getProtoFunction(protoPath) {
         .filter(([, value]) => value)
         .map(([name, field]) => ({
         name,
-        type: field.type + (field.rule ? (field.rule == 'repeated' ? '[]' : '') : ''),
+        type: field.type +
+            (field.rule
+                ? field.rule ==
+                    'repeated'
+                    ? '[]'
+                    : ''
+                : ''),
     }));
     const rHelper = protoJSON.nested[messageNames[1]];
     let resType;
@@ -42,7 +48,10 @@ async function getProtoFunction(protoPath) {
     try {
         const rHelperKeys = Object.keys(rHelper.fields);
         resType =
-            rHelperKeys.length === 1 ? rHelper.fields[rHelperKeys[0]].type + (rHelper.fields[rHelperKeys[0]].rule ? '[]' : '') : 'void';
+            rHelperKeys.length === 1
+                ? rHelper.fields[rHelperKeys[0]].type +
+                    (rHelper.fields[rHelperKeys[0]].rule ? '[]' : '')
+                : 'void';
     }
     catch (e) {
         resType = 'void';

@@ -79,8 +79,16 @@ function generateUnsignedArgCheckCode(protoFile) {
         .filter((arg) => unsignedPBTypes.has(arg.type))
         /* eslint-disable max-len */
         .map((arg) => `\t\tif (${arg.name} < 0) throw new Error("Invalid argument: ${arg.name} cannot be negative according to protobuf file.");`);
-    if (checks.length > 0) {
-        return '// Verify that the given arguments are valid\n' + checks.join('\n') + '\n\n';
+    const unsignedPBArrayTypes = new Set(['uint32[]', 'uint64[]', 'fixed32[]', 'fixed64[]']);
+    const checksArray = protoFile.argFields
+        .filter((arg) => unsignedPBArrayTypes.has(arg.type))
+        /* eslint-disable max-len */
+        .map((arg) => `\t\tif (${arg.name}.some((e) => e < 0)) throw new Error("Invalid argument: ${arg.name} cannot contain negative values according to protobuf file.");`);
+    if (checks.length > 0 || checksArray.length > 0) {
+        return '// Verify that the given arguments are valid\n'
+            + checks.join('\n')
+            + '\n' + checksArray.join('\n')
+            + '\n\n';
     }
     return '';
 }
