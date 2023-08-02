@@ -83,17 +83,15 @@ export async function getProtoFunction(
           : ''),
     }));
   const rHelper = protoJSON.nested[messageNames[1]] as IType;
-  let resType: string;
+  let resType = 'void';
   // if the rHelper.fields exists, get the return type
-  try {
+  if (rHelper && rHelper.fields) {
     const rHelperKeys = Object.keys(rHelper.fields);
     resType =
       rHelperKeys.length === 1
         ? rHelper.fields[rHelperKeys[0]].type +
           (rHelper.fields[rHelperKeys[0]].rule ? '[]' : '')
         : 'void';
-  } catch (e) {
-    resType = 'void';
   }
 
   const funcName = messageNames[0].replace(/Helper$/, '');
