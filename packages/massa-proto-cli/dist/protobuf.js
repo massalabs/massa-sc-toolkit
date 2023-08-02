@@ -36,7 +36,9 @@ async function getProtoFunction(protoPath, customTypes) {
         return {
             name,
             type: field.type,
-            ctype: (field.options.custom_type !== undefined) ? customTypes.find((type) => type.name === name) : undefined,
+            ctype: field.options.custom_type !== undefined
+                ? customTypes.find((type) => type.name === name)
+                : undefined,
         };
     });
     const rHelper = protoJSON.nested[messageNames[1]];
