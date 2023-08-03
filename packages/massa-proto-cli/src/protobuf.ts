@@ -77,7 +77,7 @@ export async function getProtoFunction(
         type: (field as { type: string; id: number }).type,
         ctype:
           field.options.custom_type !== undefined
-            ? customTypes.find((type) => type.name === name)
+            ? customTypes.find((type) => type.name === (field as { type: string; id: number }).type)
             : undefined,
       };
     });
