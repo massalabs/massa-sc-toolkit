@@ -37,7 +37,7 @@ async function getProtoFunction(protoPath, customTypes) {
             name,
             type: field.type,
             ctype: field.options.custom_type !== undefined
-                ? customTypes.find((type) => type.name === name)
+                ? customTypes.find((type) => type.name === field.type)
                 : undefined,
         };
     });
