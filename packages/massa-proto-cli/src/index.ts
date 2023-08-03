@@ -4,7 +4,10 @@ import { generateAsCallers } from './as-gen';
 import { generateTsCallers } from './ts-gen';
 import { ProtoFile, getProtoFiles, getProtoFunction } from './protobuf';
 import { Command } from 'commander';
-
+import {
+  fetchCustomTypes,
+  MassaCustomType,
+} from '@massalabs/as-transformer/dist';
 import * as dotenv from 'dotenv';
 import { existsSync, mkdirSync } from 'fs';
 // Load .env file content into process.env
@@ -67,8 +70,10 @@ async function run() {
   );
 
   // call proto parser with fetched files
+  const customTypes: MassaCustomType[] = fetchCustomTypes();
+
   for (const mpfile of mpFiles) {
-    let protoFile = await getProtoFunction(mpfile.filePath);
+    let protoFile = await getProtoFunction(mpfile.filePath, customTypes);
     files.push(protoFile);
   }
 
