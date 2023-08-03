@@ -62,8 +62,8 @@ export async function getProtoFunction(
   const messageNames = Object.keys(protoJSON.nested);
 
   // check if the proto file contains 2 messages
-  if (messageNames.length !== 2) {
-    throw new Error('Error: the protoFile should contain 2 messages.');
+  if (messageNames.length > 2) {
+    throw new Error('Error: the protoFile should contain maximum 2 messages.');
   }
 
   // get the Helper message
@@ -72,19 +72,28 @@ export async function getProtoFunction(
   const argFields: FunctionArguments[] = Object.entries(helper.fields)
     .filter(([, value]) => value)
     .map(([name, field]) => {
+      const fielType = (field as { type: string; id: number }).type;
+      const fieldRule =
+        (field as { rule: string; type: string; id: number }).rule ===
+        'repeated'
+          ? '[]'
+          : '';
       return {
         name,
-        type: (field as { type: string; id: number }).type,
-        ctype:
-          field.options.custom_type !== undefined
-            ? customTypes.find((type) => type.name === (field as { type: string; id: number }).type)
-            : undefined,
+        type: fielType + fieldRule,
       };
     });
   const rHelper = protoJSON.nested[messageNames[1]] as IType;
-  const rHelperKeys = Object.keys(rHelper.fields);
-  const resType =
-    rHelperKeys.length === 1 ? rHelper.fields[rHelperKeys[0]].type : 'void';
+  let resType = 'void';
+  // if the rHelper.fields exists, get the return type
+  if (rHelper && rHelper.fields) {
+    const rHelperKeys = Object.keys(rHelper.fields);
+    resType =
+      rHelperKeys.length === 1
+        ? rHelper.fields[rHelperKeys[0]].type +
+          (rHelper.fields[rHelperKeys[0]].rule ? '[]' : '')
+        : 'void';
+  }
 
   const funcName = messageNames[0].replace(/Helper$/, '');
   const protoData = await fs.readFile(protoPath, 'utf8').catch((error) => {

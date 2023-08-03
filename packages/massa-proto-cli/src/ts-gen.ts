@@ -3,7 +3,6 @@ import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { execSync } from 'child_process';
 import * as returnType from './tsProtoTypes.json';
 import { resolve, relative, join } from 'path';
-import { SmartContractsClient } from '@massalabs/massa-web3';
 
 
 /**
@@ -64,8 +63,17 @@ function generateUnsignedArgCheckCode(protoFile: ProtoFile): string {
     /* eslint-disable max-len */
     .map((arg) => `\t\tif (${arg.name} < 0) throw new Error("Invalid argument: ${arg.name} cannot be negative according to protobuf file.");`);
 
-  if (checks.length > 0) {
-    return '// Verify that the given arguments are valid\n' + checks.join('\n');
+  const unsignedPBArrayTypes = new Set(['uint32[]', 'uint64[]', 'fixed32[]', 'fixed64[]']);
+  const checksArray = protoFile.argFields
+    .filter((arg) => unsignedPBArrayTypes.has(arg.type))
+    /* eslint-disable max-len */
+    .map((arg) => `\t\tif (${arg.name}.some((e) => e < 0)) throw new Error("Invalid argument: ${arg.name} cannot contain negative values according to protobuf file.");`);
+
+  if (checks.length > 0 || checksArray.length > 0) {
+    return '// Verify that the given arguments are valid\n' 
+      + checks.join('\n') 
+      + '\n' + checksArray.join('\n') 
+      + '\n\n';
   }
 
   return '';
@@ -88,7 +96,7 @@ function argumentSerialization(protoFile: ProtoFile): string {
     return `// Serialize the arguments
     const serializedArgs = ${protoFile.funcName}Helper.toBinary({
       ${args}
-    });`;
+    });\n`;
   }
  
   return '';
@@ -115,8 +123,8 @@ function callSCConstructor(mode: string): string {
     return `{ operationId: 
         await account.callSmartContract(
           {
-            fee: 1n,
-            maxGas: 10000000n,
+            fee: fee,
+            maxGas: maxGas,
             coins: coins,
             targetAddress: contractAddress,
             functionName: functionName,
@@ -131,6 +139,8 @@ function callSCConstructor(mode: string): string {
         functionName,
         args,
         coins,
+        fee,
+        maxGas,
       )`;
   }
 }
@@ -152,41 +162,7 @@ export function generateTSCaller(
   protoFile: ProtoFile,
   contractAddress: string,
   mode: string,
-): void {
-  // check the mode
-  if(mode != 'web3' && mode != 'wallet') throw new Error('Error: mode must be either "web3" or "wallet".');
-
-  // generate the helper file using protoc. Throws an error if the command fails.
-
-  // protoPath is mandatory to generate the helper file
-  if(!protoFile.protoPath) throw new Error('Error: protoPath is undefined.'); 
-  try {
-    compileProtoToTSHelper(protoFile.protoPath);
-  } catch (e) {
-    throw new Error('Error while generating the helper file: ' + e);
-  }
-  
-  // Get the new location for the helper file (it should be in the same folder as the caller file)
-  let newLocation = convertToAbsolutePath(outputPath);
-
-  // New location and renaming = absolute_outputPath + protoFile.funcName + 'Helper.ts'
-  if(!newLocation.endsWith('/') && !newLocation.endsWith('\\')) {
-    newLocation += '/' + protoFile.funcName + 'Helper.ts';
-  } else{
-    newLocation += protoFile.funcName + 'Helper.ts';
-  }
-
-
-  const helperPath = protoFile.protoPath.replace('.proto', '.ts');
-  // join "./helpers/" and helperPath
-  const startPath = join(helperPath);
-
-  // check the os to use the correct command to rename the helper file
-  if (process.platform === 'win32') {
-    execSync(`move "${startPath}" "${newLocation}"`);
-  } else {
-    execSync(`mv "${startPath}" "${newLocation}"`);
-  }
+): string {
 
   // generate the arguments
   const args = setupArguments(protoFile);
@@ -199,92 +175,8 @@ export function generateTSCaller(
 
   // generate the caller function body
   const argsSerialization = argumentSerialization(protoFile);
-
   // generate the caller function
-  const content = `import { 
-  ${protoFile.funcName}Helper,
-  extractOutputsAndEvents
-} from "./${protoFile.funcName}Helper";
-import {  
-  IEvent,${mode == 'web3' ? `\n  ProviderType,
-  SmartContractsClient,  
-  PublicApiClient,
-  IAccount,
-  WalletClient,` : ''}
-} from "@massalabs/massa-web3";
-${mode == 'wallet' ? 'import { IAccount, providers } from "@massalabs/wallet-provider";\n' : ''}
-
-/**
- * This interface is used to represents the outputs of the SC call.
- * 
- * @see outputs - The outputs of the SC call (optional)
- * @see events - The events emitted by the SC call (optional)
- */
-export interface OperationOutputs {
-  outputs?: any;
-  events: IEvent[];
-}
-
-
-export class ${protoFile.funcName[0].toUpperCase() + protoFile.funcName.slice(1)}BlockchainCaller {
-  private nodeRPC: string;
-
-  public account: ${mode == 'web3'? 'SmartContractsClient' : 'IAccount'};
-  public coins: bigint;
-  
-
-  constructor(account: ${mode == 'web3'? 'SmartContractsClient' : 'IAccount'}, coins: bigint, nodeRPC: string) {
-    this.nodeRPC = nodeRPC;
-    this.account = account;
-    this.coins = coins;
-  }
-
-  /**
-   * This method have been generated by the Massa Proto CLI.
-   * It allows you to instantiate a new ${protoFile.funcName[0].toUpperCase() + protoFile.funcName.slice(1)}BlockchainCaller object with the default values.
-   * ${mode == 'web3'? "" : `
-   * @param {string} providerName - The name of the provider to use
-   * @param {number} accountIndex - The index of the account to use in the provider's list of accounts
-   * `}
-   * @returns {Promise<${protoFile.funcName[0].toUpperCase() + protoFile.funcName.slice(1)}BlockchainCaller>} A promise that resolves to a new ${protoFile.funcName[0].toUpperCase() + protoFile.funcName.slice(1)}BlockchainCaller object
-   */
-  static async newDefault(${mode == 'web3'? "" : 'providerName: string, accountIndex: number'}): Promise<${protoFile.funcName[0].toUpperCase() + protoFile.funcName.slice(1)}BlockchainCaller> {
-    ${mode == 'web3'? `// check if the environment variables are set
-    if (!process.env.NODE_RPC) {
-      throw new Error('NODE_RPC environment variable is not set');
-    }
-    if (!process.env.ACCOUNT_SECRET_KEY) {
-      throw new Error('ACCOUNT_SECRET_KEY environment variable is not set');
-    }
-    const providerPub = {
-      url: process.env.NODE_RPC,
-      type: ProviderType.PUBLIC,
-    };
-    const providerPriv = {
-      url: process.env.NODE_RPC,
-      type: ProviderType.PRIVATE,
-    };
-    const clientConfig = {
-      providers: [providerPub, providerPriv],
-      periodOffset: null,
-    };
-    const publicApiClient = new PublicApiClient(clientConfig);
-    const walletClient = new WalletClient(clientConfig, publicApiClient);
-    const account: IAccount = await WalletClient.getAccountFromSecretKey(process.env.ACCOUNT_SECRET_KEY);
-    walletClient.setBaseAccount(account);
-    const SC_Client = new SmartContractsClient(
-      clientConfig,
-      publicApiClient,
-      walletClient,
-    );`: `// get the available providers
-    const provider = await providers();
-    // chose the provider
-    const providerToUse = provider.find((p) => String(p.name) === providerName);
-    if (!providerToUse) {
-      throw new Error("Provider '" + providerName + "'not found");
-    }`}
-    return new ${protoFile.funcName[0].toUpperCase() + protoFile.funcName.slice(1)}BlockchainCaller(${mode == 'web3'? 'SC_Client' : '(await providerToUse.accounts())[accountIndex]'}, 0n, ${mode == 'web3'? 'process.env.NODE_RPC' : '(await providerToUse.getNodesUrls())[0]'});
-  }
+  return `
 
   /**
    * This method have been generated by the Massa Proto CLI.
@@ -301,60 +193,54 @@ export class ${protoFile.funcName[0].toUpperCase() + protoFile.funcName.slice(1)
    * 
    * @returns {Promise<OperationOutputs>} A promise that resolves to an object which contains the outputs and events from the call to ${protoFile.funcName}.
    */
-  async ${protoFile.funcName}(${args}): Promise<OperationOutputs> {
-    ${checkUnsignedArgs}
-
-    ${argsSerialization}
-
+  async ${protoFile.funcName}(${protoFile.argFields.length > 0? `${args}, ` : ''}fee?: bigint, maxGas?:bigint): Promise<OperationOutputs> {
+    ${checkUnsignedArgs}${argsSerialization}
     // Send the operation to the blockchain and retrieve its outputs
+    if(!fee) fee = this.fee;
+    if(!maxGas) maxGas = this.maxGas;
     return (
-      await extractOutputsAndEvents(
+      await ${protoFile.funcName}ExtractOutputsAndEvents(
         '${contractAddress}',
         '${protoFile.funcName}',
-        serializedArgs,
+        ${protoFile.argFields.length > 0? 'serializedArgs' : 'new Uint8Array()'},
         this.coins,
-        '${returnType[protoFile.resType]}',
+        '${protoFile.resType == 'void'? 'void' : returnType[protoFile.resType]}',
         this.account,
         this.nodeRPC,
+        fee,
+        maxGas,
       )
     );
   }
 
-  /**
-   * This method have been generated by the Massa Proto CLI.
-   * It allows you to update the amount of Massa coins to send to the block creator when calling the Smart Contract.
-   */
-  editCoins(coins: bigint) {
-    this.coins = coins;
-  }
-}
-
 `;
 
-  // save content to file
-  const fileName = `${protoFile.funcName}Caller.ts`;
-  if (outputPath.slice(-1) != '/') {
-    outputPath += '/';
-  }
-  writeFileSync(`${outputPath}${fileName}`, content, 'utf8');
-  
-  // add some functions and interfaces to the helper file
-  // check if the helper file exists in the outputPath
-  if(outputPath.slice(-1) != '/' || outputPath.slice(-1) != '\\') {
-    outputPath += '/';
-  };
-  if (existsSync(`${outputPath}${protoFile.funcName}Helper.ts`)) {
-    // read the helper file
-    let helperFile = readFileSync(`${outputPath}${protoFile.funcName}Helper.ts`, 'utf8');
+  // // save content to file
+  // const fileName = `${protoFile.funcName}Caller.ts`;
+  // if (outputPath.slice(-1) != '/') {
+  //   outputPath += '/';
+  // }
+  // writeFileSync(`${outputPath}${fileName}`, content, 'utf8');
+}
 
-    // add the interfaces and functions
-    helperFile += `
+function generateCommonHelperFile(outputPath: string, mode: string){
+  const content = `/*****************HELPER GENERATED BY MASSA-PROTO-CLI*****************/
 
-
-/*****************GENERATED BY MASSA-PROTO-CLI*****************/
-
+import { 
+  Client, 
+  IClientConfig, 
+  IEventFilter, 
+  IProvider, 
+  ProviderType, 
+  EventPoller,
+  ON_MASSA_EVENT_DATA,
+  ON_MASSA_EVENT_ERROR, 
+  IEvent, 
+  INodeStatus,
+  withTimeoutRejection,
+} from "@massalabs/massa-web3";
+${mode == 'wallet' ? 'import { IAccount } from "@massalabs/wallet-provider";\n' : ''}
 export const MASSA_EXEC_ERROR = 'massa_execution_error';
-export const OUTPUTS_PREFIX = 'Result${protoFile.funcName}:';
 
 /**
  * This interface represents the result of the event poller.
@@ -377,83 +263,16 @@ export interface EventPollerResult {
 export interface TransactionDetails {
   operationId: string;
 }
-
-export async function extractOutputsAndEvents(
-  contractAddress: string, 
-  functionName: string, 
-  args: Uint8Array, 
-  coins: bigint, 
-  returnType: string,
-  account: ${mode == 'web3' ? 'SmartContractsClient' : 'IAccount'},
-  nodeUrl: string,
-  ): Promise<OperationOutputs> {
-
-  let events: IEvent[] = [];
-
-  // try to call the Smart Contract
-  try{
-    events = await getEvents(
-      ${callSCConstructor(mode)},
-      nodeUrl,
-    )
-  }
-  catch (err) { 
-    return {
-      events: events,
-    } as OperationOutputs;
-  }
-
-  // if the call is successful, retrieve the outputs from the events
-  let rawOutput: string | null = null;
-  for (let event of events) {
-    if (event.data.slice(0, OUTPUTS_PREFIX.length) == OUTPUTS_PREFIX) {
-      rawOutput = event.data.slice(OUTPUTS_PREFIX.length);
-      // remove the event from the list
-      events.splice(events.indexOf(event), 1);
-      break;
-    }
-  }
-
-  // check the output and return the result
-  if (rawOutput === null && returnType !== 'void') {
-    const detectedEventsData = events.map((e) => e.data); 
-    throw new Error(
-      'Output expected but not found. Events detected:\\n' + '[ ' + detectedEventsData.join(' ]\\n[ ') + ' ]',
-    );
-  }
-  if(rawOutput === null && returnType === 'void') {
-    return;
-  }
-  if(rawOutput !== null && returnType !== 'void') {
-    let output: Uint8Array = new Uint8Array(Buffer.from(rawOutput, 'base64'));
-    // try to deserialize the outputs
-    let deserializedOutput: ${returnType[protoFile.resType]};
-    try{
-      deserializedOutput = ${protoFile.funcName}RHelper.fromBinary(output).value;
-    }
-    catch (err) {
-      throw new Error(
-        'Deserialization Error: ' + err + 'Raw Output: ' + rawOutput,
-      );
-    }
-    return {
-      outputs: deserializedOutput,
-      events: events,
-    } as OperationOutputs;
-  }
-  throw new Error('${protoFile.funcName}Caller: Unexpected error'); 
-}
-
 /**
  * This method have been generated by the Massa Proto CLI. 
- * It sets up all the objects needed to poll the events generated by the "${protoFile.funcName}" function.
+ * It sets up all the objects needed to poll the events generated by a smart contract function.
  *
  * @param {TransactionDetails} txDetails - An object containing the operationId of SC call.
  * @param {string} nodeUrl - The url of the node to connect to.
  * 
  * @returns {Promise<EventPollerResult>} An object containing the eventPoller and the events.
  */
-async function getEvents(txDetails: TransactionDetails, nodeUrl: string): Promise<IEvent[]>{
+export async function getEvents(txDetails: TransactionDetails, nodeUrl: string): Promise<IEvent[]>{
   const opId = txDetails.operationId;
 
   // setup the providers
@@ -461,14 +280,10 @@ async function getEvents(txDetails: TransactionDetails, nodeUrl: string): Promis
     url: nodeUrl,
     type: ProviderType.PUBLIC,
   };
-  const providerPriv: IProvider = {
-    url: nodeUrl,
-    type: ProviderType.PRIVATE,
-  }; // we don't need it here but a private provider is required by the BaseClient object
 
   // setup the client config
   const clientConfig: IClientConfig = {
-    providers: [providerPub, providerPriv],
+    providers: [providerPub],
     periodOffset: null,
   };
   // setup the client
@@ -476,7 +291,7 @@ async function getEvents(txDetails: TransactionDetails, nodeUrl: string): Promis
 
   // async poll events in the background for the given opId
   const { isError, eventPoller, events }: EventPollerResult =
-    await time.withTimeoutRejection<EventPollerResult>(
+    await withTimeoutRejection<EventPollerResult>(
       pollAsyncEvents(client, opId),
       20000,
     );
@@ -562,29 +377,126 @@ const pollAsyncEvents = async (
   });
 };
 `;
+
+  // save content to file
+  const fileName = `commonHelper.ts`;
+  writeFileSync(`${outputPath}${fileName}`, content, 'utf8');
+  console.log(`Common helper file generated at: ${outputPath}`);
+}
+
+/**
+ * generate a personalized extractOutputsAndEvents function for each proto file
+ * 
+ * @param protoFile - The protoFile object
+ * @param mode - The generation mode 
+ * @param outputPath - The path where the file will be generated
+ * @param contractName - The name of the contract
+ */
+function generatePollerFunction(protoFile: ProtoFile, mode: string, outputPath: string, contractName: string){
+  // add some functions and interfaces to the helper file
+  // check if the helper file exists in the outputPath
+  if(outputPath.slice(-1) != '/' || outputPath.slice(-1) != '\\') {
+    outputPath += '/';
+  };
+  if (existsSync(`${outputPath}${protoFile.funcName}Helper.ts`)) {
+    // read the helper file
+    let helperFile = readFileSync(`${outputPath}${protoFile.funcName}Helper.ts`, 'utf8');
     const helperImports = `
 /*****************IMPORTS GENERATED BY MASSA-PROTO-CLI*****************/
 
 import {
   OperationOutputs,
-} from "./${protoFile.funcName}Caller";
+} from "./${contractName}Caller";
+import { getEvents } from "./commonHelper";
 import { 
-  Client, 
-  IClientConfig, 
-  IEventFilter, 
-  IProvider, 
-  ProviderType, 
-  EventPoller,
-  ON_MASSA_EVENT_DATA,
-  ON_MASSA_EVENT_ERROR, 
-  IEvent, 
-  INodeStatus,
-  time,${mode == 'web3' ? `SmartContractsClient,
-  ICallData,\n` : ''}
+  IEvent,${mode == 'web3' ? `\n  SmartContractsClient,
+  ICallData,` : ''}
 } from "@massalabs/massa-web3";
 ${mode == 'wallet' ? 'import { IAccount, providers } from "@massalabs/wallet-provider";\n' : ''}
 
 `;
+
+    // add the interfaces and functions
+    helperFile += `
+
+
+/*****************GENERATED BY MASSA-PROTO-CLI*****************/
+
+const OUTPUTS_PREFIX = 'Result${protoFile.funcName}:';
+
+export async function ${protoFile.funcName}ExtractOutputsAndEvents(
+  contractAddress: string, 
+  functionName: string, 
+  args: Uint8Array, 
+  coins: bigint, 
+  returnType: string,
+  account: ${mode == 'web3' ? 'SmartContractsClient' : 'IAccount'},
+  nodeUrl: string,
+  fee = 0n,
+  maxGas = BigInt(4_294_967_295), // = max block gas limit
+): Promise<OperationOutputs> {
+
+  let events: IEvent[] = [];
+
+  // try to call the Smart Contract
+  try{
+    events = await getEvents(
+      ${callSCConstructor(mode)},
+      nodeUrl,
+    )
+  }
+  catch (err) { 
+    return {
+      events: events,
+    } as OperationOutputs;
+  }
+
+  // if the call is successful, retrieve the outputs from the events
+  let rawOutput: string | null = null;
+  for (let event of events) {
+    if (event.data.slice(0, OUTPUTS_PREFIX.length) == OUTPUTS_PREFIX) {
+      rawOutput = event.data.slice(OUTPUTS_PREFIX.length);
+      // remove the event from the list
+      events.splice(events.indexOf(event), 1);
+      break;
+    }
+  }
+
+  // check the output and return the result
+  if (rawOutput === null && returnType !== 'void') {
+    const detectedEventsData = events.map((e) => e.data); 
+    throw new Error(
+      'Output expected but not found. Events detected:\\n' + '[ ' + detectedEventsData.join(' ]\\n[ ') + ' ]',
+    );
+  }
+  if(rawOutput === null && returnType === 'void') {
+    return{
+      events: events,
+    };
+  }
+  if(rawOutput !== null && returnType !== 'void') {
+    ${protoFile.resType == 'void'? '' : `let output: Uint8Array = new Uint8Array(Buffer.from(rawOutput, 'base64'));
+    // try to deserialize the outputs
+    let deserializedOutput: ${returnType[protoFile.resType]? returnType[protoFile.resType] : 'Unknown_type'};
+    try{
+      deserializedOutput = ${protoFile.funcName}RHelper.fromBinary(output).value;
+    }
+    catch (err) {
+      throw new Error(
+        'Deserialization Error: ' + err + 'Raw Output: ' + rawOutput,
+      );
+    }
+    `}
+    return {${protoFile.resType == 'void'? '' : `\n      outputs: deserializedOutput,`}
+      events: events,
+    } as OperationOutputs;
+  }
+  throw new Error('${protoFile.funcName}Caller: Unexpected error'); 
+}
+
+
+`;
+
     // save the helper file
     writeFileSync(
       `${outputPath}${protoFile.funcName}Helper.ts`,
@@ -593,11 +505,101 @@ ${mode == 'wallet' ? 'import { IAccount, providers } from "@massalabs/wallet-pro
         + helperFile,
       'utf8'
     );
+    console.log(`Helper file: ${protoFile.funcName}Helper.ts updated at: ${outputPath}`);
   }
-
-  console.log(`Caller file: ${fileName} generated at: ${outputPath}`);
 }
 
+function generateCommonCallerFile(protoFiles: ProtoFile[], outputPath: string, mode: string, contractName: string): string{
+  // import the ${protoFile.funcName}ExtractOutputsAndEvents functions
+  let imports = '';
+  for(let protoFile of protoFiles){
+    imports += `import { ${protoFile.funcName}ExtractOutputsAndEvents${protoFile.argFields.length > 0 ? `, ${protoFile.funcName}Helper` : ''} } from "./${protoFile.funcName}Helper";\n`;
+  }
+  return `
+${imports.slice(0, -1)}
+import {  
+  IEvent,${mode == 'web3' ? `\n  ProviderType,
+  SmartContractsClient,  
+  PublicApiClient,
+  IAccount,
+  WalletClient,
+  Web3Account,` : ''}
+} from "@massalabs/massa-web3";
+${mode == 'wallet' ? 'import { IAccount, providers } from "@massalabs/wallet-provider";\n' : ''}
+
+/**
+ * This interface is used to represents the outputs of the SC call.
+ * 
+ * @see outputs - The outputs of the SC call (optional)
+ * @see events - The events emitted by the SC call (optional)
+ */
+export interface OperationOutputs {
+  outputs?: any;
+  events: IEvent[];
+}
+
+  
+export class ${contractName[0].toUpperCase() + contractName.slice(1)}BlockchainCaller {
+  private nodeRPC: string;
+
+  public account: ${mode == 'web3'? 'SmartContractsClient' : 'IAccount'};
+  public coins: bigint;
+  public fee: bigint = 0n;
+  public maxGas: bigint = BigInt(4_294_967_295); // = max block gas limit
+    
+  
+  constructor(account: ${mode == 'web3'? 'SmartContractsClient' : 'IAccount'}, coins: bigint, nodeRPC: string, fee?: bigint, maxGas?: bigint) {
+    this.nodeRPC = nodeRPC;
+    this.account = account;
+    this.coins = coins;
+    if(fee) this.fee = fee;
+    if(maxGas) this.maxGas = maxGas;
+  }
+
+  /**
+   * This method have been generated by the Massa Proto CLI.
+   * It allows you to instantiate a new ${contractName[0].toUpperCase() + contractName.slice(1)}BlockchainCaller object with the default values.
+   * ${mode == 'web3'? "" : `
+   * @param {string} providerName - The name of the provider to use
+   * @param {number} accountIndex - The index of the account to use in the provider's list of accounts
+   * `}
+   * @returns {Promise<${contractName[0].toUpperCase() + contractName.slice(1)}BlockchainCaller>} A promise that resolves to a new ${contractName[0].toUpperCase() + contractName.slice(1)}BlockchainCaller object
+   */
+  static async newDefault(${mode == 'web3'? "" : 'providerName: string, accountIndex: number'}): Promise<${contractName[0].toUpperCase() + contractName.slice(1)}BlockchainCaller> {
+    ${mode == 'web3'? `// check if the environment variables are set
+    if (!process.env.NODE_RPC) {
+      throw new Error('NODE_RPC environment variable is not set');
+    }
+    if (!process.env.ACCOUNT_SECRET_KEY) {
+      throw new Error('ACCOUNT_SECRET_KEY environment variable is not set');
+    }
+    const providerPub = {
+      url: process.env.NODE_RPC,
+      type: ProviderType.PUBLIC,
+    };
+    const clientConfig = {
+      providers: [providerPub],
+      periodOffset: null,
+    };
+    const publicApiClient = new PublicApiClient(clientConfig);
+    const iaccount: IAccount = await WalletClient.getAccountFromSecretKey(process.env.ACCOUNT_SECRET_KEY);
+    const account = new Web3Account(iaccount, publicApiClient);
+    const walletClient = new WalletClient(clientConfig, publicApiClient, account);
+    const SC_Client = new SmartContractsClient(
+      clientConfig,
+      publicApiClient,
+      walletClient,
+    );`: `// get the available providers
+    const provider = await providers();
+    // chose the provider
+    const providerToUse = provider.find((p) => String(p.name()) === providerName);
+    if (!providerToUse) {
+      throw new Error("Provider '" + providerName + "'not found");
+    }`}
+    return new ${contractName[0].toUpperCase() + contractName.slice(1)}BlockchainCaller(${mode == 'web3'? 'SC_Client' : '(await providerToUse.accounts())[accountIndex]'}, 0n, ${mode == 'web3'? 'process.env.NODE_RPC' : '(await providerToUse.getNodesUrls())[0]'});
+  }
+`;  
+}
 
 /**
  * Convert the given path to a relative path based on the current terminal path.
@@ -636,10 +638,70 @@ export function generateTsCallers(
   outputDirectory: string,
   address: string,
   mode: string,
+  contractName: string,
 ) {
-  for (const file of protoFiles) {
-    if(!file.protoPath) throw new Error('Error: protoPath is undefined.');
-    // generate the helper and the caller inside the same folder
-    generateTSCaller(outputDirectory, file, address, mode);
+  // check the mode
+  if(mode != 'web3' && mode != 'wallet') throw new Error('Error: mode must be either "web3" or "wallet".');
+  // generate the helper file for each proto file
+  for (let protoFile of protoFiles) {
+    // generate the helper file using protoc. Throws an error if the command fails.
+    // protoPath is mandatory to generate the helper file
+    if(!protoFile.protoPath) throw new Error('Error: protoPath is undefined.'); 
+    try {
+      compileProtoToTSHelper(protoFile.protoPath);
+    } catch (e) {
+      throw new Error('Error while generating the helper file: ' + e);
+    }
+    // Get the new location for the helper file (it should be in the same folder as the caller file)
+    let newLocation = convertToAbsolutePath(outputDirectory);
+
+    // New location and renaming = absolute_outputPath + protoFile.funcName + 'Helper.ts'
+    if(!newLocation.endsWith('/') && !newLocation.endsWith('\\')) {
+      newLocation += '/' + protoFile.funcName + 'Helper.ts';
+    } else{
+      newLocation += protoFile.funcName + 'Helper.ts';
+    }
+    const helperPath = protoFile.protoPath.replace('.proto', '.ts');
+    // join "./helpers/" and helperPath
+    const startPath = join(helperPath);
+
+    // check the os to use the correct command to rename the helper file
+    if (process.platform === 'win32') {
+      execSync(`move "${startPath}" "${newLocation}"`);
+    } else {
+      execSync(`mv "${startPath}" "${newLocation}"`);
+    }
+
+    // add the event pollerClass into the helper file
+    generatePollerFunction(protoFile, mode, outputDirectory, contractName);
   }
+  // generate the common helper file
+  generateCommonHelperFile(outputDirectory, mode);
+
+  // generate the common part of the caller file
+  const part1 = generateCommonCallerFile(protoFiles, outputDirectory, mode, contractName);
+
+  // generate the caller method file for each proto file
+  let part2 = '';
+  for (let protoFile of protoFiles) {
+    part2 += generateTSCaller(outputDirectory, protoFile, address, mode);
+  }
+
+  const part3 = `  /**
+  * This method have been generated by the Massa Proto CLI.
+  * It allows you to update the amount of Massa coins to send to the block creator when calling the Smart Contract.
+  */
+ editCoins(coins: bigint) {
+   this.coins = coins;
+ }
+}
+`;
+
+  // save the caller file
+  const fileName = `${contractName}Caller.ts`;
+  if (outputDirectory.slice(-1) != '/') {
+    outputDirectory += '/';
+  }
+  writeFileSync(`${outputDirectory}${fileName}`, part1 + part2 + part3, 'utf8');
+
 }
