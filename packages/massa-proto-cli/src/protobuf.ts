@@ -88,7 +88,7 @@ export async function getProtoFunction(
   // --- helper functions ---
   // get the arguments of the function if any
   function getArgFields(): FunctionArguments[] {
-    if (!helperName) {
+    if (!helperName || !protoJSON.nested) {
       return [];
     }
 
@@ -113,7 +113,7 @@ export async function getProtoFunction(
 
   // get the return type of the function if any or void
   function getResType(): string {
-    if (rHelperName) {
+    if (rHelperName && protoJSON.nested) {
       const rHelper = protoJSON.nested[rHelperName] as IType;
 
       if (rHelper && rHelper.fields) {
@@ -158,9 +158,8 @@ export async function getProtoFiles(
   };
 
   // send request
-  let response = null;
   try {
-    response = await fetch(providerUrl, {
+    const response = await fetch(providerUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -52,7 +52,7 @@ async function run() {
   let address = args['addr'];
   let out = args['out'];
 
-  if (mode === '' || address === '') {
+  if (mode === '' || address === '' || publicApi === undefined) {
     program.help();
     return 1;
   }
