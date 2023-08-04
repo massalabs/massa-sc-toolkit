@@ -5,12 +5,14 @@ import {
 } from '@massalabs/massa-web3';
 import { MassaCustomType } from '@massalabs/as-transformer/dist/index.js';
 import { bytesArrayToString } from './utils/bytesArrayToString.js';
-import { promises as fs, writeFileSync } from 'fs';
+import * as fs from 'fs';
 import { MassaProtoFile } from './MassaProtoFile.js';
 import { IType } from 'protobufjs';
 import pkg from 'protobufjs';
 const { load } = pkg;
 import path from 'path';
+import { descriptoContent } from './utils/descriptorContent.js';
+import { mkdirpSync } from 'mkdirp';
 import assert from 'assert';
 
 /**
@@ -53,6 +55,21 @@ export async function getProtoFunction(
   protoPath: string,
   customTypes: MassaCustomType[],
 ): Promise<ProtoFile> {
+  // check if the protofile exists contains 'import "google/protobuf/descriptor.proto";'
+  const descriptorProtoPath = path.join(
+    path.dirname(protoPath),
+    'google/protobuf/descriptor.proto',
+  );
+
+  if (!fs.existsSync(descriptorProtoPath)) {
+    const protoFileContent = await fs.promises.readFile(protoPath, 'utf8');
+    const regex = /import "google\/protobuf\/descriptor.proto";/g;
+    if (regex.test(protoFileContent)) {
+      mkdirpSync(path.join(path.dirname(protoPath), 'google/protobuf'));
+      fs.writeFileSync(descriptorProtoPath, descriptoContent);
+    }
+  }
+
   const protoContent = await load(protoPath);
   const protoJSON = protoContent.toJSON();
 
@@ -82,9 +99,11 @@ export async function getProtoFunction(
 
   const resType = getResType();
 
-  const protoData = await fs.readFile(protoPath, 'utf8').catch((error) => {
-    throw new Error('Error while reading the proto file: ' + error);
-  });
+  const protoData = await fs.promises
+    .readFile(protoPath, 'utf8')
+    .catch((error) => {
+      throw new Error('Error while reading the proto file: ' + error);
+    });
 
   return { argFields, funcName, resType, protoData, protoPath };
 
@@ -205,7 +224,7 @@ export async function getProtoFiles(
           .trim();
         // save the proto file
         const filepath = path.join(outputDirectory, functionName + '.proto');
-        writeFileSync(filepath, proto);
+        fs.writeFileSync(filepath, proto);
         const extractedProto: MassaProtoFile = {
           data: proto,
           filePath: filepath,
