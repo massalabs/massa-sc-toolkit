@@ -18,16 +18,19 @@ export function generateAsCall(
 ) {
   // check if all the arguments are supported (to avoid 'undefined' objects in the generated code)
   protoData.argFields.forEach(({ type }) => {
-    if (!asProtoTypes[type]) {
+    if (!asProtoTypes.hasOwnProperty(type)) {
       throw new Error(`Unsupported type: ${type}`);
     }
   });
 
   // generating AS arguments
   let args: string[] = [];
-  protoData.argFields.forEach(({ name, type }) =>
-    args.push(`${name}: ${asProtoTypes[type]}`),
-  );
+  protoData.argFields.forEach(({ name, type }) => {
+    if (asProtoTypes.hasOwnProperty(type)) {
+      const asType: string = asProtoTypes[type as keyof typeof asProtoTypes];
+      args.push(`${name}: ${asType}`);
+    }
+  });
 
   let responseDecoding = '';
   let responseTypeImports = '';
@@ -54,7 +57,9 @@ import { Args } from '@massalabs/as-types';
 export function ${protoData.funcName}(${
     args.length > 0 ? args.join(', ') + ', ' : ''
   } coins: u64): ${
-    protoData.resType !== null ? asProtoTypes[protoData.resType] : 'void'
+    protoData.resType !== null
+      ? asProtoTypes.hasOwnProperty(protoData.resType)
+      : 'void'
   } {
 
   const result = call(

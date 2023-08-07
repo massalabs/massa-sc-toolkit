@@ -1,8 +1,14 @@
 import { ProtoFile } from './protobuf.js';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { execSync } from 'child_process';
-import { default as returnType } from './tsProtoTypes.json' assert { type: 'json' };
 import { resolve, relative, join } from 'path';
+import { default as tsProtoTypes } from './tsProtoTypes.json' assert { type: 'json' };
+
+interface ReturnType {
+  [key: string]: string;
+}
+const returnType: ReturnType = tsProtoTypes;
+
 
 /**
  * Compile proto file to TypeScript helper class.
@@ -43,7 +49,7 @@ export function compileProtoToTSHelper(protoFilePath: string): void {
 function setupArguments(protoFile: ProtoFile): string {
   return protoFile.argFields
     .reduce((content, arg) => {
-      if (!returnType[arg.type])
+      if (!returnType.hasOwnProperty(arg.type))
         throw new Error(`Unsupported type: ${arg.type}`);
       return `${content}${arg.name}: ${returnType[arg.type]}, `;
     }, '')
@@ -171,15 +177,12 @@ function callSCConstructor(mode: string): string {
  * - If the @see outputPath is the relative path based on the location of your terminal
  * - Don't forget to run 'npm install protobuf-ts/plugin' in your project folder for the caller to work
  *
- * @param outputPath - The path where the file will be generated
  * @param protoFile - The protoFile object used to generate the caller
  * @param contractAddress - The address of the Smart Contract to interact with (optional)
  */
 export function generateTSCaller(
-  outputPath: string,
   protoFile: ProtoFile,
   contractAddress: string,
-  mode: string,
 ): string {
   // generate the arguments
   const args = setupArguments(protoFile);
@@ -570,7 +573,6 @@ export async function ${protoFile.funcName}ExtractOutputsAndEvents(
 
 function generateCommonCallerFile(
   protoFiles: ProtoFile[],
-  outputPath: string,
   mode: string,
   contractName: string,
 ): string {
@@ -786,17 +788,12 @@ export function generateTsCallers(
   generateCommonHelperFile(outputDirectory, mode);
 
   // generate the common part of the caller file
-  const part1 = generateCommonCallerFile(
-    protoFiles,
-    outputDirectory,
-    mode,
-    contractName,
-  );
+  const part1 = generateCommonCallerFile(protoFiles, mode, contractName);
 
   // generate the caller method file for each proto file
   let part2 = '';
   for (let protoFile of protoFiles) {
-    part2 += generateTSCaller(outputDirectory, protoFile, address, mode);
+    part2 += generateTSCaller(protoFile, address);
   }
 
   const part3 = `  /**
