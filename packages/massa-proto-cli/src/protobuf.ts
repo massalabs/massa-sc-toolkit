@@ -3,12 +3,15 @@ import {
   PROTO_FILE_SEPARATOR,
   strToBytes,
 } from '@massalabs/massa-web3';
-import { MassaCustomType } from '@massalabs/as-transformer/dist';
-import { bytesArrayToString } from './utils/bytesArrayToString';
+import { MassaCustomType } from '@massalabs/as-transformer/dist/index.js';
+import { bytesArrayToString } from './utils/bytesArrayToString.js';
 import { promises as fs, writeFileSync } from 'fs';
-import { MassaProtoFile } from './MassaProtoFile';
-import { load, IType } from 'protobufjs';
+import { MassaProtoFile } from './MassaProtoFile.js';
+import { IType } from 'protobufjs';
+import pkg from 'protobufjs';
+const { load } = pkg;
 import path from 'path';
+import assert from 'assert';
 
 /**
  * Represents a function in a proto file
@@ -103,10 +106,18 @@ export async function getProtoFunction(
           'repeated'
             ? '[]'
             : '';
+        const ctype =
+          field.options?.['custom_type'] !== undefined
+            ? customTypes.find(
+                (type) =>
+                  type.name === (field as { type: string; id: number }).type,
+              )
+            : undefined;
 
         return {
           name,
           type: fielType + fieldRule,
+          ctype,
         };
       });
   }
@@ -120,7 +131,10 @@ export async function getProtoFunction(
         const rHelperKeys = Object.keys(rHelper.fields);
 
         if (rHelperKeys.length === 1) {
-          const field = rHelper.fields[rHelperKeys[0]];
+          const key = rHelperKeys[0];
+          assert(key);
+          const field = rHelper.fields[key];
+          assert(field);
           return field.type + (field.rule ? '[]' : '');
         }
       }

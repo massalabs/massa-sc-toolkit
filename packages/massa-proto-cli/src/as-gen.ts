@@ -1,9 +1,8 @@
 import { writeFileSync } from 'fs';
 import { spawnSync } from 'child_process';
 import path from 'path';
-import { ProtoFile } from './protobuf';
-import * as asProtoTypes from './asProtoTypes.json';
-
+import { ProtoFile } from './protobuf.js';
+import { default as asProtoTypes } from './asProtoTypes.json' assert { type: 'json' };
 
 /**
  * Creates a contract function caller with the given proto file and address.
@@ -42,23 +41,29 @@ import { decode${protoData.funcName}RHelper } from './${protoData.funcName}RHelp
   const response = decode${protoData.funcName}RHelper(Uint8Array.wrap(changetype<ArrayBuffer>(result)));
 
   return response.value;`;
-  };
+  }
 
   // generating the content of the file
   // eslint-disable-next-line max-len
-  const content =`import { encode${protoData.funcName}Helper, ${protoData.funcName}Helper } from './${protoData.funcName}Helper';${responseTypeImports}
+  const content = `import { encode${protoData.funcName}Helper, ${
+    protoData.funcName
+  }Helper } from './${protoData.funcName}Helper';${responseTypeImports}
 import { call, Address } from "@massalabs/massa-as-sdk";
 import { Args } from '@massalabs/as-types';
 
 export function ${protoData.funcName}(${
-  args.length > 0 ? args.join(', ') + ', ' : ''
-} coins: u64): ${protoData.resType !== null ? asProtoTypes[protoData.resType] : 'void'} {
+    args.length > 0 ? args.join(', ') + ', ' : ''
+  } coins: u64): ${
+    protoData.resType !== null ? asProtoTypes[protoData.resType] : 'void'
+  } {
 
   const result = call(
     new Address("${address}"),
     "${protoData.funcName}",
-    new Args(changetype<StaticArray<u8>>(encode${protoData.funcName}Helper(new ${protoData.funcName}Helper(
-      ${protoData.argFields.map(({name, type}) => name).join(',\n')}
+    new Args(changetype<StaticArray<u8>>(encode${
+      protoData.funcName
+    }Helper(new ${protoData.funcName}Helper(
+      ${protoData.argFields.map(({ name }) => name).join(',\n')}
     )))),
     coins
   );${responseDecoding}
@@ -84,7 +89,7 @@ function generateProtocAsHelper(protoData: ProtoFile, outputDirectory: string) {
     `--as_out=${outputDirectory}`,
     `--as_opt=gen-helper-methods`,
     `--proto_path=${outputDirectory}`,
-    `${outputDirectory}${protoData.funcName}.proto`
+    `${outputDirectory}${protoData.funcName}.proto`,
   ]);
 
   if (protocProcess.status !== 0) {
