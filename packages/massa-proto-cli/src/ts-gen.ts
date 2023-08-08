@@ -49,8 +49,9 @@ export function compileProtoToTSHelper(protoFilePath: string): void {
 function setupArguments(protoFile: ProtoFile): string {
   return protoFile.argFields
     .reduce((content, arg) => {
-      if (!returnType.hasOwnProperty(arg.type))
+      if (!Object.prototype.hasOwnProperty.call(returnType, arg.type)) {
         throw new Error(`Unsupported type: ${arg.type}`);
+      }
       return `${content}${arg.name}: ${returnType[arg.type]}, `;
     }, '')
     .slice(0, -2);
