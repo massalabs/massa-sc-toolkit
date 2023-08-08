@@ -779,5 +779,5 @@ export function generateTsCallers(
     outputDirectory += '/';
   }
   writeFileSync(`${outputDirectory}${fileName}`, part1 + part2 + part3, 'utf8');
-  console.log(`Main caller: ${outputDirectory}${fileName} file generated at: ${outputDirectory}`);
+  console.log(`Main caller: ${fileName} generated at: ${outputDirectory}`);
 }
