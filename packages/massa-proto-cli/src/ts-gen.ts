@@ -631,7 +631,7 @@ export class ${contractName[0].toUpperCase() + contractName.slice(1)}BlockchainC
    * @returns {Promise<${contractName[0].toUpperCase() + contractName.slice(1)}BlockchainCaller>} A promise that resolves to a new ${contractName[0].toUpperCase() + contractName.slice(1)}BlockchainCaller object
    */
   static async newDefault(${
-    mode == 'web3' ? '' : 'providerName: string, accountIndex: number'}): Promise<${contractName[0].toUpperCase() + contractName.slice(1)} BlockchainCaller> {
+    mode == 'web3' ? '' : 'providerName: string, accountIndex: number'}): Promise<${contractName[0].toUpperCase() + contractName.slice(1)}BlockchainCaller> {
     ${
       mode == 'web3'
         ? `// check if the environment variables are set
@@ -779,4 +779,5 @@ export function generateTsCallers(
     outputDirectory += '/';
   }
   writeFileSync(`${outputDirectory}${fileName}`, part1 + part2 + part3, 'utf8');
+  console.log(`Main caller: ${outputDirectory}${fileName} file generated at: ${outputDirectory}`);
 }
