@@ -33,11 +33,19 @@ The following is a list of all the dependencies of this project:
 
 **Many thanks to:** [Massa Labs](info@massa.net)
 
+## [@massalabs/prettier-config-as](git+https://github.com/massalabs/prettier-config-as.git)
+
+**License:** MIT - perpetual
+
+**Used version:** 0.0.2
+
+**Many thanks to:** [Nathan SEVA](ns@massa.net)
+
 ## [@protobuf-ts/plugin](git+https://github.com/timostamm/protobuf-ts.git)
 
 **License:** Apache-2.0 - perpetual
 
-**Used version:** 2.9.0
+**Used version:** 2.9.1
 
 **Many thanks to:** [Timo Stamm](ts@timostamm.com)
 
@@ -45,7 +53,7 @@ The following is a list of all the dependencies of this project:
 
 **License:** MIT - perpetual
 
-**Used version:** 18.16.19
+**Used version:** 20.4.8
 
 **Many thanks to:** n/a
 
@@ -56,14 +64,6 @@ The following is a list of all the dependencies of this project:
 **Used version:** 1.3.0
 
 **Many thanks to:** [Piotr Oleś](piotrek.oles@gmail.com)
-
-## [assemblyscript](git+https://github.com/AssemblyScript/assemblyscript.git)
-
-**License:** Apache-2.0 - perpetual
-
-**Used version:** 0.25.2
-
-**Many thanks to:** [Daniel Wirtz](dcode+assemblyscript@dcode.io)
 
 ## [child_process](git+https://github.com/npm/security-holder.git)
 
@@ -81,14 +81,6 @@ The following is a list of all the dependencies of this project:
 
 **Many thanks to:** [TJ Holowaychuk](tj@vision-media.ca)
 
-## [google-protobuf](git+https://github.com/protocolbuffers/protobuf-javascript.git)
-
-**License:** (BSD-3-Clause AND Apache-2.0) - perpetual
-
-**Used version:** 3.21.2
-
-**Many thanks to:** Google Protocol Buffers Team
-
 ## [protobufjs](git+https://github.com/protobufjs/protobuf.js.git)
 
 **License:** BSD-3-Clause - perpetual
@@ -97,11 +89,19 @@ The following is a list of all the dependencies of this project:
 
 **Many thanks to:** [Daniel Wirtz](dcode+protobufjs@dcode.io)
 
+## [rimraf](git://github.com/isaacs/rimraf.git)
+
+**License:** ISC - perpetual
+
+**Used version:** 5.0.1
+
+**Many thanks to:** [Isaac Z. Schlueter](i@izs.me> (http://blog.izs.me/)
+
 ## [typescript](git+https://github.com/Microsoft/TypeScript.git)
 
 **License:** Apache-2.0 - perpetual
 
-**Used version:** 4.9.5
+**Used version:** 5.1.6
 
 **Many thanks to:** Microsoft Corp.
 

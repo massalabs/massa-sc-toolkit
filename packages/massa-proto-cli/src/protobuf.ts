@@ -3,12 +3,17 @@ import {
   PROTO_FILE_SEPARATOR,
   strToBytes,
 } from '@massalabs/massa-web3';
-import { MassaCustomType } from '@massalabs/as-transformer/dist';
-import { bytesArrayToString } from './utils/bytesArrayToString';
-import { promises as fs, writeFileSync } from 'fs';
-import { MassaProtoFile } from './MassaProtoFile';
-import { load, IType } from 'protobufjs';
+import { MassaCustomType } from '@massalabs/as-transformer/dist/index.js';
+import { bytesArrayToString } from './utils/bytesArrayToString.js';
+import * as fs from 'fs';
+import { MassaProtoFile } from './MassaProtoFile.js';
+import { IType } from 'protobufjs';
+import pkg from 'protobufjs';
+const { load } = pkg;
 import path from 'path';
+import { descriptoContent } from './utils/descriptorContent.js';
+import { mkdirpSync } from 'mkdirp';
+import assert from 'assert';
 
 /**
  * Represents a function in a proto file
@@ -50,6 +55,21 @@ export async function getProtoFunction(
   protoPath: string,
   customTypes: MassaCustomType[],
 ): Promise<ProtoFile> {
+  // check if the protofile exists contains 'import "google/protobuf/descriptor.proto";'
+  const descriptorProtoPath = path.join(
+    path.dirname(protoPath),
+    'google/protobuf/descriptor.proto',
+  );
+
+  if (!fs.existsSync(descriptorProtoPath)) {
+    const protoFileContent = await fs.promises.readFile(protoPath, 'utf8');
+    const regex = /import "google\/protobuf\/descriptor.proto";/g;
+    if (regex.test(protoFileContent)) {
+      mkdirpSync(path.join(path.dirname(protoPath), 'google/protobuf'));
+      fs.writeFileSync(descriptorProtoPath, descriptoContent);
+    }
+  }
+
   const protoContent = await load(protoPath);
   const protoJSON = protoContent.toJSON();
 
@@ -61,46 +81,85 @@ export async function getProtoFunction(
 
   const messageNames = Object.keys(protoJSON.nested);
 
-  // check if the proto file contains 2 messages
-  if (messageNames.length > 2) {
-    throw new Error('Error: the protoFile should contain maximum 2 messages.');
-  }
+  const funcName = path.basename(protoPath, '.proto');
 
-  // get the Helper message
-  const helper = protoJSON.nested[messageNames[0]] as IType;
-  // get the arguments of the Helper
-  const argFields: FunctionArguments[] = Object.entries(helper.fields)
-    .filter(([, value]) => value)
-    .map(([name, field]) => {
-      const fielType = (field as { type: string; id: number }).type;
-      const fieldRule =
-        (field as { rule: string; type: string; id: number }).rule ===
-        'repeated'
-          ? '[]'
-          : '';
-      return {
-        name,
-        type: fielType + fieldRule,
-      };
+  const helperName: string | undefined = messageNames.includes(
+    funcName + 'Helper',
+  )
+    ? funcName + 'Helper'
+    : undefined;
+
+  const rHelperName: string | undefined = messageNames.includes(
+    funcName + 'RHelper',
+  )
+    ? funcName + 'RHelper'
+    : undefined;
+
+  const argFields = getArgFields();
+
+  const resType = getResType();
+
+  const protoData = await fs.promises
+    .readFile(protoPath, 'utf8')
+    .catch((error) => {
+      throw new Error('Error while reading the proto file: ' + error);
     });
-  const rHelper = protoJSON.nested[messageNames[1]] as IType;
-  let resType = 'void';
-  // if the rHelper.fields exists, get the return type
-  if (rHelper && rHelper.fields) {
-    const rHelperKeys = Object.keys(rHelper.fields);
-    resType =
-      rHelperKeys.length === 1
-        ? rHelper.fields[rHelperKeys[0]].type +
-          (rHelper.fields[rHelperKeys[0]].rule ? '[]' : '')
-        : 'void';
-  }
-
-  const funcName = messageNames[0].replace(/Helper$/, '');
-  const protoData = await fs.readFile(protoPath, 'utf8').catch((error) => {
-    throw new Error('Error while reading the proto file: ' + error);
-  });
 
   return { argFields, funcName, resType, protoData, protoPath };
+
+  // --- helper functions ---
+  // get the arguments of the function if any
+  function getArgFields(): FunctionArguments[] {
+    if (!helperName || !protoJSON.nested) {
+      return [];
+    }
+
+    const helper = protoJSON.nested[helperName] as IType;
+    // get the arguments of the Helper
+    return Object.entries(helper.fields)
+      .filter(([, value]) => value)
+      .map(([name, field]) => {
+        const fielType = (field as { type: string; id: number }).type;
+        const fieldRule =
+          (field as { rule: string; type: string; id: number }).rule ===
+          'repeated'
+            ? '[]'
+            : '';
+        const ctype =
+          field.options?.['custom_type'] !== undefined
+            ? customTypes.find(
+                (type) =>
+                  type.name === (field as { type: string; id: number }).type,
+              )
+            : undefined;
+
+        return {
+          name,
+          type: fielType + fieldRule,
+          ctype,
+        };
+      });
+  }
+
+  // get the return type of the function if any or void
+  function getResType(): string {
+    if (rHelperName && protoJSON.nested) {
+      const rHelper = protoJSON.nested[rHelperName] as IType;
+
+      if (rHelper && rHelper.fields) {
+        const rHelperKeys = Object.keys(rHelper.fields);
+
+        if (rHelperKeys.length === 1) {
+          const key = rHelperKeys[0];
+          assert(key);
+          const field = rHelper.fields[key];
+          assert(field);
+          return field.type + (field.rule ? '[]' : '');
+        }
+      }
+    }
+    return 'void';
+  }
 }
 
 /**
@@ -132,9 +191,8 @@ export async function getProtoFiles(
   };
 
   // send request
-  let response = null;
   try {
-    response = await fetch(providerUrl, {
+    const response = await fetch(providerUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -166,7 +224,7 @@ export async function getProtoFiles(
           .trim();
         // save the proto file
         const filepath = path.join(outputDirectory, functionName + '.proto');
-        writeFileSync(filepath, proto);
+        fs.writeFileSync(filepath, proto);
         const extractedProto: MassaProtoFile = {
           data: proto,
           filePath: filepath,

@@ -1,13 +1,13 @@
 #!/usr/bin/env node
-import { MassaProtoFile } from './MassaProtoFile';
-import { generateAsCallers } from './as-gen';
-import { generateTsCallers } from './ts-gen';
-import { ProtoFile, getProtoFiles, getProtoFunction } from './protobuf';
+import { MassaProtoFile } from './MassaProtoFile.js';
+import { generateAsCallers } from './as-gen.js';
+import { generateTsCallers } from './ts-gen.js';
+import { ProtoFile, getProtoFiles, getProtoFunction } from './protobuf.js';
 import { Command } from 'commander';
 import {
-  fetchCustomTypes,
   MassaCustomType,
-} from '@massalabs/as-transformer/dist';
+  fetchCustomTypes,
+} from '@massalabs/as-transformer/dist/index.js';
 import * as dotenv from 'dotenv';
 import { existsSync, mkdirSync } from 'fs';
 // Load .env file content into process.env
@@ -33,7 +33,7 @@ program
   .parse();
 
 // Get the URL for a public JSON RPC API endpoint from the environment variables
-const publicApi = process.env.JSON_RPC_URL_PUBLIC;
+const publicApi = process.env['JSON_RPC_URL_PUBLIC'];
 if (!publicApi) {
   throw new Error('Missing JSON_RPC_URL_PUBLIC in .env file');
 }
@@ -52,9 +52,9 @@ async function run() {
   let address = args['addr'];
   let out = args['out'];
 
-  if (mode === '' || address === '') {
+  if (mode === '' || address === '' || publicApi === undefined) {
     program.help();
-    return 1;
+    return;
   }
 
   // execute 'mkdir helpers' if the folder doesn't exist yet
