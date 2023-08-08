@@ -56,18 +56,17 @@ import { Args } from '@massalabs/as-types';
 
 export function ${protoData.funcName}(${
     args.length > 0 ? args.join(', ') + ', ' : ''
-  } coins: u64): ${
+} coins: u64): ${
     protoData.resType !== null
       ? asProtoTypes.hasOwnProperty(protoData.resType)
       : 'void'
-  } {
+}{
 
   const result = call(
     new Address("${address}"),
     "${protoData.funcName}",
-    new Args(changetype<StaticArray<u8>>(encode${
-      protoData.funcName
-    }Helper(new ${protoData.funcName}Helper(
+    new Args(changetype<StaticArray<u8>>(encode${protoData.funcName}
+    Helper(new ${protoData.funcName}Helper(
       ${protoData.argFields.map(({ name }) => name).join(',\n')}
     )))),
     coins
