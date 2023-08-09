@@ -65,9 +65,9 @@ export function ${protoData.funcName}(${
   const result = call(
     new Address("${address}"),
     "${protoData.funcName}",
-    new Args(changetype<StaticArray<u8>>(encode${protoData.funcName}
-    Helper(new ${protoData.funcName}Helper(
-      ${protoData.argFields.map(({ name }) => name).join(',\n')}
+    new Args(changetype<StaticArray<u8>>(encode${protoData.funcName}Helper(new ${protoData.funcName}Helper(
+      ${protoData.argFields.map(({name, type, ctype}) => 
+    ((ctype !== undefined) ? ctype.serialize.replace("\\1", name) : name)).join(',\n')}
     )))),
     coins
   );${responseDecoding}
