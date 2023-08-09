@@ -1,8 +1,8 @@
 import { fromMAS } from '@massalabs/massa-web3';
 import { ISCData } from '../interfaces';
 
-const STORAGE_COST = fromMAS(0.01025);
-const PRICE_PER_BYTE = fromMAS(0.00025);
+const BASE_ACOUNT_CREATION_COST = fromMAS(0.01);
+const PRICE_PER_BYTE = fromMAS(0.001);
 
 /**
  * Estimates the value of the maxCoins maximum number of coins to that should be used while deploying a smart contract.
@@ -16,7 +16,7 @@ export function calculateMaxCoins(
   contractByteCodeSize: bigint,
   coinsSent: bigint,
 ) {
-  return STORAGE_COST + contractByteCodeSize * PRICE_PER_BYTE + coinsSent;
+  return BASE_ACOUNT_CREATION_COST + contractByteCodeSize * PRICE_PER_BYTE + coinsSent;
 }
 
 /**
