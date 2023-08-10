@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { ProtoFile } from './protobuf.js';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { execSync } from 'child_process';

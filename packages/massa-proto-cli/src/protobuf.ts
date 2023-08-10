@@ -3,7 +3,7 @@ import {
   PROTO_FILE_SEPARATOR,
   strToBytes,
 } from '@massalabs/massa-web3';
-import { MassaCustomType } from '@massalabs/as-transformer/dist/index.js';
+import { MassaCustomType } from '@massalabs/as-transformer';
 import { bytesArrayToString } from './utils/bytesArrayToString.js';
 import * as fs from 'fs';
 import { MassaProtoFile } from './MassaProtoFile.js';
@@ -114,12 +114,16 @@ export async function getProtoFunction(
       return [];
     }
 
-    const helper = protoJSON.nested[helperName] as IType;
+    const helper = protoJSON.nested[helperName] as IType | undefined;
+    if (!helper || !helper.fields) {
+      return [];
+    }
+
     // get the arguments of the Helper
     return Object.entries(helper.fields)
       .filter(([, value]) => value)
       .map(([name, field]) => {
-        const fielType = (field as { type: string; id: number }).type;
+        const fieldType = (field as { type: string; id: number }).type;
         const fieldRule =
           (field as { rule: string; type: string; id: number }).rule ===
           'repeated'
@@ -135,9 +139,9 @@ export async function getProtoFunction(
 
         return {
           name,
-          type: fielType + fieldRule,
-          ctype,
-        };
+          type: fieldType + fieldRule,
+          ctype: ctype || undefined,
+        } as FunctionArguments;
       });
   }
 
@@ -236,6 +240,7 @@ export async function getProtoFiles(
     return protoFiles;
   } catch (ex) {
     const msg = `Failed to retrieve the proto files.`;
+    // eslint-disable-next-line no-console
     console.error(msg, ex);
     throw ex;
   }

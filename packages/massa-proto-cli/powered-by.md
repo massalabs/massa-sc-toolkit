@@ -1,11 +1,11 @@
 # Dependencies Report
 
 The following is a list of all the dependencies of this project:
-## [@massalabs/as-transformer](https://registry.npmjs.org/@massalabs/as-transformer/-/as-transformer-0.2.2-dev.20230808171512.tgz)
+## [@massalabs/as-transformer](https://registry.npmjs.org/@massalabs/as-transformer/-/as-transformer-0.2.2-dev.20230810063021.tgz)
 
 **License:** ISC - perpetual
 
-**Used version:** 0.2.2-dev.20230801124947
+**Used version:** 0.2.2-dev.20230810063021
 
 **Many thanks to:** 
 
@@ -29,7 +29,7 @@ The following is a list of all the dependencies of this project:
 
 **License:** (MIT AND Apache-2.0) - perpetual
 
-**Used version:** 1.23.0
+**Used version:** 2.1.0
 
 **Many thanks to:** [Massa Labs](info@massa.net)
 
@@ -53,7 +53,7 @@ The following is a list of all the dependencies of this project:
 
 **License:** MIT - perpetual
 
-**Used version:** 20.4.8
+**Used version:** 20.4.9
 
 **Many thanks to:** n/a
 
@@ -80,6 +80,14 @@ The following is a list of all the dependencies of this project:
 **Used version:** 11.0.0
 
 **Many thanks to:** [TJ Holowaychuk](tj@vision-media.ca)
+
+## [mkdirp](git+https://github.com/isaacs/node-mkdirp.git)
+
+**License:** MIT - perpetual
+
+**Used version:** 3.0.1
+
+**Many thanks to:** n/a
 
 ## [protobufjs](git+https://github.com/protobufjs/protobuf.js.git)
 
