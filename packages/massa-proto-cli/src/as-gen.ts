@@ -1,8 +1,9 @@
 import { writeFileSync } from 'fs';
 import { spawnSync } from 'child_process';
 import path from 'path';
-import { ProtoFile } from './protobuf.js';
+import { FunctionArguments, ProtoFile } from './protobuf.js';
 import { default as asProtoTypes } from './asProtoTypes.json' assert { type: 'json' };
+import { MassaCustomType } from '@massalabs/as-transformer';
 
 /**
  * Creates a contract function caller with the given proto file and address.
@@ -11,6 +12,18 @@ import { default as asProtoTypes } from './asProtoTypes.json' assert { type: 'js
  * @param address - the address of the contract containing the function to call
  * @param outputDirectory - the output directory to create the file for the caller
  */
+
+function getCustomTypesImports(args: (MassaCustomType | undefined) []): string {
+  let imports: string[] = [];
+
+  for (const arg of args) {
+    if (arg !== undefined)
+      imports.push(`import { ${arg.name} } from '${arg.import}';`);
+  }
+
+  return imports.join('\n');
+}
+
 export function generateAsCall(
   protoData: ProtoFile,
   address: string,
@@ -25,8 +38,11 @@ export function generateAsCall(
 
   // generating AS arguments
   let args: string[] = [];
-  protoData.argFields.forEach(({ name, type }) => {
-    if (asProtoTypes && Object.prototype.hasOwnProperty.call(asProtoTypes, type)) {
+  protoData.argFields.forEach(({ name, type, ctype }) => {
+    if (ctype !== undefined) {
+      args.push(`${name}: ${ctype.name}`);
+    }
+    else if (asProtoTypes && Object.prototype.hasOwnProperty.call(asProtoTypes, type)) {
       const asType: string = asProtoTypes[type as keyof typeof asProtoTypes];
       args.push(`${name}: ${asType}`);
     }
@@ -45,7 +61,7 @@ import { decode${protoData.funcName}RHelper } from './${protoData.funcName}RHelp
 
   return response.value;`;
   }
-
+  const imports = getCustomTypesImports(protoData.argFields.map( ({ctype}) => ctype));
   // generating the content of the file
   // eslint-disable-next-line max-len
   const content = `import { encode${protoData.funcName}Helper, ${
@@ -53,6 +69,7 @@ import { decode${protoData.funcName}RHelper } from './${protoData.funcName}RHelp
   }Helper } from './${protoData.funcName}Helper';${responseTypeImports}
 import { call, Address } from "@massalabs/massa-as-sdk";
 import { Args } from '@massalabs/as-types';
+${imports}
 
 export function ${protoData.funcName}(${
     args.length > 0 ? args.join(', ') + ', ' : ''
