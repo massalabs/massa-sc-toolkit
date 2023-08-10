@@ -38,30 +38,6 @@ if (!publicApi) {
 }
 
 /**
- * Extract each custom type found in the given file content.
- * @see MassaCustomType
- *
- * @param fileContent - the yaml fiel content to parse.
- *
- * @returns an array of extracted types.
- */
-function extractTypes(fileContent: string): MassaCustomType[] {
-  const types: MassaCustomType[] = [];
-  const data = yaml.parse(fileContent);
-
-  for (const type of data) {
-    types.push({
-      name: type.name,
-      proto: type.proto,
-      import: type.import,
-      serialize: type.serialize,
-      deserialize: type.deserialize,
-    });
-  }
-  return types;
-}
-
-/**
  * Massa-Proto-Cli program entry point.
  *
  * @param arguments - arguments.
