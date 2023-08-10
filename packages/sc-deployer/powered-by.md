@@ -17,11 +17,11 @@ The following is a list of all the dependencies of this project:
 
 **Many thanks to:** [Massa Labs](info@massa.net)
 
-## [@massalabs/massa-sc-compiler](https://registry.npmjs.org/@massalabs/massa-sc-compiler/-/massa-sc-compiler-0.1.0.tgz)
+## [@massalabs/massa-sc-compiler](https://registry.npmjs.org/@massalabs/massa-sc-compiler/-/massa-sc-compiler-0.0.4-dev.20230227095655.tgz)
 
 **License:** ISC - perpetual
 
-**Used version:** 0.1.0
+**Used version:** 0.0.4-dev.20230227095655
 
 **Many thanks to:** 
 
@@ -37,7 +37,7 @@ The following is a list of all the dependencies of this project:
 
 **License:** MIT - perpetual
 
-**Used version:** 18.17.3
+**Used version:** 18.17.4
 
 **Many thanks to:** n/a
 
