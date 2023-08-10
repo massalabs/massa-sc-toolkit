@@ -6,7 +6,6 @@ import { ProtoFile, getProtoFiles, getProtoFunction } from './protobuf.js';
 import { Command } from 'commander';
 import {
   MassaCustomType,
-  fetchCustomTypes,
 } from '@massalabs/as-transformer';
 import * as dotenv from 'dotenv';
 import { existsSync, mkdirSync } from 'fs';
@@ -38,7 +37,29 @@ if (!publicApi) {
   throw new Error('Missing JSON_RPC_URL_PUBLIC in .env file');
 }
 
-// Create an account using the private key
+/**
+ * Extract each custom type found in the given file content.
+ * @see MassaCustomType
+ *
+ * @param fileContent - the yaml fiel content to parse.
+ *
+ * @returns an array of extracted types.
+ */
+function extractTypes(fileContent: string): MassaCustomType[] {
+  const types: MassaCustomType[] = [];
+  const data = yaml.parse(fileContent);
+
+  for (const type of data) {
+    types.push({
+      name: type.name,
+      proto: type.proto,
+      import: type.import,
+      serialize: type.serialize,
+      deserialize: type.deserialize,
+    });
+  }
+  return types;
+}
 
 /**
  * Massa-Proto-Cli program entry point.
@@ -68,9 +89,21 @@ async function run() {
     out,
     publicApi,
   );
-
+  const bignumTypes = `- type:
+  name: u256
+  proto: bytes
+  import: "as-bignum/assembly"
+  serialize: "\\\\1.toUint8Array()"
+  deserialize: "u256.fromUint8ArrayLE(\\\\1)"
+- type:
+  name: u128
+  proto: bytes
+  import: "as-bignum/assembly"
+  serialize: "\\\\1.toUint8Array()"
+  deserialize: "u128.fromUint8ArrayLE(\\\\1)"
+`;
   // call proto parser with fetched files
-  const customTypes: MassaCustomType[] = fetchCustomTypes();
+  const customTypes: MassaCustomType[] = extractTypes(bignumTypes);
 
   for (const mpfile of mpFiles) {
     let protoFile = await getProtoFunction(mpfile.filePath, customTypes);

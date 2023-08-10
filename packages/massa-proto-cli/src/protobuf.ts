@@ -35,6 +35,10 @@ export interface ProtoFile {
 /**
  * Represents an argument of a function
  *
+ * @remarks
+ * If the argument is a custom type, the @see ctype field will be filled with the custom type
+ * and @see type will be filled with the type used to represent the custom type (e.g. bytes)
+ *
  * @see name - the name of the argument
  * @see type - the type of the argument
  */
@@ -129,19 +133,20 @@ export async function getProtoFunction(
           'repeated'
             ? '[]'
             : '';
-        const ctype =
-          field.options?.['custom_type'] !== undefined
-            ? customTypes.find(
-                (type) =>
-                  type.name === (field as { type: string; id: number }).type,
-              )
-            : undefined;
-
+        let ctype: MassaCustomType | undefined = undefined;
+        if (field.options && field.options['(custom_type)']) {
+          const customType = field.options['(custom_type)'] as string;
+          const customTypeObj = customTypes.find(
+            (ct) => ct.name === customType,
+          );
+          assert(customTypeObj);
+          ctype = customTypeObj;
+        }
         return {
-          name,
-          type: fieldType + fieldRule,
-          ctype: ctype || undefined,
-        } as FunctionArguments;
+          name: name,
+          type: ctype ? ctype.name : fieldType + fieldRule,
+          ctype: ctype,
+        };
       });
   }
 
@@ -149,7 +154,6 @@ export async function getProtoFunction(
   function getResType(): string {
     if (rHelperName && protoJSON.nested) {
       const rHelper = protoJSON.nested[rHelperName] as IType;
-
       if (rHelper && rHelper.fields) {
         const rHelperKeys = Object.keys(rHelper.fields);
 

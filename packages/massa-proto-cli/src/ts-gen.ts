@@ -48,14 +48,20 @@ export function compileProtoToTSHelper(protoFilePath: string): void {
  * @throws Error if the type of an argument is not supported.
  */
 function setupArguments(protoFile: ProtoFile): string {
-  return protoFile.argFields
+  if(protoFile.argFields.length === 0) return '';
+  let init = '\n';
+  if(protoFile.argFields.length === 1) init = '\n  ';
+  return init + protoFile.argFields
     .reduce((content, arg) => {
-      if (!Object.prototype.hasOwnProperty.call(returnType, arg.type)) {
+      if (!arg.ctype && !Object.prototype.hasOwnProperty.call(returnType, arg.type)) {
         throw new Error(`Unsupported type: ${arg.type}`);
       }
-      return `${content}${arg.name}: ${returnType[arg.type]}, `;
+      if(arg.ctype) {
+        return `  ${content}${arg.name}: ${arg.type},\n    `;
+      }
+      return `  ${content}${arg.name}: ${returnType[arg.type]},\n    `;
     }, '')
-    .slice(0, -2);
+    .slice(0, -5);
 }
 
 /**
@@ -112,14 +118,22 @@ function generateUnsignedArgCheckCode(protoFile: ProtoFile): string {
  * @returns - The generated serialization arguments
  */
 function argumentSerialization(protoFile: ProtoFile): string {
-  const args = protoFile.argFields
-    .map((arg) => `${arg.name}: ${arg.name}`)
-    .join(',\n      ');
+  let args = '';
+  for (let arg of protoFile.argFields) {
+    if (arg.ctype) {
+      let byteArg = arg.ctype.serialize;
+      // replace \1 with the argument name
+      byteArg = byteArg.replace('\\1', arg.name);
+      args += `      ${arg.name}: ${byteArg},\n`;
+    } else {
+      args += `      ${arg.name}: ${arg.name},\n`;
+    }
+  }
 
   if (protoFile.argFields.length > 0) {
     return `// Serialize the arguments
     const serializedArgs = ${protoFile.funcName}Helper.toBinary({
-      ${args}
+      ${args.slice(6, -1)}
     });\n`;
   }
 
@@ -215,8 +229,10 @@ export function generateTSCaller(
    *
    * @returns {Promise<OperationOutputs>} A promise that resolves to an object which contains the outputs and events from the call to ${protoFile.funcName}.
    */
-  async ${protoFile.funcName}(${protoFile.argFields.length > 0 ? `${args}, ` : ''}
-  fee?: bigint, maxGas?:bigint): Promise<OperationOutputs> {
+  async ${protoFile.funcName}(${protoFile.argFields.length > 0 ? `${args}` : ''}
+    fee?: bigint, 
+    maxGas?:bigint
+  ): Promise<OperationOutputs> {
     ${checkUnsignedArgs}${argsSerialization}
     // Send the operation to the blockchain and retrieve its outputs
     if(!fee) fee = this.fee;
@@ -571,6 +587,16 @@ function generateCommonCallerFile(
       protoFile.argFields.length > 0 ? `, ${protoFile.funcName}Helper` : ''
     } } from "./${protoFile.funcName}Helper";\n`;
   }
+  let customTypesImportsArray: string[] = [];
+  for (let protoFile of protoFiles) {
+    for(let arg of protoFile.argFields) {
+      if(arg.ctype){
+        customTypesImportsArray.push(`\nimport { ${arg.ctype.name} } from "${arg.ctype.import}";`);
+      }
+    }
+  }
+  // remove duplicates
+  const customTypesImports = [...new Set(customTypesImportsArray)].join('') + '\n';
   return `
 ${imports.slice(0, -1)}
 import {
@@ -589,7 +615,7 @@ ${
   mode == 'wallet'
     ? 'import { IAccount, providers } from "@massalabs/wallet-provider";\n'
     : ''
-}
+}${customTypesImports}
 
 /**
  * This interface is used to represents the outputs of the SC call.
