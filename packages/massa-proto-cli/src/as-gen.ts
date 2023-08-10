@@ -58,7 +58,7 @@ export function ${protoData.funcName}(${
     args.length > 0 ? args.join(', ') + ', ' : ''
 } coins: u64): ${
     protoData.resType !== null
-      ? Object.prototype.hasOwnProperty.call(asProtoTypes, protoData.resType)
+      ? Object.prototype.hasOwnProperty.call(asProtoTypes, protoData.resType.type)
       : 'void'
 }{
 
