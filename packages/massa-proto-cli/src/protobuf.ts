@@ -130,7 +130,7 @@ export async function getProtoFunction(
         const fieldType = (field as { type: string; id: number }).type;
         const fieldRule =
           (field as { rule: string; type: string; id: number }).rule ===
-            'repeated'
+          'repeated'
             ? '[]'
             : '';
         let ctype: MassaCustomType | undefined = undefined;
@@ -174,18 +174,18 @@ export async function getProtoFunction(
           assert(field);
 
           return {
-            name: "value",
+            name: 'value',
             type: (ctype ? ctype.name : field.type) + (field.rule ? '[]' : ''),
             ctype: ctype,
-          }
+          };
         }
       }
     }
     return {
-      name: "void",
-      type: "void",
+      name: 'void',
+      type: 'void',
       ctype: undefined,
-    }
+    };
   }
 }
 
