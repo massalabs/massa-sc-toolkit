@@ -7,7 +7,7 @@ import { Command } from 'commander';
 import {
   MassaCustomType,
   fetchCustomTypes,
-} from '@massalabs/as-transformer/dist/index.js';
+} from '@massalabs/as-transformer';
 import * as dotenv from 'dotenv';
 import { existsSync, mkdirSync } from 'fs';
 // Load .env file content into process.env
