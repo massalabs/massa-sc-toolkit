@@ -171,7 +171,7 @@ export async function getProtoFunction(
           const key = rHelperKeys[0];
           assert(key);
           const field = rHelper.fields[key];
-          const ctype =
+          ctype =
             field.options?.['custom_type'] !== undefined
               ? customTypes.find(
                   (type) =>

@@ -1,7 +1,7 @@
 import { writeFileSync } from 'fs';
 import { spawnSync } from 'child_process';
 import path from 'path';
-import { FunctionArguments, ProtoFile } from './protobuf.js';
+import { ProtoFile } from './protobuf.js';
 import { default as asProtoTypes } from './asProtoTypes.json' assert { type: 'json' };
 import { MassaCustomType } from '@massalabs/as-transformer';
 
@@ -47,10 +47,15 @@ export function generateAsCall(
       args.push(`${name}: ${asType}`);
     }
   });
-
+  let resType = 'void';
   let responseDecoding = '';
   let responseTypeImports = '';
   if (protoData.resType !== null) {
+    if (protoData.resType.ctype !== undefined) {
+      resType = protoData.resType.ctype.name;
+    } else {
+      resType = asProtoTypes[protoData.resType.type as keyof typeof asProtoTypes];
+    }
     responseTypeImports += `
 import { decode${protoData.funcName}RHelper } from './${protoData.funcName}RHelper';`;
 
@@ -59,7 +64,9 @@ import { decode${protoData.funcName}RHelper } from './${protoData.funcName}RHelp
   // Convert the result to the expected response type
   const response = decode${protoData.funcName}RHelper(Uint8Array.wrap(changetype<ArrayBuffer>(result)));
 
-  return response.value;`;
+  ${(protoData.resType.ctype !== undefined) 
+    ? "return " + protoData.resType.ctype.deserialize.replace("\\1", "response.value") + ";"
+    : "return response.value;"}`;
   }
   const imports = getCustomTypesImports(protoData.argFields.map( ({ctype}) => ctype));
   // generating the content of the file
@@ -73,17 +80,13 @@ ${imports}
 
 export function ${protoData.funcName}(${
     args.length > 0 ? args.join(', ') + ', ' : ''
-} coins: u64): ${
-    protoData.resType !== null
-      ? Object.prototype.hasOwnProperty.call(asProtoTypes, protoData.resType.type)
-      : 'void'
-}{
+} coins: u64): ${resType} {
 
   const result = call(
     new Address("${address}"),
     "${protoData.funcName}",
     new Args(changetype<StaticArray<u8>>(encode${protoData.funcName}Helper(new ${protoData.funcName}Helper(
-      ${protoData.argFields.map(({name, type, ctype}) => 
+      ${protoData.argFields.map(({name, ctype}) => 
     ((ctype !== undefined) ? ctype.serialize.replace("\\1", name) : name)).join(',\n')}
     )))),
     coins
