@@ -144,9 +144,9 @@ export async function getProtoFunction(
         }
         return {
           name: name,
-          type: ctype ? ctype.name : fieldType + fieldRule,
+          type: (ctype ? ctype.name : fieldType) + (fieldRule ? '[]' : ''),
           ctype: ctype,
-        };
+        } as FunctionArgument;
       });
   }
 
@@ -177,15 +177,14 @@ export async function getProtoFunction(
             name: 'value',
             type: (ctype ? ctype.name : field.type) + (field.rule ? '[]' : ''),
             ctype: ctype,
-          };
+          } as FunctionArgument;
         }
       }
     }
     return {
       name: 'void',
       type: 'void',
-      ctype: undefined,
-    };
+    } as FunctionArgument;
   }
 }
 

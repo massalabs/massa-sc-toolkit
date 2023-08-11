@@ -4,9 +4,7 @@ import { generateAsCallers } from './as-gen.js';
 import { generateTsCallers } from './ts-gen.js';
 import { ProtoFile, getProtoFiles, getProtoFunction } from './protobuf.js';
 import { Command } from 'commander';
-import {
-  MassaCustomType,
-} from '@massalabs/as-transformer';
+import { MassaCustomType, extractTypes } from '@massalabs/as-transformer';
 import * as dotenv from 'dotenv';
 import { existsSync, mkdirSync } from 'fs';
 // Load .env file content into process.env
