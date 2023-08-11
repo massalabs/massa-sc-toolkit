@@ -63,6 +63,9 @@ async function run() {
     out,
     publicApi,
   );
+  console.warn(
+    `For now, we are only using the following custom types because the fetching as issues: u128, u256`,
+  );
   const bignumTypes = `- type:
   name: u256
   proto: bytes
