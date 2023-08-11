@@ -18,16 +18,16 @@ import assert from 'assert';
 /**
  * Represents a function in a proto file
  *
- * @see argFields - the arguments of the function as an array of IFunctionArguments
+ * @see argFields - the arguments of the function as an array of IFunctionArgument
  * @see funcName - the name of the function
  * @see resType - the return type of the function
  * @see protoData - the .proto file content (optional)
  * @see protoPath - The relative path to the proto file to generate the caller (optional)
  */
 export interface ProtoFile {
-  argFields: FunctionArguments[];
+  argFields: FunctionArgument[];
   funcName: string;
-  resType: string;
+  resType: FunctionArgument;
   protoData?: string;
   protoPath?: string;
 }
@@ -35,10 +35,14 @@ export interface ProtoFile {
 /**
  * Represents an argument of a function
  *
+ * @remarks
+ * If the argument is a custom type, the @see ctype field will be filled with the custom type
+ * and @see type will be filled with the type used to represent the custom type (e.g. bytes)
+ *
  * @see name - the name of the argument
  * @see type - the type of the argument
  */
-export interface FunctionArguments {
+export interface FunctionArgument {
   name: string;
   type: string;
   ctype?: MassaCustomType;
@@ -109,7 +113,7 @@ export async function getProtoFunction(
 
   // --- helper functions ---
   // get the arguments of the function if any
-  function getArgFields(): FunctionArguments[] {
+  function getArgFields(): FunctionArgument[] {
     if (!helperName || !protoJSON.nested) {
       return [];
     }
@@ -129,40 +133,58 @@ export async function getProtoFunction(
           'repeated'
             ? '[]'
             : '';
-        const ctype =
-          field.options?.['custom_type'] !== undefined
-            ? customTypes.find(
-                (type) =>
-                  type.name === (field as { type: string; id: number }).type,
-              )
-            : undefined;
-
+        let ctype: MassaCustomType | undefined = undefined;
+        if (field.options && field.options['(custom_type)']) {
+          const customType = field.options['(custom_type)'] as string;
+          const customTypeObj = customTypes.find(
+            (ct) => ct.name === customType,
+          );
+          assert(customTypeObj);
+          ctype = customTypeObj;
+        }
         return {
-          name,
-          type: fieldType + fieldRule,
-          ctype: ctype || undefined,
-        } as FunctionArguments;
+          name: name,
+          type: (ctype ? ctype.name : fieldType) + (fieldRule ? '[]' : ''),
+          ctype: ctype,
+        } as FunctionArgument;
       });
   }
 
   // get the return type of the function if any or void
-  function getResType(): string {
+  function getResType(): FunctionArgument {
     if (rHelperName && protoJSON.nested) {
       const rHelper = protoJSON.nested[rHelperName] as IType;
-
       if (rHelper && rHelper.fields) {
         const rHelperKeys = Object.keys(rHelper.fields);
 
         if (rHelperKeys.length === 1) {
+          const options = rHelper.fields['value'].options;
+          let ctype: MassaCustomType | undefined = undefined;
+          if (options && options['(custom_type)']) {
+            const customType = options['(custom_type)'] as string;
+            const customTypeObj = customTypes.find(
+              (ct) => ct.name === customType,
+            );
+            assert(customTypeObj);
+            ctype = customTypeObj;
+          }
           const key = rHelperKeys[0];
           assert(key);
           const field = rHelper.fields[key];
           assert(field);
-          return field.type + (field.rule ? '[]' : '');
+
+          return {
+            name: 'value',
+            type: (ctype ? ctype.name : field.type) + (field.rule ? '[]' : ''),
+            ctype: ctype,
+          } as FunctionArgument;
         }
       }
     }
-    return 'void';
+    return {
+      name: 'void',
+      type: 'void',
+    } as FunctionArgument;
   }
 }
 
