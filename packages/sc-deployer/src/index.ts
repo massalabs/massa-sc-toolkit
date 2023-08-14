@@ -308,7 +308,7 @@ async function deploySC(
     }
   });
 
-  console.log(`Sending operation with ${coins} MAS coins...`);
+  console.log(`Sending operation with ${toMAS(coins)} MAS coins...`);
 
   maxCoins = maxCoins ? maxCoins : totalEstimatedCost;
 
