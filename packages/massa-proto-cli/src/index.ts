@@ -9,7 +9,6 @@ import * as dotenv from 'dotenv';
 import { existsSync, mkdirSync } from 'fs';
 import path from 'path';
 import { exec, execSync } from 'child_process';
-import * as readline from 'readline';
 
 // Load .env file content into process.env
 dotenv.config();
@@ -57,7 +56,7 @@ async function run() {
   }
 
   // check if the necessary dependencies are installed
-  let missingDependencies: string[] = [];
+  let missingDeps: string[] = [];
   if (mode === 'sc') {
     /* check if the following node dependencies are installed: 
       - as-proto 
@@ -66,19 +65,18 @@ async function run() {
       - @massalabs/as-types 
       - @massalabs/as-transformer
     */
-   const deps = ['as-proto', 'as-proto-gen', '@massalabs/massa-as-sdk', '@massalabs/as-types', '@massalabs/as-transformer'];
+    const deps = [
+      'as-proto',
+      'as-proto-gen',
+      '@massalabs/massa-as-sdk',
+      '@massalabs/as-types',
+      '@massalabs/as-transformer',
+    ];
     try {
-      for (const dep of deps) {
-        console.log(`Checking for dependency ${dep}...`);
-        if (!(await isDependencyInstalled(dep))) {
-          missingDependencies.push(dep);
-          console.log(`Missing dependency ${dep}`);
-        }
-      }     
-    }
-    catch (e) {
+      missingDeps = await missingDependencies(deps);
+    } catch (e) {
       throw new Error(`Error checking for dependencies: ${e}`);
-    } 
+    }
   } else if (mode === 'web3' || mode === 'wallet') {
     /* check if the following node dependencies are installed:
       - @massalabs/massa-web3
@@ -86,37 +84,18 @@ async function run() {
     */
     const deps = ['@massalabs/massa-web3', '@protobuf-ts/plugin'];
     try {
-      for (const dep of deps) {
-        console.log(`Checking for dependency ${dep}...`);
-        if (!(await isDependencyInstalled(dep))) {
-          missingDependencies.push(dep);
-          console.log(`Missing dependency ${dep}`);
-        }
-      }     
-    }
-    catch (e) {
+      missingDeps = await missingDependencies(deps);
+    } catch (e) {
       throw new Error(`Error checking for dependencies: ${e}`);
     }
   }
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
+  if (missingDeps.length > 0) {
+    console.log(`Missing dependencies: ${missingDeps.join(', ')}`);
 
-  if (missingDependencies.length > 0) {
-    console.log(`Missing dependencies: ${missingDependencies.join(', ')}`);
-    await rl.question('Would you like to install them? (y/n) ', async (answer) => {
-      if (answer === 'y') {
-        for (const dep of missingDependencies) {
-          installDependency(dep);
-        }
-      }
-      else {
-        console.log('Exiting...');
-        process.exit(1);
-      }
-      rl.close();
-    });
+    for (const dep of missingDeps) {
+      console.log(`Installing dependency ${dep}...`);
+      installDependency(dep);
+    }
   }
 
   // execute 'mkdir helpers' if the folder doesn't exist yet
@@ -175,27 +154,32 @@ async function run() {
   }
 }
 
-async function isDependencyInstalled(dependencyName: string): Promise<boolean> {
+async function missingDependencies(dependencies: string[]): Promise<string[]> {
   return new Promise((resolve, reject) => {
     exec('npm list --depth=0', (error, stdout) => {
       if (error) {
         reject(error);
         return;
       }
+      const notInstalled: string[] = [];
+      for (const dependency of dependencies) {
+        // check if dependency contains / and replace it with \/
+        const regexDependency = dependency.replace('/', '\\/');
 
-      const regex = new RegExp(`\\b${dependencyName}\\b`, 'i');
-      const isInstalled = regex.test(stdout);
-
-      resolve(isInstalled);
+        const regex = new RegExp(`${regexDependency}`, 'i');
+        if (!regex.test(stdout)) {
+          notInstalled.push(dependency);
+        }
+      }
+      resolve(notInstalled);
     });
   });
 }
 
 function installDependency(dep: string) {
-  try{
+  try {
     execSync(`npm install ${dep}`);
-  }
-  catch (e) {
+  } catch (e) {
     throw new Error(`Error installing dependency ${dep}: ${e}`);
   }
 }
