@@ -8,6 +8,8 @@ import { MassaCustomType, extractTypes } from '@massalabs/as-transformer';
 import * as dotenv from 'dotenv';
 import { existsSync, mkdirSync } from 'fs';
 import path from 'path';
+import { exec, execSync } from 'child_process';
+import * as readline from 'readline';
 
 // Load .env file content into process.env
 dotenv.config();
@@ -29,7 +31,7 @@ program
     'optional output directory for the callers to generate',
     './helpers/',
   )
-  .parse();
+  .parse(process.argv);
 
 // Get the URL for a public JSON RPC API endpoint from the environment variables
 const publicApi = process.env['JSON_RPC_URL_PUBLIC'];
@@ -52,6 +54,69 @@ async function run() {
   if (mode === '' || address === '' || publicApi === undefined) {
     program.help();
     return;
+  }
+
+  // check if the necessary dependencies are installed
+  let missingDependencies: string[] = [];
+  if (mode === 'sc') {
+    /* check if the following node dependencies are installed: 
+      - as-proto 
+      - as-proto-gen 
+      - @massalabs/massa-as-sdk 
+      - @massalabs/as-types 
+      - @massalabs/as-transformer
+    */
+   const deps = ['as-proto', 'as-proto-gen', '@massalabs/massa-as-sdk', '@massalabs/as-types', '@massalabs/as-transformer'];
+    try {
+      for (const dep of deps) {
+        console.log(`Checking for dependency ${dep}...`);
+        if (!(await isDependencyInstalled(dep))) {
+          missingDependencies.push(dep);
+          console.log(`Missing dependency ${dep}`);
+        }
+      }     
+    }
+    catch (e) {
+      throw new Error(`Error checking for dependencies: ${e}`);
+    } 
+  } else if (mode === 'web3' || mode === 'wallet') {
+    /* check if the following node dependencies are installed:
+      - @massalabs/massa-web3
+      - @protobuf-ts/plugin
+    */
+    const deps = ['@massalabs/massa-web3', '@protobuf-ts/plugin'];
+    try {
+      for (const dep of deps) {
+        console.log(`Checking for dependency ${dep}...`);
+        if (!(await isDependencyInstalled(dep))) {
+          missingDependencies.push(dep);
+          console.log(`Missing dependency ${dep}`);
+        }
+      }     
+    }
+    catch (e) {
+      throw new Error(`Error checking for dependencies: ${e}`);
+    }
+  }
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+
+  if (missingDependencies.length > 0) {
+    console.log(`Missing dependencies: ${missingDependencies.join(', ')}`);
+    await rl.question('Would you like to install them? (y/n) ', async (answer) => {
+      if (answer === 'y') {
+        for (const dep of missingDependencies) {
+          installDependency(dep);
+        }
+      }
+      else {
+        console.log('Exiting...');
+        process.exit(1);
+      }
+      rl.close();
+    });
   }
 
   // execute 'mkdir helpers' if the folder doesn't exist yet
@@ -107,6 +172,31 @@ async function run() {
     generateTsCallers(files, out, address, mode, address.slice(-10));
   } else {
     throw new Error(`Unsupported mode: ${mode}`);
+  }
+}
+
+async function isDependencyInstalled(dependencyName: string): Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    exec('npm list --depth=0', (error, stdout) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+
+      const regex = new RegExp(`\\b${dependencyName}\\b`, 'i');
+      const isInstalled = regex.test(stdout);
+
+      resolve(isInstalled);
+    });
+  });
+}
+
+function installDependency(dep: string) {
+  try{
+    execSync(`npm install ${dep}`);
+  }
+  catch (e) {
+    throw new Error(`Error installing dependency ${dep}: ${e}`);
   }
 }
 
