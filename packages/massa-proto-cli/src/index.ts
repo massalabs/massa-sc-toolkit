@@ -6,7 +6,7 @@ import { ProtoFile, getProtoFiles, getProtoFunction } from './protobuf.js';
 import { Command } from 'commander';
 import { MassaCustomType, extractTypes } from '@massalabs/as-transformer';
 import * as dotenv from 'dotenv';
-import { existsSync, mkdirSync } from 'fs';
+import { existsSync, mkdirSync, readdirSync } from 'fs';
 // Load .env file content into process.env
 dotenv.config();
 const program = new Command();
@@ -27,6 +27,11 @@ program
     'optional output directory for the callers to generate',
     './helpers/',
   )
+  .option(
+    '-mc, --custom-types <path>',
+    'optional path to a folder containing the custom types file',
+    './custom-types/',
+  )
   .parse();
 
 // Get the URL for a public JSON RPC API endpoint from the environment variables
@@ -46,6 +51,7 @@ async function run() {
   let mode = args['gen'];
   let address = args['addr'];
   let out = args['out'];
+  let customTypesFolder = args['custom-types'];
 
   if (mode === '' || address === '' || publicApi === undefined) {
     program.help();
@@ -63,24 +69,30 @@ async function run() {
     out,
     publicApi,
   );
-  console.warn(
-    `For now, we are only using the following custom types because the fetching as issues: u128, u256`,
-  );
-  const bignumTypes = `- type:
-  name: u256
-  proto: bytes
-  import: "as-bignum/assembly"
-  serialize: "\\\\1.toUint8Array()"
-  deserialize: "u256.fromUint8ArrayLE(\\\\1)"
-- type:
-  name: u128
-  proto: bytes
-  import: "as-bignum/assembly"
-  serialize: "\\\\1.toUint8Array()"
-  deserialize: "u128.fromUint8ArrayLE(\\\\1)"
-`;
-  // call proto parser with fetched files
-  const customTypes: MassaCustomType[] = extractTypes(bignumTypes);
+
+  let customTypes: MassaCustomType[];
+  if (customTypesFolder === undefined || (customTypesFolder === './custom-types/' && !existsSync(customTypesFolder))) {
+    customTypes = [];
+  }
+  else {
+    customTypes = await extractAllTypes(customTypesFolder);
+  }
+  // console.warn(
+  //   `For now, we are only using the following custom types because the fetching as issues: u128, u256`,
+  // );
+  //   const bignumTypes = `- type:
+  //   name: u256
+  //   proto: bytes
+  //   import: "as-bignum/assembly"
+  //   serialize: "\\\\1.toUint8Array()"
+  //   deserialize: "u256.fromUint8ArrayLE(\\\\1)"
+  // - type:
+  //   name: u128
+  //   proto: bytes
+  //   import: "as-bignum/assembly"
+  //   serialize: "\\\\1.toUint8Array()"
+  //   deserialize: "u128.fromUint8ArrayLE(\\\\1)"
+  // `;
 
   for (const mpfile of mpFiles) {
     let protoFile = await getProtoFunction(mpfile.filePath, customTypes);
@@ -97,4 +109,29 @@ async function run() {
   }
 }
 
+/**
+ * Get all the .yml files in the folder and extract the custom types from them.
+ * 
+ * @param folderPath - The path to the folder containing the .yml files.
+ * 
+ * @returns The list of custom types extracted from the .yml files.
+ */
+async function extractAllTypes(folderPath: string): Promise<MassaCustomType[]> {
+  if (!existsSync(folderPath)) {
+    throw new Error(`The folder ${folderPath} doesn't exist.`);
+  }
+  const files = readdirSync(folderPath);
+  let customTypes: MassaCustomType[] = [];
+  for (const file of files) {
+    if (file.endsWith('.yml')) {
+      const types = await extractTypes(`${folderPath}/${file}`);
+      customTypes = customTypes.concat(types);
+    }
+  }
+  return customTypes;
+}
+
+
 run();
+
+
