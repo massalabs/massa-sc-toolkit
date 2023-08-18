@@ -7,6 +7,8 @@ import { Command } from 'commander';
 import { MassaCustomType, extractTypes } from '@massalabs/as-transformer';
 import * as dotenv from 'dotenv';
 import { existsSync, mkdirSync } from 'fs';
+import path from 'path';
+
 // Load .env file content into process.env
 dotenv.config();
 const program = new Command();
@@ -43,9 +45,9 @@ if (!publicApi) {
 async function run() {
   const args = program.opts();
   let files: ProtoFile[] = [];
-  let mode = args['gen'];
-  let address = args['addr'];
-  let out = args['out'];
+  let mode: string = args['gen'];
+  let address: string = args['addr'];
+  let out: string = args['out'];
 
   if (mode === '' || address === '' || publicApi === undefined) {
     program.help();
@@ -55,6 +57,17 @@ async function run() {
   // execute 'mkdir helpers' if the folder doesn't exist yet
   if (!existsSync(out)) {
     mkdirSync(out);
+  }
+
+  // if mode is 'get-protofile', we only need to fetch the proto files and save them
+  if (mode === 'get-protofile') {
+    const folderName = address.slice(-10);
+    // check if the folder exists
+    if (!existsSync(path.join(out, folderName))) {
+      mkdirSync(path.join(out, folderName));
+    }
+    await getProtoFiles([address], out + '/' + folderName, publicApi);
+    return;
   }
 
   // call sc client to fetch protos
