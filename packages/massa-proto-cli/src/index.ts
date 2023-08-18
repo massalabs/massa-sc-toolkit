@@ -90,9 +90,11 @@ async function run() {
     }
   }
   if (missingDeps.length > 0) {
+    /* eslint-disable-next-line no-console */
     console.log(`Missing dependencies: ${missingDeps.join(', ')}`);
 
     for (const dep of missingDeps) {
+      /* eslint-disable-next-line no-console */
       console.log(`Installing dependency ${dep}...`);
       installDependency(dep);
     }
@@ -120,6 +122,7 @@ async function run() {
     out,
     publicApi,
   );
+  /* eslint-disable-next-line no-console */
   console.warn(
     `For now, we are only using the following custom types because the fetching as issues: u128, u256`,
   );
