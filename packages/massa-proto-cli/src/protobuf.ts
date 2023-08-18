@@ -171,18 +171,13 @@ export async function getProtoFunction(
           const key = rHelperKeys[0];
           assert(key);
           const field = rHelper.fields[key];
-          ctype =
-            field.options?.['custom_type'] !== undefined
-              ? customTypes.find(
-                  (type) =>
-                    type.name === (field as { type: string; id: number }).type,
-                )
-              : undefined;
           assert(field);
 
           return {
             name: 'value',
-            type: (ctype ? ctype.name : field.type) + (field.rule ? '[]' : ''),
+            type:
+              (ctype !== undefined ? ctype.name : field.type) +
+              (field.rule ? '[]' : ''),
             ctype: ctype,
           } as FunctionArgument;
         }

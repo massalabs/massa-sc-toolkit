@@ -30,8 +30,8 @@ export function generateAsCall(
   outputDirectory: string,
 ) {
   // check if all the arguments are supported (to avoid 'undefined' objects in the generated code)
-  protoData.argFields.forEach(({ type }) => {
-    if (asProtoTypes && !Object.prototype.hasOwnProperty.call(asProtoTypes, type)) {
+  protoData.argFields.forEach(({ type, ctype }) => {
+    if (ctype === undefined && asProtoTypes && !Object.prototype.hasOwnProperty.call(asProtoTypes, type)) {
       throw new Error(`Unsupported type: ${type}`);
     }
   });
@@ -50,7 +50,7 @@ export function generateAsCall(
   let resType = 'void';
   let responseDecoding = '';
   let responseTypeImports = '';
-  if (protoData.resType !== null) {
+  if (protoData.resType !== null && protoData.resType.type !== 'void') {
     if (protoData.resType.ctype !== undefined) {
       resType = protoData.resType.ctype.name;
     } else {
