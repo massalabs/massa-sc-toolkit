@@ -175,7 +175,9 @@ export async function getProtoFunction(
 
           return {
             name: 'value',
-            type: (ctype ? ctype.name : field.type) + (field.rule ? '[]' : ''),
+            type:
+              (ctype !== undefined ? ctype.name : field.type) +
+              (field.rule ? '[]' : ''),
             ctype: ctype,
           } as FunctionArgument;
         }

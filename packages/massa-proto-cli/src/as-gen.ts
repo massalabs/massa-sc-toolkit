@@ -3,6 +3,7 @@ import { spawnSync } from 'child_process';
 import path from 'path';
 import { ProtoFile } from './protobuf.js';
 import { default as asProtoTypes } from './asProtoTypes.json' assert { type: 'json' };
+import { MassaCustomType } from '@massalabs/as-transformer';
 
 /**
  * Creates a contract function caller with the given proto file and address.
@@ -11,30 +12,50 @@ import { default as asProtoTypes } from './asProtoTypes.json' assert { type: 'js
  * @param address - the address of the contract containing the function to call
  * @param outputDirectory - the output directory to create the file for the caller
  */
+
+function getCustomTypesImports(args: (MassaCustomType | undefined) []): string {
+  let imports: string[] = [];
+
+  for (const arg of args) {
+    if (arg !== undefined)
+      imports.push(`import { ${arg.name} } from '${arg.import}';`);
+  }
+
+  return imports.join('\n');
+}
+
 export function generateAsCall(
   protoData: ProtoFile,
   address: string,
   outputDirectory: string,
 ) {
   // check if all the arguments are supported (to avoid 'undefined' objects in the generated code)
-  protoData.argFields.forEach(({ type }) => {
-    if (asProtoTypes && !Object.prototype.hasOwnProperty.call(asProtoTypes, type)) {
+  protoData.argFields.forEach(({ type, ctype }) => {
+    if (ctype === undefined && asProtoTypes && !Object.prototype.hasOwnProperty.call(asProtoTypes, type)) {
       throw new Error(`Unsupported type: ${type}`);
     }
   });
 
   // generating AS arguments
   let args: string[] = [];
-  protoData.argFields.forEach(({ name, type }) => {
-    if (asProtoTypes && Object.prototype.hasOwnProperty.call(asProtoTypes, type)) {
+  protoData.argFields.forEach(({ name, type, ctype }) => {
+    if (ctype !== undefined) {
+      args.push(`${name}: ${ctype.name}`);
+    }
+    else if (asProtoTypes && Object.prototype.hasOwnProperty.call(asProtoTypes, type)) {
       const asType: string = asProtoTypes[type as keyof typeof asProtoTypes];
       args.push(`${name}: ${asType}`);
     }
   });
-
+  let resType = 'void';
   let responseDecoding = '';
   let responseTypeImports = '';
-  if (protoData.resType !== null) {
+  if (protoData.resType !== null && protoData.resType.type !== 'void') {
+    if (protoData.resType.ctype !== undefined) {
+      resType = protoData.resType.ctype.name;
+    } else {
+      resType = asProtoTypes[protoData.resType.type as keyof typeof asProtoTypes];
+    }
     responseTypeImports += `
 import { decode${protoData.funcName}RHelper } from './${protoData.funcName}RHelper';`;
 
@@ -43,9 +64,11 @@ import { decode${protoData.funcName}RHelper } from './${protoData.funcName}RHelp
   // Convert the result to the expected response type
   const response = decode${protoData.funcName}RHelper(Uint8Array.wrap(changetype<ArrayBuffer>(result)));
 
-  return response.value;`;
+  ${(protoData.resType.ctype !== undefined) 
+    ? "return " + protoData.resType.ctype.deserialize.replace("\\1", "response.value") + ";"
+    : "return response.value;"}`;
   }
-
+  const imports = getCustomTypesImports(protoData.argFields.map( ({ctype}) => ctype));
   // generating the content of the file
   // eslint-disable-next-line max-len
   const content = `import { encode${protoData.funcName}Helper, ${
@@ -53,21 +76,18 @@ import { decode${protoData.funcName}RHelper } from './${protoData.funcName}RHelp
   }Helper } from './${protoData.funcName}Helper';${responseTypeImports}
 import { call, Address } from "@massalabs/massa-as-sdk";
 import { Args } from '@massalabs/as-types';
+${imports}
 
 export function ${protoData.funcName}(${
     args.length > 0 ? args.join(', ') + ', ' : ''
-} coins: u64): ${
-    protoData.resType !== null
-      ? Object.prototype.hasOwnProperty.call(asProtoTypes, protoData.resType.type)
-      : 'void'
-}{
+} coins: u64): ${resType} {
 
   const result = call(
     new Address("${address}"),
     "${protoData.funcName}",
-    new Args(changetype<StaticArray<u8>>(encode${protoData.funcName}
-    Helper(new ${protoData.funcName}Helper(
-      ${protoData.argFields.map(({ name }) => name).join(',\n')}
+    new Args(changetype<StaticArray<u8>>(encode${protoData.funcName}Helper(new ${protoData.funcName}Helper(
+      ${protoData.argFields.map(({name, ctype}) => 
+    ((ctype !== undefined) ? ctype.serialize.replace("\\1", name) : name)).join(',\n      ')}
     )))),
     coins
   );${responseDecoding}
