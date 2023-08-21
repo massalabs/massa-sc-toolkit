@@ -87,7 +87,7 @@ export function ${protoData.funcName}(${
     "${protoData.funcName}",
     new Args(changetype<StaticArray<u8>>(encode${protoData.funcName}Helper(new ${protoData.funcName}Helper(
       ${protoData.argFields.map(({name, ctype}) => 
-    ((ctype !== undefined) ? ctype.serialize.replace("\\1", name) : name)).join(',\n')}
+    ((ctype !== undefined) ? ctype.serialize.replace("\\1", name) : name)).join(',\n      ')}
     )))),
     coins
   );${responseDecoding}
