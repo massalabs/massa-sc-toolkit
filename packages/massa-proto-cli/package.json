@@ -1,6 +1,6 @@
 {
   "name": "@massalabs/massa-proto-cli",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "A cli for easy work with smart contract proto files",
   "main": "dist/index.js",
   "author": "0xSwapFeeder & Elli610",
