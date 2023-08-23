@@ -7,7 +7,7 @@
   "license": "MIT",
   "type": "module",
   "dependencies": {
-    "@massalabs/as-transformer": "^0.2.2-dev.20230810150029",
+    "@massalabs/as-transformer": "^0.3.0",
     "@massalabs/as-types": "^1.0.1",
     "@massalabs/massa-as-sdk": "^2.4.0",
     "@massalabs/massa-web3": "^2.1.0",
