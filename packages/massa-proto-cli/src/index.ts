@@ -30,6 +30,11 @@ program
     'optional output directory for the callers to generate',
     './helpers/',
   )
+  .option(
+    '-c, --check-dep <value>',
+    'optional check dependencies before generating callers',
+    false,
+  )
   .parse(process.argv);
 
 // Get the URL for a public JSON RPC API endpoint from the environment variables
@@ -49,6 +54,7 @@ async function run() {
   let mode: string = args['gen'];
   let address: string = args['addr'];
   let out: string = args['out'];
+  let checkDep: boolean = args['checkDep'] == true ? true : false;
 
   if (mode === '' || address === '' || publicApi === undefined) {
     program.help();
@@ -57,7 +63,7 @@ async function run() {
 
   // check if the necessary dependencies are installed
   let missingDeps: string[] = [];
-  if (mode === 'sc') {
+  if (checkDep && mode === 'sc') {
     /* check if the following node dependencies are installed: 
       - as-proto 
       - as-proto-gen 
@@ -77,7 +83,7 @@ async function run() {
     } catch (e) {
       throw new Error(`Error checking for dependencies: ${e}`);
     }
-  } else if (mode === 'web3' || mode === 'wallet') {
+  } else if (checkDep && mode === 'web3') {
     /* check if the following node dependencies are installed:
       - @massalabs/massa-web3
       - @protobuf-ts/plugin
@@ -89,7 +95,7 @@ async function run() {
       throw new Error(`Error checking for dependencies: ${e}`);
     }
   }
-  if (missingDeps.length > 0) {
+  if (checkDep && missingDeps.length > 0) {
     /* eslint-disable-next-line no-console */
     console.log(`Missing dependencies: ${missingDeps.join(', ')}`);
 
@@ -150,8 +156,8 @@ async function run() {
   // call the generator
   if (mode === 'sc') {
     generateAsCallers(files, address, out);
-  } else if (mode === 'web3' || mode === 'wallet') {
-    generateTsCallers(files, out, address, mode, address.slice(-10));
+  } else if (mode === 'web3') {
+    generateTsCallers(files, out, address, address.slice(-10));
   } else {
     throw new Error(`Unsupported mode: ${mode}`);
   }
