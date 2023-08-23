@@ -4,7 +4,7 @@ import { generateAsCallers } from './as-gen.js';
 import { generateTsCallers } from './ts-gen.js';
 import { ProtoFile, getProtoFiles, getProtoFunction } from './protobuf.js';
 import { Command } from 'commander';
-import { MassaCustomType, extractTypes } from '@massalabs/as-transformer';
+import { ProtoType, fetchCustomTypes } from '@massalabs/as-transformer';
 import * as dotenv from 'dotenv';
 import { existsSync, mkdirSync } from 'fs';
 import path from 'path';
@@ -126,24 +126,12 @@ async function run() {
   console.warn(
     `For now, we are only using the following custom types because the fetching as issues: u128, u256`,
   );
-  const bignumTypes = `- type:
-  name: u256
-  proto: bytes
-  import: "as-bignum/assembly"
-  serialize: "\\\\1.toUint8Array()"
-  deserialize: "u256.fromUint8ArrayLE(\\\\1)"
-- type:
-  name: u128
-  proto: bytes
-  import: "as-bignum/assembly"
-  serialize: "\\\\1.toUint8Array()"
-  deserialize: "u128.fromUint8ArrayLE(\\\\1)"
-`;
-  // call proto parser with fetched files
-  const customTypes: MassaCustomType[] = extractTypes(bignumTypes);
+
+  // recover any accessible and defined custom protobuf types
+  const types: Map<string, ProtoType> = fetchCustomTypes();
 
   for (const mpfile of mpFiles) {
-    let protoFile = await getProtoFunction(mpfile.filePath, customTypes);
+    let protoFile = await getProtoFunction(mpfile.filePath, types);
     files.push(protoFile);
   }
 

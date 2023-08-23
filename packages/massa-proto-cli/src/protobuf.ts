@@ -3,7 +3,7 @@ import {
   PROTO_FILE_SEPARATOR,
   strToBytes,
 } from '@massalabs/massa-web3';
-import { MassaCustomType } from '@massalabs/as-transformer';
+import { ProtoType } from '@massalabs/as-transformer';
 import { bytesArrayToString } from './utils/bytesArrayToString.js';
 import * as fs from 'fs';
 import { MassaProtoFile } from './MassaProtoFile.js';
@@ -44,8 +44,7 @@ export interface ProtoFile {
  */
 export interface FunctionArgument {
   name: string;
-  type: string;
-  ctype?: MassaCustomType;
+  type?: ProtoType;
 }
 
 /**
@@ -57,7 +56,6 @@ export interface FunctionArgument {
  */
 export async function getProtoFunction(
   protoPath: string,
-  customTypes: MassaCustomType[],
 ): Promise<ProtoFile> {
   // check if the protofile exists contains 'import "google/protobuf/descriptor.proto";'
   const descriptorProtoPath = path.join(
@@ -125,27 +123,19 @@ export async function getProtoFunction(
 
     // get the arguments of the Helper
     return Object.entries(helper.fields)
-      .filter(([, value]) => value)
       .map(([name, field]) => {
         const fieldType = (field as { type: string; id: number }).type;
         const fieldRule =
           (field as { rule: string; type: string; id: number }).rule ===
-          'repeated'
-            ? '[]'
-            : '';
-        let ctype: MassaCustomType | undefined = undefined;
-        if (field.options && field.options['(custom_type)']) {
-          const customType = field.options['(custom_type)'] as string;
-          const customTypeObj = customTypes.find(
-            (ct) => ct.name === customType,
-          );
-          assert(customTypeObj);
-          ctype = customTypeObj;
-        }
+            'repeated'
+            ? true
+            : false;
         return {
           name: name,
-          type: (ctype ? ctype.name : fieldType) + (fieldRule ? '[]' : ''),
-          ctype: ctype,
+          type: {
+            name: fieldType,
+            repeated: fieldRule,
+          } as ProtoType,
         } as FunctionArgument;
       });
   }
@@ -158,16 +148,6 @@ export async function getProtoFunction(
         const rHelperKeys = Object.keys(rHelper.fields);
 
         if (rHelperKeys.length === 1) {
-          const options = rHelper.fields['value'].options;
-          let ctype: MassaCustomType | undefined = undefined;
-          if (options && options['(custom_type)']) {
-            const customType = options['(custom_type)'] as string;
-            const customTypeObj = customTypes.find(
-              (ct) => ct.name === customType,
-            );
-            assert(customTypeObj);
-            ctype = customTypeObj;
-          }
           const key = rHelperKeys[0];
           assert(key);
           const field = rHelper.fields[key];
@@ -175,17 +155,19 @@ export async function getProtoFunction(
 
           return {
             name: 'value',
-            type:
-              (ctype !== undefined ? ctype.name : field.type) +
-              (field.rule ? '[]' : ''),
-            ctype: ctype,
+            type: {
+              name: field.type,
+              repeated: (field.rule ? true : false)
+            } as ProtoType,
           } as FunctionArgument;
         }
       }
     }
     return {
       name: 'void',
-      type: 'void',
+      type: {
+        name: 'void',
+      } as ProtoType,
     } as FunctionArgument;
   }
 }

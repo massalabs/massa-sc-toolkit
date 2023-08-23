@@ -3,7 +3,7 @@ import { spawnSync } from 'child_process';
 import path from 'path';
 import { ProtoFile } from './protobuf.js';
 import { default as asProtoTypes } from './asProtoTypes.json' assert { type: 'json' };
-import { MassaCustomType } from '@massalabs/as-transformer';
+import { ProtoType } from '@massalabs/as-transformer';
 
 /**
  * Creates a contract function caller with the given proto file and address.
