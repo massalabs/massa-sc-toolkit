@@ -1,15 +1,15 @@
 # Dependencies Report
 
 The following is a list of all the dependencies of this project:
-## [@massalabs/as-transformer](https://registry.npmjs.org/@massalabs/as-transformer/-/as-transformer-0.2.2-dev.20230818114147.tgz)
+## [@massalabs/as-transformer](https://registry.npmjs.org/@massalabs/as-transformer/-/as-transformer-0.2.2-dev.20230823075328.tgz)
 
 **License:** ISC - perpetual
 
-**Used version:** 0.2.2-dev.20230810150029
+**Used version:** 0.2.2-dev.20230823075328
 
 **Many thanks to:** 
 
-## [@massalabs/as-types](https://registry.npmjs.org/@massalabs/as-types/-/as-types-1.0.1.tgz)
+## [@massalabs/as-types](https://registry.npmjs.org/@massalabs/as-types/-/as-types-1.1.0.tgz)
 
 **License:** ISC - perpetual
 
