@@ -491,6 +491,7 @@ export async function ${protoFile.funcName}ExtractOutputsAndEvents(
     console.log("Error while calling the Smart Contract: " + err);
     return {
       events: events,
+      error: err,
     } as OperationOutputs;
   }
 
@@ -602,6 +603,7 @@ import { IBaseAccount } from "@massalabs/massa-web3/dist/esm/interfaces/IBaseAcc
 export interface OperationOutputs {
   outputs?: any;
   events: IEvent[];
+  error?: any;
 }
 
 
