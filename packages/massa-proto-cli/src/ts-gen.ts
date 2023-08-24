@@ -216,19 +216,22 @@ export function generateTSCaller(
    * @returns {Promise<OperationOutputs>} A promise that resolves to an object which contains the outputs and events from the call to ${protoFile.funcName}.
    */
   async ${protoFile.funcName}(${protoFile.argFields.length > 0 ? `${args}` : ''}
+    coins?: bigint,
     fee?: bigint, 
     maxGas?:bigint
   ): Promise<OperationOutputs> {
     ${checkUnsignedArgs}${argsSerialization}
     // Send the operation to the blockchain and retrieve its outputs
+    if(!coins) coins = this.coins;
     if(!fee) fee = this.fee;
     if(!maxGas) maxGas = this.maxGas;
+
     return (
       await ${protoFile.funcName}ExtractOutputsAndEvents(
         '${contractAddress}',
         '${protoFile.funcName}',
         ${protoFile.argFields.length > 0 ? 'serializedArgs' : 'new Uint8Array()'},
-        this.coins,
+        coins,
         '${protoFile.resType.type == 'void' ? 'void' : returnType[protoFile.resType.type]}',
         this.account,
         this.nodeRPC,
@@ -485,6 +488,7 @@ export async function ${protoFile.funcName}ExtractOutputsAndEvents(
     )
   }
   catch (err) {
+    console.log("Error while calling the Smart Contract: " + err);
     return {
       events: events,
     } as OperationOutputs;
