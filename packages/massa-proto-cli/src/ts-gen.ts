@@ -53,13 +53,14 @@ function setupArguments(protoFile: ProtoFile): string {
   if (protoFile.argFields.length === 1) init = '\n  ';
   return init + protoFile.argFields
     .reduce((content, arg) => {
-      if (!arg.ctype && !Object.prototype.hasOwnProperty.call(returnType, arg.type)) {
+      if (!Object.prototype.hasOwnProperty.call(returnType, arg.type.name)) {
         throw new Error(`Unsupported type: ${arg.type}`);
       }
-      if (arg.ctype) {
-        return `  ${content}${arg.name}: ${arg.type},\n    `;
-      }
-      return `  ${content}${arg.name}: ${returnType[arg.type]},\n    `;
+      // TODO X
+      // if (arg.ctype) {
+      //   return `  ${content}${arg.name}: ${arg.type},\n    `;
+      // }
+      return `  ${content}${arg.name}: ${returnType[arg.type.name]},\n    `;
     }, '')
     .slice(0, -5);
 }
@@ -75,7 +76,7 @@ function generateUnsignedArgCheckCode(protoFile: ProtoFile): string {
   const unsignedPBTypes = new Set(['uint32', 'uint64', 'fixed32', 'fixed64']);
 
   const checks = protoFile.argFields
-    .filter((arg) => unsignedPBTypes.has(arg.type))
+    .filter((arg) => unsignedPBTypes.has(arg.type.name))
     /* eslint-disable max-len */
     .map(
       (arg) =>
@@ -89,7 +90,7 @@ function generateUnsignedArgCheckCode(protoFile: ProtoFile): string {
     'fixed64[]',
   ]);
   const checksArray = protoFile.argFields
-    .filter((arg) => unsignedPBArrayTypes.has(arg.type))
+    .filter((arg) => unsignedPBArrayTypes.has(arg.type.name))
     /* eslint-disable max-len */
     .map(
       (arg) =>
@@ -120,8 +121,8 @@ function generateUnsignedArgCheckCode(protoFile: ProtoFile): string {
 function argumentSerialization(protoFile: ProtoFile): string {
   let args = '';
   for (let arg of protoFile.argFields) {
-    if (arg.ctype) {
-      let byteArg = arg.ctype.serialize;
+    if (arg.type.metaData) {
+      let byteArg = arg.type.metaData.serialize;
       // replace \1 with the argument name
       byteArg = byteArg.replace('\\1', arg.name);
       args += `      ${arg.name}: ${byteArg},\n`;
@@ -149,7 +150,7 @@ function argumentSerialization(protoFile: ProtoFile): string {
  */
 function generateDocArgs(protoFile: ProtoFile): string {
   return protoFile.argFields
-    .map((arg) => `   * @param {${returnType[arg.type]}} ${arg.name} - `)
+    .map((arg) => `   * @param {${returnType[arg.type.name]}} ${arg.name} - `)
     .join('\n');
 }
 
@@ -243,7 +244,7 @@ export function generateTSCaller(
         '${protoFile.funcName}',
         ${protoFile.argFields.length > 0 ? 'serializedArgs' : 'new Uint8Array()'},
         this.coins,
-        '${protoFile.resType.type == 'void' ? 'void' : returnType[protoFile.resType.type]}',
+        '${protoFile.resType.type.name == 'void' ? 'void' : returnType[protoFile.resType.type.name]}',
         this.account,
         this.nodeRPC,
         fee,
@@ -279,9 +280,9 @@ import {
   withTimeoutRejection,
 } from "@massalabs/massa-web3";
 ${mode == 'wallet'
-    ? 'import { IAccount } from "@massalabs/wallet-provider";\n'
-    : ''
-}
+      ? 'import { IAccount } from "@massalabs/wallet-provider";\n'
+      : ''
+    }
 export const MASSA_EXEC_ERROR = 'massa_execution_error';
 
 /**
@@ -453,10 +454,10 @@ function generatePollerFunction(
     );
 
     // generate the import for custom types (if needed)
-    const response = protoFile.resType.ctype;
+    const response = protoFile.resType.type.metaData;
     let customResponseImport = '';
     if (response) {
-      customResponseImport = `\nimport { ${response.name} } from "${response.import}";`;
+      customResponseImport = `\nimport { ${protoFile.resType.type} } from "${response.import}";`;
     }
 
     const helperImports = `
@@ -468,10 +469,10 @@ import {
 import { getEvents } from "./commonHelper";
 import {
   IEvent,${mode == 'web3'
-  ? `\n  SmartContractsClient,
+        ? `\n  SmartContractsClient,
   ICallData,`
-  : ''
-}
+        : ''
+      }
 } from "@massalabs/massa-web3";${customResponseImport}
 ${mode == 'wallet' ? 'import { IAccount, providers } from "@massalabs/wallet-provider";\n' : ''}
 
@@ -536,22 +537,20 @@ export async function ${protoFile.funcName}ExtractOutputsAndEvents(
     };
   }
   if(rawOutput !== null && returnType !== 'void') {
-    ${protoFile.resType.type == 'void'
-  ? ''
-  : `let output: Uint8Array = new Uint8Array(Buffer.from(rawOutput, 'base64'));
+    ${protoFile.resType.type.name == 'void'
+        ? ''
+        : `let output: Uint8Array = new Uint8Array(Buffer.from(rawOutput, 'base64'));
     // try to deserialize the outputs
-    let deserializedOutput: ${protoFile.resType.ctype
-    ? protoFile.resType.ctype.name
-    : returnType[protoFile.resType.type]
-      ? returnType[protoFile.resType.type]
-      : 'Unknown_type'
-  };
+    let deserializedOutput: ${
+        // TODO X
+        protoFile.resType.type.name
+        };
     try{
-      deserializedOutput = ${protoFile.resType.ctype
-        ? deserializeCustomType(protoFile)
-        : `${protoFile.funcName
-        }RHelper.fromBinary(output).value;`
-      }
+      deserializedOutput = ${protoFile.resType.type.metaData
+          ? deserializeCustomType(protoFile)
+          : `${protoFile.funcName
+          }RHelper.fromBinary(output).value;`
+        }
   }
     catch (err) {
       throw new Error(
@@ -559,7 +558,7 @@ export async function ${protoFile.funcName}ExtractOutputsAndEvents(
       );
     }
     `}
-    return {${protoFile.resType.type == 'void' ? '' : `\n      outputs: deserializedOutput,`}
+    return {${protoFile.resType.type.name == 'void' ? '' : `\n      outputs: deserializedOutput,`}
       events: events,
     } as OperationOutputs;
   }
@@ -573,8 +572,8 @@ export async function ${protoFile.funcName}ExtractOutputsAndEvents(
     writeFileSync(
       `${outputPath}${protoFile.funcName}Helper.ts`,
       helperImports +
-    '\n/*****************GENERATED BY PROTOC*****************/\n\n' +
-    helperFile,
+      '\n/*****************GENERATED BY PROTOC*****************/\n\n' +
+      helperFile,
       'utf8',
     );
     console.log(
@@ -592,13 +591,13 @@ function generateCommonCallerFile(
   let imports = '';
   for (let protoFile of protoFiles) {
     imports += `import { ${protoFile.funcName}ExtractOutputsAndEvents${protoFile.argFields.length > 0 ? `, ${protoFile.funcName}Helper` : ''
-    } } from "./${protoFile.funcName}Helper";\n`;
+      } } from "./${protoFile.funcName}Helper";\n`;
   }
   let customTypesImportsArray: string[] = [];
   for (let protoFile of protoFiles) {
     for (let arg of protoFile.argFields) {
-      if (arg.ctype) {
-        customTypesImportsArray.push(`\nimport { ${arg.ctype.name} } from "${arg.ctype.import}";`);
+      if (arg.type.metaData) {
+        customTypesImportsArray.push(`\nimport { ${arg.type.name} } from "${arg.type.metaData.import}";`);
       }
     }
   }
@@ -608,19 +607,19 @@ function generateCommonCallerFile(
 ${imports.slice(0, -1)}
 import {
   IEvent,${mode == 'web3'
-  ? `\n  ProviderType,
+      ? `\n  ProviderType,
   SmartContractsClient,
   PublicApiClient,
   IAccount,
   WalletClient,
   Web3Account,`
-  : ''
-}
+      : ''
+    }
 } from "@massalabs/massa-web3";
 ${mode == 'wallet'
-  ? 'import { IAccount, providers } from "@massalabs/wallet-provider";\n'
-  : ''
-}${customTypesImports}
+      ? 'import { IAccount, providers } from "@massalabs/wallet-provider";\n'
+      : ''
+    }${customTypesImports}
 
 /**
  * This interface is used to represents the outputs of the SC call.
@@ -655,8 +654,8 @@ export class ${contractName[0].toUpperCase() + contractName.slice(1)}BlockchainC
    * This method have been generated by the Massa Proto CLI.
    * It allows you to instantiate a new ${contractName[0].toUpperCase() + contractName.slice(1)}BlockchainCaller object with the default values.
    * ${mode == 'web3'
-  ? ''
-  : `
+      ? ''
+      : `
    * @param {string} providerName - The name of the provider to use
    * @param {number} accountIndex - The index of the account to use in the provider's list of accounts
    * `}
@@ -664,7 +663,7 @@ export class ${contractName[0].toUpperCase() + contractName.slice(1)}BlockchainC
    */
   static async newDefault(${mode == 'web3' ? '' : 'providerName: string, accountIndex: number'}): Promise<${contractName[0].toUpperCase() + contractName.slice(1)}BlockchainCaller> {
     ${mode == 'web3'
-  ? `// check if the environment variables are set
+      ? `// check if the environment variables are set
     if (!process.env.NODE_RPC) {
       throw new Error('NODE_RPC environment variable is not set');
     }
@@ -688,7 +687,7 @@ export class ${contractName[0].toUpperCase() + contractName.slice(1)}BlockchainC
       publicApiClient,
       walletClient,
     );`
-  : `// get the available providers
+      : `// get the available providers
     const provider = await providers();
     // chose the provider
     const providerToUse = provider.find((p) => String(p.name()) === providerName);
@@ -696,10 +695,10 @@ export class ${contractName[0].toUpperCase() + contractName.slice(1)}BlockchainC
       throw new Error("Provider '" + providerName + "'not found");
     }`}
     return new ${contractName[0].toUpperCase() + contractName.slice(1)}BlockchainCaller(${mode == 'web3'
-  ? 'SC_Client'
-  : '(await providerToUse.accounts())[accountIndex]'}, 0n, ${mode == 'web3'
-    ? 'process.env.NODE_RPC'
-    : '(await providerToUse.getNodesUrls())[0]'});
+      ? 'SC_Client'
+      : '(await providerToUse.accounts())[accountIndex]'}, 0n, ${mode == 'web3'
+        ? 'process.env.NODE_RPC'
+        : '(await providerToUse.getNodesUrls())[0]'});
   }
 `;
 }
@@ -815,8 +814,8 @@ export function generateTsCallers(
  * @param protoFile - the proto file object
  */
 function deserializeCustomType(protoFile: ProtoFile): string {
-  if (protoFile.resType.ctype) {
-    let arg = protoFile.resType.ctype.deserialize;
+  if (protoFile.resType.type.metaData) {
+    let arg = protoFile.resType.type.metaData.deserialize;
     // replace \1 with the argument name
     arg = arg.replace('\\1', "output");
     return arg;

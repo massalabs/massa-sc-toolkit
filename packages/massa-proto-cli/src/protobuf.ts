@@ -44,7 +44,7 @@ export interface ProtoFile {
  */
 export interface FunctionArgument {
   name: string;
-  type?: ProtoType;
+  type: ProtoType;
 }
 
 /**
@@ -123,6 +123,7 @@ export async function getProtoFunction(
 
     // get the arguments of the Helper
     return Object.entries(helper.fields)
+      .filter(([, value]) => value)
       .map(([name, field]) => {
         const fieldType = (field as { type: string; id: number }).type;
         const fieldRule =
