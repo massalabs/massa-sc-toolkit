@@ -157,7 +157,17 @@ async function run() {
   if (mode === 'sc') {
     generateAsCallers(files, address, out);
   } else if (mode === 'web3') {
-    generateTsCallers(files, out, address, address.slice(-10));
+    let contractName = address.slice(-10);
+    // if contractName[0] is a number, replace it with a letter
+    try {
+      if (parseInt(contractName[0]) >= 0) {
+        contractName = 'c' + contractName.slice(1);
+      }
+    } catch (e) {
+      contractName = 'c' + contractName.slice(1);
+    }
+
+    generateTsCallers(files, out, address, contractName);
   } else {
     throw new Error(`Unsupported mode: ${mode}`);
   }
