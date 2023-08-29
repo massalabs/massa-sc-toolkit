@@ -30,9 +30,9 @@ export function generateAsCall(
   outputDirectory: string,
 ) {
   // check if all the arguments are supported (to avoid 'undefined' objects in the generated code)
-  protoData.argFields.forEach(({ name, type }) => {
+  protoData.argFields.forEach(({ type }) => {
     // TODO X
-    if (type.metaData === undefined && asProtoTypes && !Object.prototype.hasOwnProperty.call(asProtoTypes, name)) {
+    if (type.metaData === undefined && asProtoTypes && !Object.prototype.hasOwnProperty.call(asProtoTypes, type.name)) {
       throw new Error(`Unsupported type: ${type}`);
     }
   });
@@ -110,6 +110,8 @@ export function ${protoData.funcName}(${args.length > 0 ? args.join(', ') + ', '
  */
 function generateProtocAsHelper(protoData: ProtoFile, outputDirectory: string) {
   let protocProcess = spawnSync('protoc', [
+    // TODO X
+    // `--plugin=protoc-gen-as=../../node_modules/.bin/as-proto-gen`,
     `--plugin=protoc-gen-as=./node_modules/.bin/as-proto-gen`,
     `--as_out=${outputDirectory}`,
     `--as_opt=gen-helper-methods`,
