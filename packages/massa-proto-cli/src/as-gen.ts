@@ -6,6 +6,7 @@ import { default as asProtoTypes } from './asProtoTypes.json' assert { type: 'js
 // eslint-disable-next-line
 // @ts-ignore
 import { debug } from 'console';
+import { ProtoType } from '@massalabs/as-transformer';
 
 /**
  * Creates a contract function caller with the given proto file and address.
@@ -26,11 +27,10 @@ function getCustomTypesImports(args: FunctionArgument[]): string {
   return imports.join('\n');
 }
 
-export function generateAsCall(
+export function generateAsCaller(
   protoData: ProtoFile,
   address: string,
-  outputDirectory: string,
-) {
+): string {
   // check if all the arguments are supported (to avoid 'undefined' objects in the generated code)
   protoData.argFields.forEach(({ type }) => {
     // TODO X
@@ -55,7 +55,8 @@ export function generateAsCall(
   let resType = 'void';
   let responseDecoding = '';
   let responseTypeImports = '';
-  if (protoData.resType !== null && protoData.resType.type.name !== 'void') {
+
+  if (protoData.resType && protoData.resType.type.name !== 'void') {
     if (protoData.resType.type.metaData !== undefined) {
       resType = protoData.resType.type.name;
       resType += protoData.resType.type.repeated ? '[]' : '';
@@ -66,14 +67,7 @@ export function generateAsCall(
     responseTypeImports += `
 import { decode${protoData.funcName}RHelper } from './${protoData.funcName}RHelper';`;
 
-    responseDecoding = `
-
-  // Convert the result to the expected response type
-  const response = decode${protoData.funcName}RHelper(Uint8Array.wrap(changetype<ArrayBuffer>(result)));
-
-  ${(protoData.resType.type.metaData !== undefined)
-        ? "return " + protoData.resType.type.metaData.deserialize.replace("\\1", "response.value") + ";"
-        : "return response.value;"}`;
+    responseDecoding = decodeResponse(protoData);
   }
 
   const imports = getCustomTypesImports(protoData.argFields) +
@@ -100,19 +94,53 @@ export function ${protoData.funcName}(${args.length > 0 ? args.join(', ') + ', '
     "${protoData.funcName}",
     new Args(changetype<StaticArray<u8>>(encode${protoData.funcName}Helper(new ${protoData.funcName}Helper(
       ${protoData.argFields.map(({ name, type }) =>
-      // TODO X
-      ((type.metaData !== undefined) ? type.metaData.serialize.replace("\\1", name) : name)).join(',\n      ')}
-    )))),
+      (generateArgument(type, name))).join(',\n      ')})
+    ))),
     coins
   );${responseDecoding}
 }
 `;
 
-  // Save the content to a ts file
-  writeFileSync(
-    path.join(outputDirectory, `${protoData.funcName}Caller.ts`),
-    content,
-  );
+  return content;
+}
+
+function decodeResponse(protoData: ProtoFile): string {
+  let ret = '\n\n';
+  ret +=`// Convert the result to the expected response type` + '\n';
+  ret +=`const response = decode${protoData.funcName}RHelper(Uint8Array.wrap(changetype<ArrayBuffer>(result)));` + '\n';
+
+  // if not a custom type
+  if (!protoData.resType.type.metaData) {
+    ret += `return response.value;`;
+    return ret;
+  }
+
+  // if array of custom type
+  if (protoData.resType.type.repeated) {
+    const cType = protoData.resType.type.name;
+    ret += `return response.value.map<${cType}>((el) => ${protoData.resType.type.metaData.deserialize.replace('\\1', 'el')});`;
+  }
+  else {
+    ret += `return ${protoData.resType.type.metaData.deserialize.replace('\\1', 'response.value')};`;
+  }
+
+  return ret;
+}
+
+function generateArgument(type: ProtoType, name: string): string {
+  // simple type aka not a custom type
+  if (!type.metaData) {
+    return name;
+  }
+
+  // array of custom type
+  if (type.repeated) {
+    return `${name}.map((el) => ${type.metaData.serialize.replace('\\1', 'el')})`;
+  }
+  // single custom type
+  else {
+    return type.metaData.serialize.replace('\\1', name);
+  }
 }
 
 /**
@@ -152,7 +180,14 @@ export function generateAsCallers(
   outputDirectory: string,
 ) {
   for (const file of protoFiles) {
+    debug(`Generating AS caller for ${file.funcName}`);
     generateProtocAsHelper(file, outputDirectory);
-    generateAsCall(file, address, outputDirectory);
+    const callerContent = generateAsCaller(file, address);
+
+    // Save the content to a ts file
+    writeFileSync(
+      path.join(outputDirectory, `${file.funcName}Caller.ts`),
+      callerContent,
+    );
   }
 }
