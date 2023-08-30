@@ -75,7 +75,11 @@ import { decode${protoData.funcName}RHelper } from './${protoData.funcName}RHelp
         ? "return " + protoData.resType.type.metaData.deserialize.replace("\\1", "response.value") + ";"
         : "return response.value;"}`;
   }
-  const imports = getCustomTypesImports(protoData.argFields);
+
+  const imports = getCustomTypesImports(protoData.argFields) +
+    '\n' +
+    getCustomTypesImports([protoData.resType]);
+
   // generating the content of the file
   // eslint-disable-next-line max-len
 
