@@ -1,9 +1,8 @@
 import { writeFileSync } from 'fs';
 import { spawnSync } from 'child_process';
 import path from 'path';
-import { ProtoFile } from './protobuf.js';
+import { FunctionArgument, ProtoFile } from './protobuf.js';
 import { default as asProtoTypes } from './asProtoTypes.json' assert { type: 'json' };
-import { ProtoType } from '@massalabs/as-transformer';
 
 /**
  * Creates a contract function caller with the given proto file and address.
@@ -13,12 +12,12 @@ import { ProtoType } from '@massalabs/as-transformer';
  * @param outputDirectory - the output directory to create the file for the caller
  */
 
-function getCustomTypesImports(args: (ProtoType)[]): string {
+function getCustomTypesImports(args: FunctionArgument[]): string {
   let imports: string[] = [];
 
   for (const arg of args) {
-    if (arg !== undefined && arg.metaData !== undefined)
-      imports.push(`import { ${arg.name} } from '${arg.metaData.import}';`);
+    if (arg.type.metaData !== undefined)
+      imports.push(`import { ${arg.type.name} } from '${arg.type.metaData.import}';`);
   }
 
   return imports.join('\n');
@@ -73,6 +72,10 @@ import { decode${protoData.funcName}RHelper } from './${protoData.funcName}RHelp
   const imports = getCustomTypesImports(protoData.argFields);
   // generating the content of the file
   // eslint-disable-next-line max-len
+
+  // TODO X
+  console.log(protoData.argFields.map(({ name, type }) => console.log("HERE", name, type.name, type.metaData)));
+
   const content = `import { encode${protoData.funcName}Helper, ${protoData.funcName
     }Helper } from './${protoData.funcName}Helper';${responseTypeImports}
 import { call, Address } from "@massalabs/massa-as-sdk";
@@ -111,8 +114,8 @@ export function ${protoData.funcName}(${args.length > 0 ? args.join(', ') + ', '
 function generateProtocAsHelper(protoData: ProtoFile, outputDirectory: string) {
   let protocProcess = spawnSync('protoc', [
     // TODO X
-    // `--plugin=protoc-gen-as=../../node_modules/.bin/as-proto-gen`,
-    `--plugin=protoc-gen-as=./node_modules/.bin/as-proto-gen`,
+    `--plugin=protoc-gen-as=../../node_modules/.bin/as-proto-gen`,
+    // `--plugin=protoc-gen-as=./node_modules/.bin/as-proto-gen`,
     `--as_out=${outputDirectory}`,
     `--as_opt=gen-helper-methods`,
     `--proto_path=${outputDirectory}`,

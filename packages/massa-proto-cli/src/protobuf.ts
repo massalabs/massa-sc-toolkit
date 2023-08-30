@@ -56,6 +56,7 @@ export interface FunctionArgument {
  */
 export async function getProtoFunction(
   protoPath: string,
+  customs: Map<string, ProtoType>,
 ): Promise<ProtoFile> {
   // check if the protofile exists contains 'import "google/protobuf/descriptor.proto";'
   const descriptorProtoPath = path.join(
@@ -125,6 +126,17 @@ export async function getProtoFunction(
     return Object.entries(helper.fields)
       .filter(([, value]) => value)
       .map(([name, field]) => {
+        if (field.options) {
+          const type = field.options['(custom_type)'];
+          const metaData = customs.get(type)?.metaData;
+          return {
+            name: name,
+            type: {
+              name: type,
+              metaData: metaData,
+            } as ProtoType,
+          } as FunctionArgument;
+        }
         const fieldType = (field as { type: string; id: number }).type;
         const fieldRule =
           (field as { rule: string; type: string; id: number }).rule ===
