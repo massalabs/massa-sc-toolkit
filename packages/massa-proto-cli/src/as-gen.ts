@@ -3,6 +3,7 @@ import { spawnSync } from 'child_process';
 import path from 'path';
 import { FunctionArgument, ProtoFile } from './protobuf.js';
 import { default as asProtoTypes } from './asProtoTypes.json' assert { type: 'json' };
+import { debug } from 'console';
 
 /**
  * Creates a contract function caller with the given proto file and address.
@@ -39,23 +40,28 @@ export function generateAsCall(
   // generating AS arguments
   let args: string[] = [];
   protoData.argFields.forEach(({ name, type }) => {
+    const array= type.repeated ? '[]': '';
     // TODO X
     if (type.metaData !== undefined) {
-      args.push(`${name}: ${type.name}`);
+      args.push(`${name}: ${type.name}${array}`);
     }
     else if (asProtoTypes && Object.prototype.hasOwnProperty.call(asProtoTypes, type.name)) {
       const asType: string = asProtoTypes[type.name as keyof typeof asProtoTypes];
-      args.push(`${name}: ${asType}`);
+      args.push(`${name}: ${asType}${array}`);
     }
   });
   let resType = 'void';
   let responseDecoding = '';
   let responseTypeImports = '';
   if (protoData.resType !== null && protoData.resType.type.name !== 'void') {
+    debug("protoData.resType.type", protoData.resType.type);
     if (protoData.resType.type.metaData !== undefined) {
       resType = protoData.resType.type.name;
+      resType += protoData.resType.type.repeated ? '[]' : '';
+      debug(resType);
     } else {
       resType = asProtoTypes[protoData.resType.type.name as keyof typeof asProtoTypes];
+      resType += protoData.resType.type.repeated ? '[]' : '';
     }
     responseTypeImports += `
 import { decode${protoData.funcName}RHelper } from './${protoData.funcName}RHelper';`;
