@@ -74,7 +74,7 @@ import { decode${protoData.funcName}RHelper } from './${protoData.funcName}RHelp
   // eslint-disable-next-line max-len
 
   // TODO X
-  console.log(protoData.argFields.map(({ name, type }) => console.log("HERE", name, type.name, type.metaData)));
+  // console.log(protoData.argFields.map(({ name, type }) => console.log("HERE", name, type.name, type.metaData)));
 
   const content = `import { encode${protoData.funcName}Helper, ${protoData.funcName
     }Helper } from './${protoData.funcName}Helper';${responseTypeImports}
@@ -114,8 +114,8 @@ export function ${protoData.funcName}(${args.length > 0 ? args.join(', ') + ', '
 function generateProtocAsHelper(protoData: ProtoFile, outputDirectory: string) {
   let protocProcess = spawnSync('protoc', [
     // TODO X
-    `--plugin=protoc-gen-as=../../node_modules/.bin/as-proto-gen`,
-    // `--plugin=protoc-gen-as=./node_modules/.bin/as-proto-gen`,
+    // `--plugin=protoc-gen-as=../../node_modules/.bin/as-proto-gen`,
+    `--plugin=protoc-gen-as=./node_modules/.bin/as-proto-gen`,
     `--as_out=${outputDirectory}`,
     `--as_opt=gen-helper-methods`,
     `--proto_path=${outputDirectory}`,

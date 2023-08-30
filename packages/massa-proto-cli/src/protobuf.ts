@@ -126,6 +126,7 @@ export async function getProtoFunction(
     return Object.entries(helper.fields)
       .filter(([, value]) => value)
       .map(([name, field]) => {
+        // custom
         if (field.options) {
           const type = field.options['(custom_type)'];
           const metaData = customs.get(type)?.metaData;
@@ -137,6 +138,8 @@ export async function getProtoFunction(
             } as ProtoType,
           } as FunctionArgument;
         }
+
+        // classic
         const fieldType = (field as { type: string; id: number }).type;
         const fieldRule =
           (field as { rule: string; type: string; id: number }).rule ===
@@ -166,6 +169,20 @@ export async function getProtoFunction(
           const field = rHelper.fields[key];
           assert(field);
 
+          // custom
+          if (field.options) {
+            const type = field.options['(custom_type)'];
+            const metaData = customs.get(type)?.metaData;
+            return {
+              name: 'value',
+              type: {
+                name: type,
+                metaData: metaData,
+              } as ProtoType,
+            } as FunctionArgument;
+          }
+
+          // classic
           return {
             name: 'value',
             type: {
