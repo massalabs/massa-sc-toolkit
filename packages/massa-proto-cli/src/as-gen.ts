@@ -3,6 +3,8 @@ import { spawnSync } from 'child_process';
 import path from 'path';
 import { FunctionArgument, ProtoFile } from './protobuf.js';
 import { default as asProtoTypes } from './asProtoTypes.json' assert { type: 'json' };
+// eslint-disable-next-line
+// @ts-ignore
 import { debug } from 'console';
 
 /**
@@ -54,11 +56,9 @@ export function generateAsCall(
   let responseDecoding = '';
   let responseTypeImports = '';
   if (protoData.resType !== null && protoData.resType.type.name !== 'void') {
-    debug("protoData.resType.type", protoData.resType.type);
     if (protoData.resType.type.metaData !== undefined) {
       resType = protoData.resType.type.name;
       resType += protoData.resType.type.repeated ? '[]' : '';
-      debug(resType);
     } else {
       resType = asProtoTypes[protoData.resType.type.name as keyof typeof asProtoTypes];
       resType += protoData.resType.type.repeated ? '[]' : '';

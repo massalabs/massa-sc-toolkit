@@ -126,6 +126,12 @@ export async function getProtoFunction(
     return Object.entries(helper.fields)
       .filter(([, value]) => value)
       .map(([name, field]) => {
+        const fieldRule =
+          (field as { rule: string; type: string; id: number }).rule ===
+            'repeated'
+            ? true
+            : false;
+
         // custom
         if (field.options) {
           const type = field.options['(custom_type)'];
@@ -134,6 +140,7 @@ export async function getProtoFunction(
             name: name,
             type: {
               name: type,
+              repeated: fieldRule,
               metaData: metaData,
             } as ProtoType,
           } as FunctionArgument;
@@ -141,11 +148,6 @@ export async function getProtoFunction(
 
         // classic
         const fieldType = (field as { type: string; id: number }).type;
-        const fieldRule =
-          (field as { rule: string; type: string; id: number }).rule ===
-            'repeated'
-            ? true
-            : false;
         return {
           name: name,
           type: {
@@ -177,6 +179,7 @@ export async function getProtoFunction(
               name: 'value',
               type: {
                 name: type,
+                repeated: (field.rule ? true : false),
                 metaData: metaData,
               } as ProtoType,
             } as FunctionArgument;

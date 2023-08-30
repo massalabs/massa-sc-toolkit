@@ -58,11 +58,11 @@ async function run() {
   // check if the necessary dependencies are installed
   let missingDeps: string[] = [];
   if (mode === 'sc') {
-    /* check if the following node dependencies are installed: 
-      - as-proto 
-      - as-proto-gen 
-      - @massalabs/massa-as-sdk 
-      - @massalabs/as-types 
+    /* check if the following node dependencies are installed:
+      - as-proto
+      - as-proto-gen
+      - @massalabs/massa-as-sdk
+      - @massalabs/as-types
       - @massalabs/as-transformer
     */
     const deps = [
