@@ -6,7 +6,10 @@ import { default as asProtoTypes } from './asProtoTypes.json' assert { type: 'js
 // eslint-disable-next-line
 // @ts-ignore
 import { debug } from 'console';
-import { ProtoType } from '@massalabs/as-transformer';
+import { ProtoType, readRefTable } from '@massalabs/as-transformer';
+
+// @ts-ignore
+const refTable = readRefTable();
 
 /**
  * Creates a contract function caller with the given proto file and address.
@@ -33,11 +36,15 @@ export function generateAsCaller(
 ): string {
   // check if all the arguments are supported (to avoid 'undefined' objects in the generated code)
   protoData.argFields.forEach(({ type }) => {
+
+    findProtoType(type);
+
     // TODO X
     if (type.metaData === undefined && asProtoTypes && !Object.prototype.hasOwnProperty.call(asProtoTypes, type.name)) {
       throw new Error(`Unsupported type: ${type}`);
     }
   });
+
 
   // generating AS arguments
   let args: string[] = [];
@@ -102,6 +109,65 @@ export function ${protoData.funcName}(${args.length > 0 ? args.join(', ') + ', '
 `;
 
   return content;
+}
+
+function findProtoType(type: ProtoType) {
+  debug('looking for proto type:', type.name, type.repeated);
+
+  const refTableEntries = refTable.entries();
+  // convert the iterator to an array
+  const entries = Array.from(refTableEntries);
+  const found = entries.filter(([asType, value]) => {
+    if (type.metaData && type.name === asType) {
+      debug('CT refTable value:', value.name, ' refTable key:', asType);
+      return true;
+    }
+    else if (type.name === value.name) {
+      return true;
+    }
+    else {
+      return false;
+    }});
+
+  debug('found:', found);
+  if (found === undefined) {
+    throw new Error(`Unsupported type: ${type}`);
+  }
+
+
+
+
+
+
+  // const entries = ["",""].filter(([asType, value]) => {
+  //   debug('On:', value.name, ' refTable key:', asType);
+  //   if (type.metaData && type.name === asType) {
+  //     debug('CT refTable value:', value.name, ' refTable key:', asType);
+  //     return true;
+  //   }
+  //   else if (type.name === value.name) {
+  //     return true;
+  //   }
+  //   else {
+  //     return false;
+  //   }});
+
+  // debug('entries:', entries);
+  // for (let i = 0; i < refTableEntries.length; i++) {
+  //   const [asType, value] = refTableEntries[i];
+  //   if (type.metaData) {
+  //     if (type.name === asType) {
+  //       debug('CT refTable value:', value.name, ' refTable key:', asType);
+  //       continue;
+  //     }
+  //   } else {
+  //     if (type.name === value.name) {
+  //       debug('refTable value:', value.name, ' refTable key:', asType);
+  //       continue;
+  //     }
+  //   }
+  //   throw new Error(`Unsupported type: ${type}`);
+  // }
 }
 
 function decodeResponse(protoData: ProtoFile): string {
