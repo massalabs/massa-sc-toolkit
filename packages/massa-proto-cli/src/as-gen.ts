@@ -135,7 +135,7 @@ function generateArgument(type: ProtoType, name: string): string {
 
   // array of custom type
   if (type.repeated) {
-    return `${name}.map((el) => ${type.metaData.serialize.replace('\\1', 'el')})`;
+    return `${name}.map<Uint8Array>((el) => ${type.metaData.serialize.replace('\\1', 'el')})`;
   }
   // single custom type
   else {
