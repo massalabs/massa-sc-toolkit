@@ -4,7 +4,7 @@ import { generateAsCallers } from './as-gen.js';
 import { generateTsCallers } from './ts-gen.js';
 import { ProtoFile, getProtoFiles, getProtoFunction } from './protobuf.js';
 import { Command } from 'commander';
-import { ProtoType, fetchCustomTypes } from '@massalabs/as-transformer';
+import { ProtoType, fetchCustomTypes, readRefTable } from '@massalabs/as-transformer';
 import * as dotenv from 'dotenv';
 import { existsSync, mkdirSync } from 'fs';
 import path from 'path';
@@ -128,16 +128,18 @@ async function run() {
   );
 
   // recover any accessible and defined custom protobuf types
-  const customs: Map<string, ProtoType> = fetchCustomTypes();
+  const customs = fetchCustomTypes();
+  const refTable = readRefTable();
+  const types: Map<string, ProtoType> = new Map([...customs, ...refTable]);
 
   for (const mpfile of mpFiles) {
-    let protoFile = await getProtoFunction(mpfile.filePath, customs);
+    let protoFile = await getProtoFunction(mpfile.filePath, types);
     files.push(protoFile);
   }
 
   // call the generator
   if (mode === 'sc') {
-    generateAsCallers(files, address, out);
+    generateAsCallers(files, address, out, types);
   } else if (mode === 'web3' || mode === 'wallet') {
     generateTsCallers(files, out, address, mode, address.slice(-10));
   } else {

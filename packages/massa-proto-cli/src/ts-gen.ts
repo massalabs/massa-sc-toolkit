@@ -56,10 +56,6 @@ function setupArguments(protoFile: ProtoFile): string {
       if (!Object.prototype.hasOwnProperty.call(returnType, arg.type.name)) {
         throw new Error(`Unsupported type: ${arg.type}`);
       }
-      // TODO X
-      // if (arg.ctype) {
-      //   return `  ${content}${arg.name}: ${arg.type},\n    `;
-      // }
       return `  ${content}${arg.name}: ${returnType[arg.type.name]},\n    `;
     }, '')
     .slice(0, -5);
@@ -542,7 +538,6 @@ export async function ${protoFile.funcName}ExtractOutputsAndEvents(
         : `let output: Uint8Array = new Uint8Array(Buffer.from(rawOutput, 'base64'));
     // try to deserialize the outputs
     let deserializedOutput: ${
-        // TODO X
         protoFile.resType.type.name
         };
     try{

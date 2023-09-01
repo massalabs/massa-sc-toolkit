@@ -2,14 +2,10 @@ import { writeFileSync } from 'fs';
 import { spawnSync } from 'child_process';
 import path from 'path';
 import { FunctionArgument, ProtoFile } from './protobuf.js';
-import { default as asProtoTypes } from './asProtoTypes.json' assert { type: 'json' };
 // eslint-disable-next-line
 // @ts-ignore
 import { debug } from 'console';
-import { ProtoType, readRefTable } from '@massalabs/as-transformer';
-
-// @ts-ignore
-const refTable = readRefTable();
+import { ProtoType } from '@massalabs/as-transformer';
 
 /**
  * Creates a contract function caller with the given proto file and address.
@@ -33,44 +29,27 @@ function getCustomTypesImports(args: FunctionArgument[]): string {
 export function generateAsCaller(
   protoData: ProtoFile,
   address: string,
+  types: Map<string, ProtoType>,
 ): string {
   // check if all the arguments are supported (to avoid 'undefined' objects in the generated code)
-  protoData.argFields.forEach(({ type }) => {
-
-    findProtoType(type);
-
-    // TODO X
-    if (type.metaData === undefined && asProtoTypes && !Object.prototype.hasOwnProperty.call(asProtoTypes, type.name)) {
-      throw new Error(`Unsupported type: ${type}`);
-    }
-  });
-
+  protoData.argFields.forEach(({ type }) => { console.log("HERE", type); findProtoType(type, types); });
 
   // generating AS arguments
   let args: string[] = [];
   protoData.argFields.forEach(({ name, type }) => {
-    const array= type.repeated ? '[]': '';
-    // TODO X
-    if (type.metaData !== undefined) {
-      args.push(`${name}: ${type.name}${array}`);
-    }
-    else if (asProtoTypes && Object.prototype.hasOwnProperty.call(asProtoTypes, type.name)) {
-      const asType: string = asProtoTypes[type.name as keyof typeof asProtoTypes];
-      args.push(`${name}: ${asType}${array}`);
-    }
+    const array = type.repeated ? '[]' : '';
+    // CHECK
+    args.push(`${name}: ${type.name}${array}`);
   });
   let resType = 'void';
   let responseDecoding = '';
   let responseTypeImports = '';
 
   if (protoData.resType && protoData.resType.type.name !== 'void') {
-    if (protoData.resType.type.metaData !== undefined) {
-      resType = protoData.resType.type.name;
-      resType += protoData.resType.type.repeated ? '[]' : '';
-    } else {
-      resType = asProtoTypes[protoData.resType.type.name as keyof typeof asProtoTypes];
-      resType += protoData.resType.type.repeated ? '[]' : '';
-    }
+    // CHECK
+    resType = protoData.resType.type.name;
+    resType += protoData.resType.type.repeated ? '[]' : '';
+
     responseTypeImports += `
 import { decode${protoData.funcName}RHelper } from './${protoData.funcName}RHelper';`;
 
@@ -84,7 +63,7 @@ import { decode${protoData.funcName}RHelper } from './${protoData.funcName}RHelp
   // generating the content of the file
   // eslint-disable-next-line max-len
 
-  // TODO X
+  // CHECK
   // console.log(protoData.argFields.map(({ name, type }) => console.log("HERE", name, type.name, type.metaData)));
 
   const content = `import { encode${protoData.funcName}Helper, ${protoData.funcName
@@ -111,15 +90,20 @@ export function ${protoData.funcName}(${args.length > 0 ? args.join(', ') + ', '
   return content;
 }
 
-function findProtoType(type: ProtoType) {
+function findProtoType(type: ProtoType, types: Map<string, ProtoType>) {
   debug('looking for proto type:', type.name, type.repeated);
 
-  const refTableEntries = refTable.entries();
+  const typesEntries = types.entries();
   // convert the iterator to an array
-  const entries = Array.from(refTableEntries);
+  const entries = Array.from(typesEntries);
   const found = entries.filter(([asType, value]) => {
     if (type.metaData && type.name === asType) {
       debug('CT refTable value:', value.name, ' refTable key:', asType);
+      return true;
+    }
+    // NOTE: THIS IS A NASTY FIX
+    else if (type.name === asType) {
+      debug('refTable value:', value.name, ' refTable key:', asType);
       return true;
     }
     else if (type.name === value.name) {
@@ -127,11 +111,12 @@ function findProtoType(type: ProtoType) {
     }
     else {
       return false;
-    }});
+    }
+  });
 
   debug('found:', found);
-  if (found === undefined) {
-    throw new Error(`Unsupported type: ${type}`);
+  if (found === undefined || found.length === 0) {
+    throw new Error('Unsupported type:' + type.name + type.repeated);
   }
 
 
@@ -172,8 +157,8 @@ function findProtoType(type: ProtoType) {
 
 function decodeResponse(protoData: ProtoFile): string {
   let ret = '\n\n';
-  ret +=`// Convert the result to the expected response type` + '\n';
-  ret +=`const response = decode${protoData.funcName}RHelper(Uint8Array.wrap(changetype<ArrayBuffer>(result)));` + '\n';
+  ret += `// Convert the result to the expected response type` + '\n';
+  ret += `const response = decode${protoData.funcName}RHelper(Uint8Array.wrap(changetype<ArrayBuffer>(result)));` + '\n';
 
   // if not a custom type
   if (!protoData.resType.type.metaData) {
@@ -217,7 +202,7 @@ function generateArgument(type: ProtoType, name: string): string {
  */
 function generateProtocAsHelper(protoData: ProtoFile, outputDirectory: string) {
   let protocProcess = spawnSync('protoc', [
-    // TODO X
+    // CHECK
     // `--plugin=protoc-gen-as=../../node_modules/.bin/as-proto-gen`,
     `--plugin=protoc-gen-as=./node_modules/.bin/as-proto-gen`,
     `--as_out=${outputDirectory}`,
@@ -244,11 +229,12 @@ export function generateAsCallers(
   protoFiles: ProtoFile[],
   address: string,
   outputDirectory: string,
+  types: Map<string, ProtoType>,
 ) {
   for (const file of protoFiles) {
     debug(`Generating AS caller for ${file.funcName}`);
     generateProtocAsHelper(file, outputDirectory);
-    const callerContent = generateAsCaller(file, address);
+    const callerContent = generateAsCaller(file, address, types);
 
     // Save the content to a ts file
     writeFileSync(
