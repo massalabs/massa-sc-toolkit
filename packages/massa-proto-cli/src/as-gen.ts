@@ -56,9 +56,11 @@ import { decode${protoData.funcName}RHelper } from './${protoData.funcName}RHelp
     responseDecoding = decodeResponse(protoData);
   }
 
-  const imports = getCustomTypesImports(protoData.argFields) +
-    '\n' +
-    getCustomTypesImports([protoData.resType]);
+  let imports = getCustomTypesImports(protoData.argFields);
+  let resImports = getCustomTypesImports([protoData.resType]);
+  if (!imports.includes(resImports)) {
+    imports += ('\n' + resImports);
+  }
 
   // generating the content of the file
   // eslint-disable-next-line max-len
