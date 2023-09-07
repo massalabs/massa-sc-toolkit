@@ -132,7 +132,6 @@ export async function getProtoFunction(
             ? true
             : false;
 
-        // custom
         if (field.options) {
           const type = field.options['(custom_type)'];
           const metaData = customs.get(type)?.metaData;
@@ -144,17 +143,9 @@ export async function getProtoFunction(
               metaData: metaData,
             } as ProtoType,
           } as FunctionArgument;
+        } else {
+          throw new Error('(custom_type) not specified for ' + name);
         }
-
-        // classic
-        const fieldType = (field as { type: string; id: number }).type;
-        return {
-          name: name,
-          type: {
-            name: fieldType,
-            repeated: fieldRule,
-          } as ProtoType,
-        } as FunctionArgument;
       });
   }
 
@@ -171,7 +162,6 @@ export async function getProtoFunction(
           const field = rHelper.fields[key];
           assert(field);
 
-          // custom
           if (field.options) {
             const type = field.options['(custom_type)'];
             const metaData = customs.get(type)?.metaData;
@@ -183,16 +173,9 @@ export async function getProtoFunction(
                 metaData: metaData,
               } as ProtoType,
             } as FunctionArgument;
+          } else {
+            throw new Error('(custom_type) not specified for the return value');
           }
-
-          // classic
-          return {
-            name: 'value',
-            type: {
-              name: field.type,
-              repeated: (field.rule ? true : false)
-            } as ProtoType,
-          } as FunctionArgument;
         }
       }
     }

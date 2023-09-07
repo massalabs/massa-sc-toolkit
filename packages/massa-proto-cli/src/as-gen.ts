@@ -93,15 +93,8 @@ function findProtoType(type: ProtoType, types: Map<string, ProtoType>) {
   const typesEntries = types.entries();
   // convert the iterator to an array
   const entries = Array.from(typesEntries);
-  const found = entries.filter(([asType, value]) => {
-    if (type.metaData && type.name === asType) {
-      return true;
-    }
-    // NOTE: THIS IS A NASTY FIX
-    else if (type.name === asType) {
-      return true;
-    }
-    else if (type.name === value.name) {
+  const found = entries.filter(([asType, _value]) => {
+    if (type.name === asType) {
       return true;
     }
     else {
