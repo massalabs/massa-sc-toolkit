@@ -19,7 +19,7 @@ function getCustomTypesImports(args: FunctionArgument[]): string {
   let imports: string[] = [];
 
   for (const arg of args) {
-    if (arg.type.metaData !== undefined)
+    if (arg.type.metaData !== undefined && arg.type.metaData.import !== undefined)
       imports.push(`import { ${arg.type.name} } from '${arg.type.metaData.import}';`);
   }
 
@@ -32,13 +32,12 @@ export function generateAsCaller(
   types: Map<string, ProtoType>,
 ): string {
   // check if all the arguments are supported (to avoid 'undefined' objects in the generated code)
-  protoData.argFields.forEach(({ type }) => { console.log("HERE", type); findProtoType(type, types); });
+  protoData.argFields.forEach(({ type }) => { findProtoType(type, types); });
 
   // generating AS arguments
   let args: string[] = [];
   protoData.argFields.forEach(({ name, type }) => {
-    const array = type.repeated ? '[]' : '';
-    // CHECK
+    const array = (type.repeated && !type.name.includes("Array")) ? '[]' : '';
     args.push(`${name}: ${type.name}${array}`);
   });
   let resType = 'void';
@@ -46,9 +45,10 @@ export function generateAsCaller(
   let responseTypeImports = '';
 
   if (protoData.resType && protoData.resType.type.name !== 'void') {
-    // CHECK
     resType = protoData.resType.type.name;
-    resType += protoData.resType.type.repeated ? '[]' : '';
+    if (protoData.resType.type.repeated && !resType.includes("Array")) {
+      resType += '[]';
+    }
 
     responseTypeImports += `
 import { decode${protoData.funcName}RHelper } from './${protoData.funcName}RHelper';`;
@@ -64,9 +64,6 @@ import { decode${protoData.funcName}RHelper } from './${protoData.funcName}RHelp
 
   // generating the content of the file
   // eslint-disable-next-line max-len
-
-  // CHECK
-  // console.log(protoData.argFields.map(({ name, type }) => console.log("HERE", name, type.name, type.metaData)));
 
   const content = `import { encode${protoData.funcName}Helper, ${protoData.funcName
     }Helper } from './${protoData.funcName}Helper';${responseTypeImports}
@@ -93,19 +90,15 @@ export function ${protoData.funcName}(${args.length > 0 ? args.join(', ') + ', '
 }
 
 function findProtoType(type: ProtoType, types: Map<string, ProtoType>) {
-  debug('looking for proto type:', type.name, type.repeated);
-
   const typesEntries = types.entries();
   // convert the iterator to an array
   const entries = Array.from(typesEntries);
   const found = entries.filter(([asType, value]) => {
     if (type.metaData && type.name === asType) {
-      debug('CT refTable value:', value.name, ' refTable key:', asType);
       return true;
     }
     // NOTE: THIS IS A NASTY FIX
     else if (type.name === asType) {
-      debug('refTable value:', value.name, ' refTable key:', asType);
       return true;
     }
     else if (type.name === value.name) {
@@ -116,15 +109,9 @@ function findProtoType(type: ProtoType, types: Map<string, ProtoType>) {
     }
   });
 
-  debug('found:', found);
   if (found === undefined || found.length === 0) {
     throw new Error('Unsupported type:' + type.name + type.repeated);
   }
-
-
-
-
-
 
   // const entries = ["",""].filter(([asType, value]) => {
   //   debug('On:', value.name, ' refTable key:', asType);
@@ -204,7 +191,6 @@ function generateArgument(type: ProtoType, name: string): string {
  */
 function generateProtocAsHelper(protoData: ProtoFile, outputDirectory: string) {
   let protocProcess = spawnSync('protoc', [
-    // CHECK
     // `--plugin=protoc-gen-as=../../node_modules/.bin/as-proto-gen`,
     `--plugin=protoc-gen-as=./node_modules/.bin/as-proto-gen`,
     `--as_out=${outputDirectory}`,
@@ -233,6 +219,7 @@ export function generateAsCallers(
   outputDirectory: string,
   types: Map<string, ProtoType>,
 ) {
+  // console.log(types);
   for (const file of protoFiles) {
     debug(`Generating AS caller for ${file.funcName}`);
     generateProtocAsHelper(file, outputDirectory);
