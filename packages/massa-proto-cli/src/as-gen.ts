@@ -2,9 +2,6 @@ import { writeFileSync } from 'fs';
 import { spawnSync } from 'child_process';
 import path from 'path';
 import { FunctionArgument, ProtoFile } from './protobuf.js';
-// eslint-disable-next-line
-// @ts-ignore
-import { debug } from 'console';
 import { ProtoType } from '@massalabs/as-transformer';
 
 /**
@@ -34,7 +31,7 @@ export function generateAsCaller(
   // check if all the arguments are supported (to avoid 'undefined' objects in the generated code)
   protoData.argFields.forEach(({ type }) => { findProtoType(type, types); });
 
-  // generating AS arguments
+  // generate AS arguments
   let args: string[] = [];
   protoData.argFields.forEach(({ name, type }) => {
     const array = (type.repeated && !type.name.includes("Array")) ? '[]' : '';
@@ -62,14 +59,12 @@ import { decode${protoData.funcName}RHelper } from './${protoData.funcName}RHelp
     imports += ('\n' + resImports);
   }
 
-  // generating the content of the file
-  // eslint-disable-next-line max-len
-
-  const content = `import { encode${protoData.funcName}Helper, ${protoData.funcName
-    }Helper } from './${protoData.funcName}Helper';${responseTypeImports}
+  // generate content
+  const content = `import { encode${protoData.funcName}Helper, ${protoData.funcName}Helper } from './${protoData.funcName}Helper';
 import { call, Address } from "@massalabs/massa-as-sdk";
 import { Args } from '@massalabs/as-types';
 ${imports}
+${responseTypeImports}
 
 export function ${protoData.funcName}(${args.length > 0 ? args.join(', ') + ', ' : ''
     } coins: u64): ${resType} {
@@ -91,7 +86,6 @@ export function ${protoData.funcName}(${args.length > 0 ? args.join(', ') + ', '
 
 function findProtoType(type: ProtoType, types: Map<string, ProtoType>) {
   const typesEntries = types.entries();
-  // convert the iterator to an array
   const entries = Array.from(typesEntries);
   const found = entries.filter(([asType, _value]) => {
     if (type.name === asType) {
@@ -105,36 +99,6 @@ function findProtoType(type: ProtoType, types: Map<string, ProtoType>) {
   if (found === undefined || found.length === 0) {
     throw new Error('Unsupported type:' + type.name + type.repeated);
   }
-
-  // const entries = ["",""].filter(([asType, value]) => {
-  //   debug('On:', value.name, ' refTable key:', asType);
-  //   if (type.metaData && type.name === asType) {
-  //     debug('CT refTable value:', value.name, ' refTable key:', asType);
-  //     return true;
-  //   }
-  //   else if (type.name === value.name) {
-  //     return true;
-  //   }
-  //   else {
-  //     return false;
-  //   }});
-
-  // debug('entries:', entries);
-  // for (let i = 0; i < refTableEntries.length; i++) {
-  //   const [asType, value] = refTableEntries[i];
-  //   if (type.metaData) {
-  //     if (type.name === asType) {
-  //       debug('CT refTable value:', value.name, ' refTable key:', asType);
-  //       continue;
-  //     }
-  //   } else {
-  //     if (type.name === value.name) {
-  //       debug('refTable value:', value.name, ' refTable key:', asType);
-  //       continue;
-  //     }
-  //   }
-  //   throw new Error(`Unsupported type: ${type}`);
-  // }
 }
 
 function decodeResponse(protoData: ProtoFile): string {
@@ -212,9 +176,8 @@ export function generateAsCallers(
   outputDirectory: string,
   types: Map<string, ProtoType>,
 ) {
-  // console.log(types);
   for (const file of protoFiles) {
-    debug(`Generating AS caller for ${file.funcName}`);
+    console.log(`Generating AS caller for ${file.funcName}`);
     generateProtocAsHelper(file, outputDirectory);
     const callerContent = generateAsCaller(file, address, types);
 

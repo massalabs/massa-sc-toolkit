@@ -98,9 +98,9 @@ export async function getProtoFunction(
     ? funcName + 'RHelper'
     : undefined;
 
-  const argFields = getArgFields();
+  const argFields = getArgFields(protoJSON, customs, helperName);
 
-  const resType = getResType();
+  const resType = getResType(protoJSON, customs, rHelperName);
 
   const protoData = await fs.promises
     .readFile(protoPath, 'utf8')
@@ -109,83 +109,80 @@ export async function getProtoFunction(
     });
 
   return { argFields, funcName, resType, protoData, protoPath };
+}
 
-  // --- helper functions ---
-  // get the arguments of the function if any
-  function getArgFields(): FunctionArgument[] {
-    if (!helperName || !protoJSON.nested) {
-      return [];
-    }
+function getArgFields(protoJSON: pkg.INamespace, customs: Map<string, ProtoType>, helperName: string | undefined): FunctionArgument[] {
+  if (!helperName || !protoJSON.nested) {
+    return [];
+  }
 
-    const helper = protoJSON.nested[helperName] as IType | undefined;
-    if (!helper || !helper.fields) {
-      return [];
-    }
+  const helper = protoJSON.nested[helperName] as IType | undefined;
+  if (!helper || !helper.fields) {
+    return [];
+  }
 
-    // get the arguments of the Helper
-    return Object.entries(helper.fields)
-      .filter(([, value]) => value)
-      .map(([name, field]) => {
-        const fieldRule =
-          (field as { rule: string; type: string; id: number }).rule ===
-            'repeated'
-            ? true
-            : false;
+  // get the arguments of the Helper
+  return Object.entries(helper.fields)
+    .filter(([, value]) => value)
+    .map(([name, field]) => {
+      const fieldRule =
+        (field as { rule: string; type: string; id: number }).rule ===
+          'repeated'
+          ? true
+          : false;
+
+      if (field.options) {
+        const type = field.options['(custom_type)'];
+        const metaData = customs.get(type)?.metaData;
+        return {
+          name: name,
+          type: {
+            name: type,
+            repeated: fieldRule,
+            metaData: metaData,
+          } as ProtoType,
+        } as FunctionArgument;
+      } else {
+        throw new Error('(custom_type) not specified for ' + name);
+      }
+    });
+}
+
+function getResType(protoJSON: pkg.INamespace, customs: Map<string, ProtoType>, rHelperName: string | undefined): FunctionArgument {
+  if (rHelperName && protoJSON.nested) {
+    const rHelper = protoJSON.nested[rHelperName] as IType;
+    if (rHelper && rHelper.fields) {
+      const rHelperKeys = Object.keys(rHelper.fields);
+
+      if (rHelperKeys.length === 1) {
+        const key = rHelperKeys[0];
+        assert(key);
+        const field = rHelper.fields[key];
+        assert(field);
 
         if (field.options) {
           const type = field.options['(custom_type)'];
           const metaData = customs.get(type)?.metaData;
           return {
-            name: name,
+            name: 'value',
             type: {
               name: type,
-              repeated: fieldRule,
+              repeated: (field.rule ? true : false),
               metaData: metaData,
             } as ProtoType,
           } as FunctionArgument;
         } else {
-          throw new Error('(custom_type) not specified for ' + name);
-        }
-      });
-  }
-
-  // get the return type of the function if any or void
-  function getResType(): FunctionArgument {
-    if (rHelperName && protoJSON.nested) {
-      const rHelper = protoJSON.nested[rHelperName] as IType;
-      if (rHelper && rHelper.fields) {
-        const rHelperKeys = Object.keys(rHelper.fields);
-
-        if (rHelperKeys.length === 1) {
-          const key = rHelperKeys[0];
-          assert(key);
-          const field = rHelper.fields[key];
-          assert(field);
-
-          if (field.options) {
-            const type = field.options['(custom_type)'];
-            const metaData = customs.get(type)?.metaData;
-            return {
-              name: 'value',
-              type: {
-                name: type,
-                repeated: (field.rule ? true : false),
-                metaData: metaData,
-              } as ProtoType,
-            } as FunctionArgument;
-          } else {
-            throw new Error('(custom_type) not specified for the return value');
-          }
+          throw new Error('(custom_type) not specified for the return value');
         }
       }
     }
-    return {
-      name: 'void',
-      type: {
-        name: 'void',
-      } as ProtoType,
-    } as FunctionArgument;
   }
+  return {
+    name: 'void',
+    type: {
+      name: 'void',
+    } as ProtoType,
+  } as FunctionArgument;
 }
 
 /**
