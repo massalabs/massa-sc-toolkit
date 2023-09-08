@@ -358,3 +358,4 @@ async function deploySC(
 }
 
 export { IAccount, WalletClient, deploySC, ISCData, IDeploymentInfo };
+export * from './utils';
