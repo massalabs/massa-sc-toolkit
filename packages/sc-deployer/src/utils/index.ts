@@ -1,5 +1,1 @@
-export {
-  calculateMaxCoins,
-  calculateBytecodeSize,
-  calculateCoinsSent,
-} from './maxCoins';
+export * from './maxCoins';
