@@ -98,6 +98,7 @@ async function awaitOperationFinalization(
   web3Client: Client,
   operationId: string,
 ): Promise<void> {
+  console.log(`Awaiting FINAL transaction status....`);
   let status: EOperationStatus;
   try {
     status = await web3Client
