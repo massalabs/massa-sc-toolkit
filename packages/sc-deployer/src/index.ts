@@ -118,7 +118,8 @@ async function awaitOperationFinalization(
 
   if (status !== EOperationStatus.FINAL_SUCCESS) {
     let msg = `Transaction ${operationId} did not reach finality after considerable amount of time.`;
-    msg += 'Try redeploying anew';
+    msg +=
+      'Please review the transaction logs to identify potential issues or try redeploying a new contract';
     console.error(msg);
     throw new Error(msg);
   }
