@@ -29,7 +29,7 @@ The following is a list of all the dependencies of this project:
 
 **License:** (MIT AND Apache-2.0) - perpetual
 
-**Used version:** 2.1.0
+**Used version:** 2.2.1
 
 **Many thanks to:** [Massa Labs](info@massa.net)
 

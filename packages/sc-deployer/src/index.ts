@@ -103,7 +103,10 @@ async function awaitOperationFinalization(
   try {
     status = await web3Client
       .smartContracts()
-      .awaitRequiredOperationStatus(operationId, EOperationStatus.FINAL);
+      .awaitRequiredOperationStatus(
+        operationId,
+        EOperationStatus.FINAL_SUCCESS,
+      );
     console.log(
       `Transaction with Operation ID ${operationId} has reached finality!`,
     );
@@ -113,9 +116,10 @@ async function awaitOperationFinalization(
     throw ex;
   }
 
-  if (status !== EOperationStatus.FINAL) {
+  if (status !== EOperationStatus.FINAL_SUCCESS) {
     let msg = `Transaction ${operationId} did not reach finality after considerable amount of time.`;
-    msg += 'Try redeploying anew';
+    msg +=
+      'Please review the transaction logs to identify potential issues or try redeploying a new contract';
     console.error(msg);
     throw new Error(msg);
   }
