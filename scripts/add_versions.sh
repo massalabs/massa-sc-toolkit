@@ -1,8 +1,8 @@
 #!/bin/bash
 set -ex
-
+npm publish --workspace --access public --tag latest
 # npm publish "@massalabs/massa-proto-cli"
-npm publish "@massalabs/massa-sc-deployer"
+# npm publish "@massalabs/massa-sc-deployer" 
 
 # npm dist-tag add "@massalabs/sc-project-initializer@0.3.0" buildnet
 # npm dist-tag add "@massalabs/massa-sc-deployer@1.1.1" latest
