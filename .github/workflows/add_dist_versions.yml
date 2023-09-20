@@ -20,5 +20,6 @@ jobs:
 
       - name: Publish on npm
         run: ./scripts/add_versions.sh
+        continue-on-error: true
         env:
           NODE_AUTH_TOKEN: ${{ secrets.npm_token }}

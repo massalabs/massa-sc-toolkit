@@ -1,6 +1,7 @@
 #!/bin/bash
 set -ex
-npm publish --workspace --access public --tag latest
+cd ./packages/sc-deployer
+npm publish --access public
 # npm publish "@massalabs/massa-proto-cli"
 # npm publish "@massalabs/massa-sc-deployer" 
 
