@@ -1,12 +1,12 @@
 {
     "name": "massa-workspaces-for-toolkit",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "description": "This toolkit is meant to facilitate smart contract development.",
     "type": "module",
     "scripts": {
         "build": "npm run build --ws --if-present",
-        "prettier": "prettier **/src/**/*.ts --check && as-prettier --check **/assembly/**",
-        "prettier:fix": "prettier **/src/**/*.ts --write && as-prettier --write **/assembly/**",
+        "prettier": "prettier **/src/**/*.ts --check",
+        "prettier:fix": "prettier **/src/**/*.ts --write",
         "lint": "eslint .",
         "lint:fix": "npm run lint -- --fix",
         "fmt:check": "npm run prettier && npm run lint",
@@ -28,24 +28,27 @@
         "packages/*"
     ],
     "dependencies": {
-        "@massalabs/massa-web3": "^1.21.0",
-        "@massalabs/wallet-provider": "^0.0.1",
+        "@massalabs/as-transformer": "^0.2.2-dev.20230810083358",
+        "@massalabs/massa-web3": "^2.1.0",
+        "@massalabs/wallet-provider": "^1.2.0",
+        "eslint": "^8.46.0",
         "jest-environment-jsdom": "^29.5.0",
+        "mkdirp": "^3.0.1",
         "path": "^0.12.7",
         "re": "^0.1.4",
         "regex": "^0.1.1"
     },
     "devDependencies": {
-        "@massalabs/eslint-config": "^0.0.9",
-        "@massalabs/massa-sc-compiler": "^0.1.0",
+        "@massalabs/eslint-config": "^0.0.10",
+        "@massalabs/massa-sc-compiler": "^0.0.4-dev",
         "@massalabs/prettier-config-as": "^0.0.2",
         "@types/jest": "^29.5.2",
         "jest": "^29.5.0",
-        "prettier": "^2.8.1",
-        "rimraf": "^3.0.2",
+        "prettier": "^3.0.1",
+        "rimraf": "^5.0.1",
         "ts-jest": "^29.1.0",
         "ts-node": "^10.9.1",
         "tslib": "^2.4.0",
-        "typescript": "^4.8.4"
+        "typescript": "^5.1.6"
     }
 }

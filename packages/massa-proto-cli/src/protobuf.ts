@@ -3,25 +3,31 @@ import {
   PROTO_FILE_SEPARATOR,
   strToBytes,
 } from '@massalabs/massa-web3';
-import { bytesArrayToString } from './utils/bytesArrayToString';
-import { promises as fs, writeFileSync } from 'fs';
-import { MassaProtoFile } from './MassaProtoFile';
-import { load, IType } from 'protobufjs';
+import { MassaCustomType } from '@massalabs/as-transformer';
+import { bytesArrayToString } from './utils/bytesArrayToString.js';
+import * as fs from 'fs';
+import { MassaProtoFile } from './MassaProtoFile.js';
+import { IType } from 'protobufjs';
+import pkg from 'protobufjs';
+const { load } = pkg;
 import path from 'path';
+import { descriptoContent } from './utils/descriptorContent.js';
+import { mkdirpSync } from 'mkdirp';
+import assert from 'assert';
 
 /**
  * Represents a function in a proto file
  *
- * @see argFields - the arguments of the function as an array of IFunctionArguments
+ * @see argFields - the arguments of the function as an array of IFunctionArgument
  * @see funcName - the name of the function
  * @see resType - the return type of the function
  * @see protoData - the .proto file content (optional)
  * @see protoPath - The relative path to the proto file to generate the caller (optional)
  */
 export interface ProtoFile {
-  argFields: FunctionArguments[];
+  argFields: FunctionArgument[];
   funcName: string;
-  resType: string;
+  resType: FunctionArgument;
   protoData?: string;
   protoPath?: string;
 }
@@ -29,12 +35,17 @@ export interface ProtoFile {
 /**
  * Represents an argument of a function
  *
+ * @remarks
+ * If the argument is a custom type, the @see ctype field will be filled with the custom type
+ * and @see type will be filled with the type used to represent the custom type (e.g. bytes)
+ *
  * @see name - the name of the argument
  * @see type - the type of the argument
  */
-export interface FunctionArguments {
+export interface FunctionArgument {
   name: string;
   type: string;
+  ctype?: MassaCustomType;
 }
 
 /**
@@ -44,7 +55,25 @@ export interface FunctionArguments {
  *
  * @returns The ProtoFile containing the function, its arguments name, arguments type and its return type
  */
-export async function getProtoFunction(protoPath: string): Promise<ProtoFile> {
+export async function getProtoFunction(
+  protoPath: string,
+  customTypes: MassaCustomType[],
+): Promise<ProtoFile> {
+  // check if the protofile exists contains 'import "google/protobuf/descriptor.proto";'
+  const descriptorProtoPath = path.join(
+    path.dirname(protoPath),
+    'google/protobuf/descriptor.proto',
+  );
+
+  if (!fs.existsSync(descriptorProtoPath)) {
+    const protoFileContent = await fs.promises.readFile(protoPath, 'utf8');
+    const regex = /import "google\/protobuf\/descriptor.proto";/g;
+    if (regex.test(protoFileContent)) {
+      mkdirpSync(path.join(path.dirname(protoPath), 'google/protobuf'));
+      fs.writeFileSync(descriptorProtoPath, descriptoContent);
+    }
+  }
+
   const protoContent = await load(protoPath);
   const protoJSON = protoContent.toJSON();
 
@@ -56,31 +85,109 @@ export async function getProtoFunction(protoPath: string): Promise<ProtoFile> {
 
   const messageNames = Object.keys(protoJSON.nested);
 
-  // check if the proto file contains 2 messages
-  if (messageNames.length !== 2) {
-    throw new Error('Error: the protoFile should contain 2 messages.');
-  }
+  const funcName = path.basename(protoPath, '.proto');
 
-  // get the Helper message
-  const helper = protoJSON.nested[messageNames[0]] as IType;
-  // get the arguments of the Helper
-  const argFields: FunctionArguments[] = Object.entries(helper.fields)
-    .filter(([, value]) => value)
-    .map(([name, field]) => ({
-      name,
-      type: (field as { type: string; id: number }).type,
-    }));
-  const rHelper = protoJSON.nested[messageNames[1]] as IType;
-  const rHelperKeys = Object.keys(rHelper.fields);
-  const resType =
-    rHelperKeys.length === 1 ? rHelper.fields[rHelperKeys[0]].type : 'void';
+  const helperName: string | undefined = messageNames.includes(
+    funcName + 'Helper',
+  )
+    ? funcName + 'Helper'
+    : undefined;
 
-  const funcName = messageNames[0].replace(/Helper$/, '');
-  const protoData = await fs.readFile(protoPath, 'utf8').catch((error) => {
-    throw new Error('Error while reading the proto file: ' + error);
-  });
+  const rHelperName: string | undefined = messageNames.includes(
+    funcName + 'RHelper',
+  )
+    ? funcName + 'RHelper'
+    : undefined;
+
+  const argFields = getArgFields();
+
+  const resType = getResType();
+
+  const protoData = await fs.promises
+    .readFile(protoPath, 'utf8')
+    .catch((error) => {
+      throw new Error('Error while reading the proto file: ' + error);
+    });
 
   return { argFields, funcName, resType, protoData, protoPath };
+
+  // --- helper functions ---
+  // get the arguments of the function if any
+  function getArgFields(): FunctionArgument[] {
+    if (!helperName || !protoJSON.nested) {
+      return [];
+    }
+
+    const helper = protoJSON.nested[helperName] as IType | undefined;
+    if (!helper || !helper.fields) {
+      return [];
+    }
+
+    // get the arguments of the Helper
+    return Object.entries(helper.fields)
+      .filter(([, value]) => value)
+      .map(([name, field]) => {
+        const fieldType = (field as { type: string; id: number }).type;
+        const fieldRule =
+          (field as { rule: string; type: string; id: number }).rule ===
+          'repeated'
+            ? '[]'
+            : '';
+        let ctype: MassaCustomType | undefined = undefined;
+        if (field.options && field.options['(custom_type)']) {
+          const customType = field.options['(custom_type)'] as string;
+          const customTypeObj = customTypes.find(
+            (ct) => ct.name === customType,
+          );
+          assert(customTypeObj);
+          ctype = customTypeObj;
+        }
+        return {
+          name: name,
+          type: (ctype ? ctype.name : fieldType) + (fieldRule ? '[]' : ''),
+          ctype: ctype,
+        } as FunctionArgument;
+      });
+  }
+
+  // get the return type of the function if any or void
+  function getResType(): FunctionArgument {
+    if (rHelperName && protoJSON.nested) {
+      const rHelper = protoJSON.nested[rHelperName] as IType;
+      if (rHelper && rHelper.fields) {
+        const rHelperKeys = Object.keys(rHelper.fields);
+
+        if (rHelperKeys.length === 1) {
+          const options = rHelper.fields['value'].options;
+          let ctype: MassaCustomType | undefined = undefined;
+          if (options && options['(custom_type)']) {
+            const customType = options['(custom_type)'] as string;
+            const customTypeObj = customTypes.find(
+              (ct) => ct.name === customType,
+            );
+            assert(customTypeObj);
+            ctype = customTypeObj;
+          }
+          const key = rHelperKeys[0];
+          assert(key);
+          const field = rHelper.fields[key];
+          assert(field);
+
+          return {
+            name: 'value',
+            type:
+              (ctype !== undefined ? ctype.name : field.type) +
+              (field.rule ? '[]' : ''),
+            ctype: ctype,
+          } as FunctionArgument;
+        }
+      }
+    }
+    return {
+      name: 'void',
+      type: 'void',
+    } as FunctionArgument;
+  }
 }
 
 /**
@@ -112,9 +219,8 @@ export async function getProtoFiles(
   };
 
   // send request
-  let response = null;
   try {
-    response = await fetch(providerUrl, {
+    const response = await fetch(providerUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -134,7 +240,6 @@ export async function getProtoFiles(
       const retrievedProtoFiles = bytesArrayToString(contract.final_value); // converting the Uint8Array to string
       // splitting all the proto functions to make separate proto file for each functions
       const protos = retrievedProtoFiles.split(PROTO_FILE_SEPARATOR);
-
       // for proto file, save it and get the function name
       for (let protoContent of protos) {
         // remove all the text before the first appearance of the 'syntax' keyword
@@ -147,7 +252,7 @@ export async function getProtoFiles(
           .trim();
         // save the proto file
         const filepath = path.join(outputDirectory, functionName + '.proto');
-        writeFileSync(filepath, proto);
+        fs.writeFileSync(filepath, proto);
         const extractedProto: MassaProtoFile = {
           data: proto,
           filePath: filepath,
@@ -159,6 +264,7 @@ export async function getProtoFiles(
     return protoFiles;
   } catch (ex) {
     const msg = `Failed to retrieve the proto files.`;
+    // eslint-disable-next-line no-console
     console.error(msg, ex);
     throw ex;
   }
