@@ -17,7 +17,7 @@ yargs
   .usage('$0 [args]')
   .command(
     'init [name]',
-    'Intialize a new Massa Smart Contract project.',
+    'Initialize a new Massa Smart Contract project.',
     (yargs) => {
       yargs.positional('name', {
         type: 'string',

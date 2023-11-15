@@ -35,8 +35,20 @@ export function initialize(directory) {
   fs.mkdirSync(directory);
 
   fse.copySync(path.join(dirname(__dirname), 'commands', 'init'), directory);
-
-  execSync('npm install', { cwd: directory });
+  execSync(
+    `
+  npm install \\
+  @massalabs/massa-sc-compiler \\
+  @massalabs/as-types@buildnet \\
+  @massalabs/as-transformer@buildnet \\
+  @massalabs/massa-as-sdk@buildnet \\
+  @massalabs/massa-sc-deployer@buildnet \\
+  @massalabs/massa-web3@buildnet \\
+  @massalabs/eslint-config \\
+  @massalabs/prettier-config-as
+`,
+    { cwd: directory },
+  );
 
   // workaround for npm removing .gitignore file when fetching repo...
   // See: https://github.com/npm/npm/issues/3763
