@@ -29,7 +29,7 @@ The following is a list of all the dependencies of this project:
 
 **License:** MIT - perpetual
 
-**Used version:** 1.24.3
+**Used version:** 1.24.4
 
 **Many thanks to:** [Massa Labs](info@massa.net)
 
