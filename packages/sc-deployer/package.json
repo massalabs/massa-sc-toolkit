@@ -12,8 +12,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@massalabs/as-types": "^1.0.1",
-    "@massalabs/massa-as-sdk": "^2.4.0",
+    "@massalabs/as-types": "^2.0.0",
+    "@massalabs/massa-as-sdk": "^2.5.2",
     "@massalabs/massa-sc-compiler": "^0.1.0",
     "@massalabs/massa-web3": "^1.24.3",
     "@types/node": "^18.11.10",
