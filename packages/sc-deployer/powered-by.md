@@ -27,9 +27,9 @@ The following is a list of all the dependencies of this project:
 
 ## [@massalabs/massa-web3](git+https://github.com/massalabs/massa-web3.git)
 
-**License:** (MIT AND Apache-2.0) - perpetual
+**License:** MIT - perpetual
 
-**Used version:** 2.2.1
+**Used version:** 1.24.3
 
 **Many thanks to:** [Massa Labs](info@massa.net)
 
