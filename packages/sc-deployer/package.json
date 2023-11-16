@@ -15,7 +15,7 @@
     "@massalabs/as-types": "^2.0.0",
     "@massalabs/massa-as-sdk": "^2.5.2",
     "@massalabs/massa-sc-compiler": "^0.1.0",
-    "@massalabs/massa-web3": "^1.24.3",
+    "@massalabs/massa-web3": "^1.24.4",
     "@types/node": "^18.11.10",
     "assemblyscript": "^0.25.2",
     "rimraf": "^5.0.1",
