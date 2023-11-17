@@ -19,7 +19,7 @@
     "author": "",
     "license": "ISC",
     "devDependencies": {
-        "@as-pect/cli": "^8.0.1",
+        "@as-pect/cli": "^8.1.0",
         "@assemblyscript/loader": "^0.25.2",
         "@massalabs/as-transformer": "~0.3.0",
         "@massalabs/as-types": "~1.1.0",
@@ -31,7 +31,7 @@
         "@massalabs/prettier-config-as": "~0.0.2",
         "@protobuf-ts/plugin": "^2.9.1",
         "@types/node": "^18.11.10",
-        "assemblyscript": "^0.25.2",
+        "assemblyscript": "^0.27.2",
         "assemblyscript-prettier": "^1.0.7",
         "dotenv": "^16.0.3",
         "prettier": "^2.8.1",
