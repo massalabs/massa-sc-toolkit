@@ -45,7 +45,7 @@ The following is a list of all the dependencies of this project:
 
 **License:** Apache-2.0 - perpetual
 
-**Used version:** 0.25.2
+**Used version:** 0.27.2
 
 **Many thanks to:** [Daniel Wirtz](dcode+assemblyscript@dcode.io)
 
