@@ -17,7 +17,7 @@
     "@massalabs/massa-sc-compiler": "^0.1.0",
     "@massalabs/massa-web3": "^1.24.4",
     "@types/node": "^18.11.10",
-    "assemblyscript": "^0.27.2",
+    "assemblyscript": "^0.27.19",
     "rimraf": "^5.0.1",
     "typescript": "^5.1.6"
   },

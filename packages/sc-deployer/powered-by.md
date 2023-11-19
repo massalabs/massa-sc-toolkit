@@ -45,7 +45,7 @@ The following is a list of all the dependencies of this project:
 
 **License:** Apache-2.0 - perpetual
 
-**Used version:** 0.27.2
+**Used version:** 0.27.18
 
 **Many thanks to:** [Daniel Wirtz](dcode+assemblyscript@dcode.io)
 
@@ -53,7 +53,7 @@ The following is a list of all the dependencies of this project:
 
 **License:** ISC - perpetual
 
-**Used version:** 5.0.1
+**Used version:** 5.0.5
 
 **Many thanks to:** [Isaac Z. Schlueter](i@izs.me> (http://blog.izs.me/)
 
@@ -61,7 +61,7 @@ The following is a list of all the dependencies of this project:
 
 **License:** Apache-2.0 - perpetual
 
-**Used version:** 5.1.6
+**Used version:** 5.2.2
 
 **Many thanks to:** Microsoft Corp.
 
