@@ -7,12 +7,15 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
     steps:
     - uses: actions/checkout@v3
-    - name: Use Node.js 18.x
+    - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
       with:
-        node-version: 18.x
+        node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - name: run test
       run: |
@@ -24,11 +27,14 @@ jobs:
   toolkit-tests:
     runs-on: ubuntu-latest
     needs: build
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
     steps:
         - uses: actions/checkout@v3
         - uses: actions/setup-node@v3
           with:
-              node-version: 18.x
+              node-version: ${{ matrix.node-version }}
               cache: "npm"
         - name: install
           run: |
