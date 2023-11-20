@@ -105,7 +105,7 @@ async function awaitOperationFinalization(
       .smartContracts()
       .awaitRequiredOperationStatus(
         operationId,
-        EOperationStatus.SPECULATIVE_SUCCESS,
+        EOperationStatus.FINAL_SUCCESS,
       );
     console.log(
       `Transaction with Operation ID ${operationId} has reached finality!`,
@@ -116,7 +116,7 @@ async function awaitOperationFinalization(
     throw ex;
   }
 
-  if (status !== EOperationStatus.SPECULATIVE_SUCCESS) {
+  if (status !== EOperationStatus.FINAL_SUCCESS) {
     let msg = `Transaction ${operationId} did not reach finality after considerable amount of time.`;
     msg +=
       'Please review the transaction logs to identify potential issues or try redeploying a new contract';
