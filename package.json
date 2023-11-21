@@ -1,6 +1,6 @@
 {
     "name": "massa-workspaces-for-toolkit",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "description": "This toolkit is meant to facilitate smart contract development.",
     "type": "module",
     "scripts": {
