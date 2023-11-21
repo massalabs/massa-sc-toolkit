@@ -340,7 +340,7 @@ async function deploySC(
   const { isError, eventPoller, events }: IEventPollerResult =
     await utils.time.withTimeoutRejection<IEventPollerResult>(
       pollAsyncEvents(client, opId),
-      20000,
+      60000,
     );
 
   // stop polling
