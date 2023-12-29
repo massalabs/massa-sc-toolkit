@@ -13,7 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "@massalabs/as-types": "^2.0.0",
-    "@massalabs/massa-as-sdk": "^2.5.2",
+    "@massalabs/massa-as-sdk": "^2.5.4",
     "@massalabs/massa-sc-compiler": "^0.1.0",
     "@massalabs/massa-web3": "^3.0.2",
     "@types/node": "^18.11.10",
