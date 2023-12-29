@@ -64,8 +64,8 @@ async function checkBalance(
   }
 
   const balance = await web3Client.wallet().getAccountBalance(account.address);
-  const candidateBalance: string = balance?.candidate?.toString() || '0';
-  const finalBalance: string = balance?.final?.toString() || '0';
+  const candidateBalance: string = balance?.candidate.toString() || '0';
+  const finalBalance: string = balance?.final.toString() || '0';
 
   console.log(
     `Wallet Address: ${
@@ -140,14 +140,11 @@ const pollAsyncEvents = async (
   web3Client: Client,
   opId: string,
 ): Promise<IEventPollerResult> => {
-  // determine the last slot
-  let nodeStatusInfo: INodeStatus | null | undefined = await web3Client
-    .publicApi()
-    .getNodeStatus();
+  let nodeStatusInfo = await web3Client.publicApi().getNodeStatus();
+  // TODO - Do we want to throw an error if nodeStatusInfo is null?
 
-  // set the events filter
   const eventsFilter = {
-    start: (nodeStatusInfo as INodeStatus).last_slot,
+    start: nodeStatusInfo?.last_slot,
     end: null,
     original_caller_address: null,
     original_operation_id: opId,
@@ -191,15 +188,6 @@ const pollAsyncEvents = async (
     });
   });
 };
-
-function serializeProto(paths: string[]): Uint8Array {
-  let protos: string[] = [];
-  paths.forEach((proto) => {
-    protos.push(readFileSync(proto).toString());
-  });
-
-  return strToBytes(protos.join(PROTO_FILE_SEPARATOR));
-}
 
 /**
  * Deploys multiple smart contracts.
@@ -251,6 +239,7 @@ async function deploySC(
   publicApi: string,
   account: IAccount,
   contracts: ISCData[],
+  chainId: bigint,
   fee = 0n,
   maxGas = 1_000_000n,
   wait = false,
@@ -259,10 +248,10 @@ async function deploySC(
   const client: Client = await ClientFactory.createCustomClient(
     [
       { url: publicApi, type: ProviderType.PUBLIC } as IProvider,
-      // This IP is false but we don't need private for this script so we don't want to ask one to the user
-      // but massa-web3 requires one
+      // Using a placeholder IP since the script doesn't require a real one, though massa-web3 does.
       { url: publicApi, type: ProviderType.PRIVATE } as IProvider,
     ],
+    chainId,
     true,
     account,
   );
@@ -304,11 +293,6 @@ async function deploySC(
         ),
         u64ToBytes(BigInt(contract.coins)), // scaled value to be provided here
       );
-    }
-
-    if (contract.protoPaths?.length) {
-      const protos = serializeProto(contract.protoPaths);
-      datastore.set(strToBytes(MASSA_PROTOFILE_KEY), protos);
     }
   });
 
