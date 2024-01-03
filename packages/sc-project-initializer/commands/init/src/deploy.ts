@@ -1,8 +1,4 @@
-import * as dotenv from 'dotenv';
-import path from 'path';
-import { readFileSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { getEnvVariable } from './utils';
+import { getScByteCode, getEnvVariable } from './utils';
 import { deploySC, WalletClient, ISCData } from '@massalabs/massa-sc-deployer';
 import {
   Args,
@@ -10,13 +6,6 @@ import {
   MAX_GAS_DEPLOYMENT,
   CHAIN_ID,
 } from '@massalabs/massa-web3';
-
-// Obtain the current file name and directory paths
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(path.dirname(__filename));
-
-// Load .env file content into process.env
-dotenv.config();
 
 // Get environment variables
 const publicApi = getEnvVariable('JSON_RPC_URL_PUBLIC');
@@ -27,7 +16,7 @@ const maxGas = MAX_GAS_DEPLOYMENT; // Gas for deployment Default is the maximum 
 const fees = 0n; // Fees to be paid for deployment. Default is 0
 const waitFirstEvent = true;
 
-// Create an account using the private keyc
+// Create an account using the private key
 const deployerAccount = await WalletClient.getAccountFromSecretKey(secretKey);
 
 /**
@@ -46,7 +35,7 @@ const deployerAccount = await WalletClient.getAccountFromSecretKey(secretKey);
     deployerAccount, // account deploying the smart contract(s)
     [
       {
-        data: readFileSync(path.join(__dirname, 'build', 'main.wasm')), // smart contract bytecode
+        data: getScByteCode('build', 'main.wasm'), // smart contract bytecode
         coins: fromMAS(0.1), // coins for deployment
         args: new Args().addString('Test'), // arguments for deployment
       } as ISCData,
