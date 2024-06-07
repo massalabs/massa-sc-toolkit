@@ -98,7 +98,7 @@ function getConstructorArgs(i: u64): Args {
  * @returns The coins key of the constructor function.
  */
 function coinsKey(i: u64): StaticArray<u8> {
-  let coinsSubKey: StaticArray<u8> = [0];
+  let coinsSubKey: StaticArray<u8> = [1];
 
   return new Args()
     .add(i + 1)
