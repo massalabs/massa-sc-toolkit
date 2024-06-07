@@ -38,6 +38,11 @@ export function main(_: StaticArray<u8>): void {
   generateRawEvent(new Args().add(deployedSC).serialize());
 }
 
+/**
+ * Get the number of smart contract to deploy.
+ * @returns The number of smart contract to deploy.
+ * @throws if the number of smart contract is not defined.
+ */
 function getNbSC(): u64 {
   let nbSCKey = new StaticArray<u8>(1);
   nbSCKey[0] = 0x00;
@@ -46,6 +51,12 @@ function getNbSC(): u64 {
   return new Args(nbSCSer).mustNext<u64>('nbSC');
 }
 
+/**
+ * Get the bytecode of the smart contract to deploy.
+ * @param i - The index of the smart contract.
+ * @returns The bytecode of the smart contract.
+ * @throws if the bytecode of the smart contract is not defined.
+ */
 function getScByteCode(i: u64): StaticArray<u8> {
   const keyScByteCode = new Args().add(i + 1).serialize();
   // What happen if fail for the second contract, is the first one deployed ?
@@ -57,6 +68,11 @@ function getScByteCode(i: u64): StaticArray<u8> {
   return getOpData(keyScByteCode);
 }
 
+/**
+ * Get the arguments key of the constructor function of the smart contract to deploy.
+ * @param i - The index of the smart contract.
+ * @returns The arguments key of the constructor function.
+ */
 function getKeyArgs(i: u64): StaticArray<u8> {
   let argsIdentifier = new StaticArray<u8>(1);
   argsIdentifier[0] = 0x00;
@@ -66,11 +82,21 @@ function getKeyArgs(i: u64): StaticArray<u8> {
     .serialize();
 }
 
+/**
+ * Get the arguments of the constructor function of the smart contract to deploy.
+ * @param i - The index of the smart contract.
+ * @returns The arguments of the constructor function.
+ */
 function getArgs(i: u64): Args {
   const keyArgs = getKeyArgs(i);
   return hasOpKey(keyArgs) ? new Args(getOpData(keyArgs)) : new Args();
 }
 
+/**
+ * Get the coins key of the constructor function of the smart contract to deploy.
+ * @param i - The index of the smart contract.
+ * @returns The coins key of the constructor function.
+ */
 function getKeyCoins(i: u64): StaticArray<u8> {
   let coinsIdentifier = new StaticArray<u8>(1);
   coinsIdentifier[0] = 0x01;
@@ -80,6 +106,11 @@ function getKeyCoins(i: u64): StaticArray<u8> {
     .serialize();
 }
 
+/**
+ * Get the coins of the constructor function of the smart contract to deploy.
+ * @param i - The index of the smart contract.
+ * @returns The coins of the constructor function.
+ */
 function getCoins(i: u64): u64 {
   let keyCoins = getKeyCoins(i);
 
