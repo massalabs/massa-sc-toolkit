@@ -6,6 +6,7 @@ import {
   functionExists,
   hasOpKey,
   generateRawEvent,
+  Address,
 } from '@massalabs/massa-as-sdk';
 import { Args } from '@massalabs/as-types';
 
@@ -22,7 +23,7 @@ const CONSTRUCTOR = 'constructor';
 export function main(_: StaticArray<u8>): void {
   let nbSC = getNbSC();
 
-  const deployedSC: string[] = [];
+  const deployedSC: Address[] = [];
 
   for (let i: u64 = 0; i < nbSC; i++) {
     const contractAddr = createSC(getScByteCode(i));
@@ -32,10 +33,12 @@ export function main(_: StaticArray<u8>): void {
     }
 
     generateEvent(`Contract deployed at address: ${contractAddr.toString()}`);
-    deployedSC.push(contractAddr.toString());
+    deployedSC.push(contractAddr);
   }
 
-  generateRawEvent(new Args().add(deployedSC).serialize());
+  generateRawEvent(
+    new Args().addSerializableObjectArray(deployedSC).serialize(),
+  );
 }
 
 /**
@@ -44,10 +47,13 @@ export function main(_: StaticArray<u8>): void {
  * @throws if the number of smart contract is not defined.
  */
 function getNbSC(): u64 {
-  let nbSCKey = new StaticArray<u8>(1);
-  nbSCKey[0] = 0x00;
-  assert(hasOpKey(nbSCKey), 'The number of smart contract is not defined.');
-  const nbSCSer = getOpData(nbSCKey);
+  const key: StaticArray<u8> = [0];
+
+  assert(
+    hasOpKey(key),
+    'The number of smart contracts to deploy is undefined.',
+  );
+  const nbSCSer = getOpData(key);
   return new Args(nbSCSer).mustNext<u64>('nbSC');
 }
 
@@ -58,14 +64,9 @@ function getNbSC(): u64 {
  * @throws if the bytecode of the smart contract is not defined.
  */
 function getScByteCode(i: u64): StaticArray<u8> {
-  const keyScByteCode = new Args().add(i + 1).serialize();
-  // What happen if fail for the second contract, is the first one deployed ?
-  assert(
-    hasOpKey(keyScByteCode),
-    `No bytecode found for contract number: ${i + 1}`,
-  );
-
-  return getOpData(keyScByteCode);
+  const key = new Args().add(i + 1).serialize();
+  assert(hasOpKey(key), `No bytecode found for contract number: ${i + 1}`);
+  return getOpData(key);
 }
 
 /**
@@ -74,11 +75,10 @@ function getScByteCode(i: u64): StaticArray<u8> {
  * @returns The arguments key of the constructor function.
  */
 function getKeyArgs(i: u64): StaticArray<u8> {
-  let argsIdentifier = new StaticArray<u8>(1);
-  argsIdentifier[0] = 0x00;
+  const key: StaticArray<u8> = [0];
   return new Args()
     .add(i + 1)
-    .add(argsIdentifier)
+    .add(key)
     .serialize();
 }
 
@@ -98,11 +98,11 @@ function getArgs(i: u64): Args {
  * @returns The coins key of the constructor function.
  */
 function getKeyCoins(i: u64): StaticArray<u8> {
-  let coinsIdentifier = new StaticArray<u8>(1);
-  coinsIdentifier[0] = 0x01;
+  let coinsSubKey: StaticArray<u8> = [0];
+
   return new Args()
     .add(i + 1)
-    .add(coinsIdentifier)
+    .add(coinsSubKey)
     .serialize();
 }
 
