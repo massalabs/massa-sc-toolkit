@@ -30,10 +30,8 @@
     "dependencies": {
         "@massalabs/as-transformer": "^0.3.1",
         "@massalabs/massa-web3": "^2.1.0",
-        "@massalabs/wallet-provider": "^1.2.0",
         "eslint": "^8.46.0",
         "jest-environment-jsdom": "^29.5.0",
-        "mkdirp": "^3.0.1",
         "path": "^0.12.7",
         "re": "^0.1.4",
         "regex": "^0.1.1"
