@@ -1,11 +1,11 @@
 # Dependencies Report
 
 The following is a list of all the dependencies of this project:
-## [@massalabs/as-types](https://registry.npmjs.org/@massalabs/as-types/-/as-types-2.0.0.tgz)
+## [@massalabs/as-types](https://registry.npmjs.org/@massalabs/as-types/-/as-types-2.1.0.tgz)
 
 **License:** ISC - perpetual
 
-**Used version:** 2.0.0
+**Used version:** 2.1.0
 
 **Many thanks to:** 
 
@@ -13,7 +13,7 @@ The following is a list of all the dependencies of this project:
 
 **License:** (MIT AND Apache-2.0) - perpetual
 
-**Used version:** 2.5.4
+**Used version:** 2.6.1-dev.20240606144420
 
 **Many thanks to:** [Massa Labs](info@massa.net)
 
@@ -45,7 +45,7 @@ The following is a list of all the dependencies of this project:
 
 **License:** Apache-2.0 - perpetual
 
-**Used version:** 0.27.19
+**Used version:** 0.27.27
 
 **Many thanks to:** [Daniel Wirtz](dcode+assemblyscript@dcode.io)
 
@@ -53,7 +53,7 @@ The following is a list of all the dependencies of this project:
 
 **License:** ISC - perpetual
 
-**Used version:** 5.0.5
+**Used version:** 5.0.7
 
 **Many thanks to:** [Isaac Z. Schlueter](i@izs.me> (http://blog.izs.me/)
 
@@ -61,7 +61,7 @@ The following is a list of all the dependencies of this project:
 
 **License:** Apache-2.0 - perpetual
 
-**Used version:** 5.2.2
+**Used version:** 5.4.5
 
 **Many thanks to:** Microsoft Corp.
 
