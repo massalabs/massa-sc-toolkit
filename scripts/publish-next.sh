@@ -7,9 +7,7 @@ npm run build
 TAG=next
 
 # Update the version with a premajor, preid next, no git tag, and no commit hooks
-npm version --preid $TAG --no-git-tag-version --no-commit-hooks premajor
-
-
+npm version --ws --preid $TAG --no-git-tag-version --no-commit-hooks premajor
 
 TIME=$(date -u +%Y%m%d%H%M%S)
 sed -i "/version/s/$TAG.0/$TAG.$TIME/g" packages/*/package.json
@@ -22,4 +20,4 @@ for packageDir in packages/*; do
   fi
 done
 
-npm publish --ws --access public --tag ${TAG}next
+npm publish --ws --access public --tag ${TAG}
