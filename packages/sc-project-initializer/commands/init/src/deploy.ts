@@ -12,9 +12,11 @@ async function deploy() {
   const client = new JsonRPCClient(getEnvVariable('JSON_RPC_URL_PUBLIC'));
   const account = await Account.fromEnv();
 
+  console.log('Deploying contract...');
+
   const contract = await SmartContract.deploy(client, account, {
     byteCode: getScByteCode('build', 'main.wasm'),
-    parameter: new Args().serialize(),
+    parameter: new Args().addString('Massa').serialize(),
     coins: Mas.fromString('0.01'),
   });
 
