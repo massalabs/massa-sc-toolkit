@@ -3,11 +3,16 @@ set -e
 
 npm ci
 npm run build
-npm version --ws --preid dev --no-git-tag-version --no-commit-hooks prepatch
 
-#Use timestamp as package suffix
+TAG=next
+
+# Update the version with a premajor, preid next, no git tag, and no commit hooks
+npm version --preid $TAG --no-git-tag-version --no-commit-hooks premajor
+
+
+
 TIME=$(date -u +%Y%m%d%H%M%S)
-sed -i "/version/s/dev.0/dev.$TIME/g" packages/*/package.json
+sed -i "/version/s/$TAG.0/$TAG.$TIME/g" packages/*/package.json
 
 for packageDir in packages/*; do
   if [ -d "$packageDir" ]; then
@@ -17,4 +22,4 @@ for packageDir in packages/*; do
   fi
 done
 
-npm publish --ws --access public --tag ${TAG}next
+npm publish --ws --access public --tag ${TAG}

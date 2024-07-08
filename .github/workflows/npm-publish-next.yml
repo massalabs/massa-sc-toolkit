@@ -8,7 +8,7 @@ jobs:
   test:
     uses: ./.github/workflows/tests.yml
 
-  publish-npm-dev:
+  publish-npm-next:
     needs: test
     runs-on: ubuntu-latest
     steps:
