@@ -22,4 +22,4 @@ for packageDir in packages/*; do
   fi
 done
 
-npm publish --ws --access public --tag ${TAG}
+npm publish --ws --access public --tag ${TAG}next
