@@ -6,10 +6,10 @@ import {
   Mas,
   SmartContract,
 } from '@massalabs/massa-web3';
-import { getScByteCode, getEnvVariable } from './utils';
+import { getScByteCode } from './utils';
 
 async function deploy() {
-  const client = new JsonRPCClient(getEnvVariable('JSON_RPC_URL_PUBLIC'));
+  const client = JsonRPCClient.buildnet();
   const account = await Account.fromEnv();
 
   console.log('Deploying contract...');
