@@ -5,20 +5,20 @@ import {
   fromMAS,
   MAX_GAS_DEPLOYMENT,
   CHAIN_ID,
+  ClientFactory,
 } from '@massalabs/massa-web3';
 
 // Get environment variables
-const publicApi = getEnvVariable('JSON_RPC_URL_PUBLIC');
+const apiUrl = getEnvVariable('JSON_RPC_URL_PUBLIC');
 const secretKey = getEnvVariable('WALLET_SECRET_KEY');
 // Define deployment parameters
 const chainId = CHAIN_ID.BuildNet; // Choose the chain ID corresponding to the network you want to deploy to
 const maxGas = MAX_GAS_DEPLOYMENT; // Gas for deployment Default is the maximum gas allowed for deployment
-const fees = 0n; // Fees to be paid for deployment. Default is 0
 const waitFirstEvent = true;
 
 // Create an account using the private key
 const deployerAccount = await WalletClient.getAccountFromSecretKey(secretKey);
-
+const client = await ClientFactory.createDefaultClient(apiUrl as any, chainId);
 /**
  * Deploy one or more smart contracts.
  *
@@ -31,7 +31,7 @@ const deployerAccount = await WalletClient.getAccountFromSecretKey(secretKey);
  */
 (async () => {
   await deploySC(
-    publicApi, // JSON RPC URL
+    apiUrl, // JSON RPC URL
     deployerAccount, // account deploying the smart contract(s)
     [
       {
@@ -42,7 +42,7 @@ const deployerAccount = await WalletClient.getAccountFromSecretKey(secretKey);
       // Additional smart contracts can be added here for deployment
     ],
     chainId,
-    fees,
+    await client.publicApi().getMinimalFees(),
     maxGas,
     waitFirstEvent,
   );
