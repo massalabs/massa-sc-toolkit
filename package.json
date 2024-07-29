@@ -28,7 +28,6 @@
         "packages/*"
     ],
     "dependencies": {
-        "@massalabs/as-transformer": "^0.3.1",
         "@massalabs/massa-web3": "^2.1.0",
         "eslint": "^8.46.0",
         "jest-environment-jsdom": "^29.5.0",
