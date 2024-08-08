@@ -1,19 +1,13 @@
 {
     "targets": {
-        "debug": {
-            "sourceMap": true,
-            "debug": true
-        },
         "release": {
             "sourceMap": true,
             "optimizeLevel": 3,
             "shrinkLevel": 3,
             "converge": true,
-            "noAssert": false
+            "noAssert": false,
+            "exportRuntime": true,
+            "bindings": false
         }
-    },
-    "options": {
-        "exportRuntime": true,
-        "bindings": "esm"
     }
 }
