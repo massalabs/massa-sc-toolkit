@@ -8,32 +8,29 @@ import {
 } from '@massalabs/massa-web3';
 import { getScByteCode } from './utils';
 
-async function deploy() {
-  const account = await Account.fromEnv();
-  const provider = Web3Provider.newPublicBuildnetProvider(account);
+const account = await Account.fromEnv();
+const provider = Web3Provider.newPublicBuildnetProvider(account);
 
-  console.log('Deploying contract...');
+console.log('Deploying contract...');
 
-  const byteCode = getScByteCode('build', 'main.wasm');
-  const constructorArgs = new Args().addString('Massa');
+const byteCode = getScByteCode('build', 'main.wasm');
 
-  const contract = await SmartContract.deploy(
-    provider,
-    byteCode,
-    constructorArgs,
-    { coins: Mas.fromString('0.01') },
-  );
+const name = 'Massa';
+const constructorArgs = new Args().addString(name);
 
-  console.log('Contract deployed at:', contract.address);
+const contract = await SmartContract.deploy(
+  provider,
+  byteCode,
+  constructorArgs,
+  { coins: Mas.fromString('0.01') },
+);
 
-  const events = await provider.getEvents({
-    smartContractAddress: contract.address,
-    isFinal: true,
-  });
+console.log('Contract deployed at:', contract.address);
 
-  for (const event of events) {
-    console.log('Event: ', event.data);
-  }
+const events = await provider.getEvents({
+  smartContractAddress: contract.address,
+});
+
+for (const event of events) {
+  console.log('Event message:', event.data);
 }
-
-deploy();
