@@ -57,7 +57,7 @@ The following is a list of all the dependencies of this project:
 
 **Many thanks to:** [Isaac Z. Schlueter](i@izs.me> (http://blog.izs.me/)
 
-## [typescript](git+https://github.com/Microsoft/TypeScript.git)
+## [typescript](git+https://github.com/microsoft/TypeScript.git)
 
 **License:** Apache-2.0 - perpetual
 
