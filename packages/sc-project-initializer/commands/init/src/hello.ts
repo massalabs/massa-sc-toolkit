@@ -10,7 +10,7 @@ import 'dotenv/config';
 const CONTRACT_ADDR = 'AS12N5DvTVwvaLbaniMgDJqKwJ3uXBGwzzGuB1f6fjeSx3nhhahTE';
 
 const account = await Account.fromEnv();
-const provider = Web3Provider.newPublicBuildnetProvider(account);
+const provider = Web3Provider.buildnet(account);
 
 const helloContract = new SmartContract(provider, CONTRACT_ADDR);
 
