@@ -4,12 +4,12 @@ import {
   Args,
   Mas,
   SmartContract,
-  Web3Provider,
+  JsonRpcProvider,
 } from '@massalabs/massa-web3';
 import { getScByteCode } from './utils';
 
 const account = await Account.fromEnv();
-const provider = Web3Provider.buildnet(account);
+const provider = JsonRpcProvider.buildnet(account);
 
 console.log('Deploying contract...');
 
