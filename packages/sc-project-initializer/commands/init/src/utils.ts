@@ -1,9 +1,6 @@
-import * as dotenv from 'dotenv';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import path from 'path';
-
-dotenv.config();
 
 export function getScByteCode(folderName: string, fileName: string): Buffer {
   // Obtain the current file name and directory paths

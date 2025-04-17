@@ -11,11 +11,6 @@ sc-project-initializer (smart-contract project initializer), is a package that s
 - [Installation](./packages/sc-project-initializer/README.md)
 - [Build your first smart-contract](./packages/sc-project-initializer/commands/init/README.md)
 
-### @massalabs/sc-deployer
-
-sc-deployer is a tool used for deploying your smart contracts on the Massa network:
-
-- [sc-deployer](./packages/sc-deployer/README.md)
 
 ## Development setup
 

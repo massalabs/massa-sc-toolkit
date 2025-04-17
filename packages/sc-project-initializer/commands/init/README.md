@@ -36,9 +36,6 @@ When the deployment operation is executed on-chain, the
 function of the smart contract being deployed will
 be called with the arguments provided in the deployment script.
 
-The deployment script uses [massa-sc-deployer library](https://www.npmjs.com/package/@massalabs/massa-sc-deployer)
-to deploy smart contracts.
-
 You can edit this script and use [massa-web3 library](https://www.npmjs.com/package/@massalabs/massa-web3)
 to create advanced deployment procedure.
 
