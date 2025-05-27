@@ -12,9 +12,8 @@ npm run build
 
 Prerequisites :
 
-- You must add a `.env` file at the root of the repository with the following keys set to valid values :
-  - WALLET_SECRET_KEY="wallet_secret_key"
-  - JSON_RPC_URL_PUBLIC=<https://test.massa.net/api/v2:33035>
+- You must add a `.env` file at the root of the repository with you wallet private key :
+  - PRIVATE_KEY="wallet_secret_key"
 
 These keys will be the ones used by the deployer script to interact with the blockchain.
 
@@ -28,8 +27,8 @@ npm run deploy
 You can modify `src/deploy.ts` to change the smart contract being deployed, and to pass arguments to the constructor
 function:
 
-- line 31: specify what contract you want to deploy
-- line 33: create the `Args` object to pass to the constructor of the contract you want to deploy
+- line 16: specify what contract you want to deploy
+- line 19: create the `Args` object to pass to the constructor of the contract you want to deploy
 
 When the deployment operation is executed on-chain, the
 [constructor](https://github.com/massalabs/massa-sc-toolkit/blob/main/packages/sc-project-initializer/commands/init/assembly/contracts/main.ts#L10)
